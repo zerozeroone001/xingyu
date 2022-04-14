@@ -25,7 +25,7 @@ class IndexController
     public function listGet()
     {
         $article = new Articel();
-        $a = Articel::query()->where(['status' => 2])->paginate(10);
+        $a = Articel::with(['user'])->where(['status' => 2])->paginate(10);
         return response()->json(['status' => 1, 'msg' => '查询成功！', 'data' => $a]);
     }
 
@@ -39,8 +39,10 @@ class IndexController
     public function create(Request $request)
     {
         $article = new Articel();
+        $user_info = auth()->user();
 
         $data = $request->all();
+        $article->user_id = $user_info['id'];
         $article->title = $data['title'];
         $article->content = $data['content'];
         $article->source = $data['source'];

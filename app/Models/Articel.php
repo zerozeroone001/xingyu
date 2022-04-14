@@ -14,9 +14,13 @@ use Illuminate\Database\Eloquent\Model;
 class Articel extends Model
 {
     protected $table = 'article';
+//    protected $connection  = 'users';
 
     protected $primaryKey = 'id';
 
 
-
+    public function user()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'user_id');
+    }
 }
