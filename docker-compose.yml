@@ -97,10 +97,12 @@ services:
       start_period: 40s
 
   # 前端应用 (H5)
+  # 注意：使用简化版 Dockerfile.simple 避免 npm 依赖问题
+  # 如需完整 uni-app 功能，切换回 Dockerfile（需要稳定的网络环境）
   web:
     build:
       context: ./client-app
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.simple  # 使用简化版，无需 npm install
     container_name: poetry-web
     ports:
       - "8080:80"
