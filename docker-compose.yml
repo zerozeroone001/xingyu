@@ -8,8 +8,8 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=poetry_root_2024
-      - MYSQL_DATABASE=poetry_db
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-poetry_root_2024}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-poetry_db}
       - MYSQL_CHARACTER_SET_SERVER=utf8mb4
       - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
     volumes:
@@ -17,6 +17,11 @@ services:
     restart: unless-stopped
     networks:
       - poetry-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-poetry_root_2024}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Redis缓存
   redis:
@@ -29,6 +34,11 @@ services:
     restart: unless-stopped
     networks:
       - poetry-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   # Elasticsearch搜索引擎
   elasticsearch:
@@ -45,8 +55,13 @@ services:
     restart: unless-stopped
     networks:
       - poetry-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-  # FastAPI应用
+  # FastAPI后端应用
   api:
     build:
       context: ./server
@@ -55,21 +70,51 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+aiomysql://root:poetry_root_2024@mysql:3306/poetry_db
+      - DATABASE_URL=mysql+aiomysql://root:${MYSQL_ROOT_PASSWORD:-poetry_root_2024}@mysql:3306/${MYSQL_DATABASE:-poetry_db}
       - REDIS_URL=redis://redis:6379/0
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - SECRET_KEY=poetry-secret-key-change-in-production-2024
-      - JWT_SECRET_KEY=poetry-jwt-secret-key-2024
+      - SECRET_KEY=${SECRET_KEY:-poetry-secret-key-change-in-production-2024}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-poetry-jwt-secret-key-2024}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:8080,http://localhost:3000}
     depends_on:
-      - mysql
-      - redis
-      - elasticsearch
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
     volumes:
       - ./server:/app
     restart: unless-stopped
     networks:
       - poetry-network
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 前端应用 (H5)
+  web:
+    build:
+      context: ./client-app
+      dockerfile: Dockerfile
+    container_name: poetry-web
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - poetry-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   mysql_data:
