@@ -6,5 +6,6 @@ from app.models.poetry import Poetry
 from app.models.user_poetry_interaction import UserPoetryLike, UserPoetryCollection
 from app.models.comment import Comment
 from app.models.follow import Follow
+from app.models.post import Post
 
-__all__ = ["User", "Author", "Poetry", "UserPoetryLike", "UserPoetryCollection", "Comment", "Follow"]
+__all__ = ["User", "Author", "Poetry", "UserPoetryLike", "UserPoetryCollection", "Comment", "Follow", "Post"]

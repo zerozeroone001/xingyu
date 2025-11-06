@@ -51,6 +51,7 @@ class User(Base):
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
     following = relationship("Follow", foreign_keys="Follow.user_id", back_populates="follower", cascade="all, delete-orphan")
     followers = relationship("Follow", foreign_keys="Follow.follow_user_id", back_populates="following", cascade="all, delete-orphan")
+    posts = relationship("Post", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User {self.id} {self.nickname}>"
