@@ -63,6 +63,8 @@ class Poetry(Base):
 
     # 关系
     author = relationship("Author", back_populates="poetries")
+    liked_by_users = relationship("UserPoetryLike", back_populates="poetry", cascade="all, delete-orphan")
+    collected_by_users = relationship("UserPoetryCollection", back_populates="poetry", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Poetry {self.id} {self.title}>"

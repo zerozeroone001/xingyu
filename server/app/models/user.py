@@ -5,6 +5,7 @@
 from datetime import datetime
 from sqlalchemy import Column, BigInteger, String, Integer, SmallInteger, DateTime
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -43,6 +44,10 @@ class User(Base):
         comment="更新时间"
     )
     last_login_at = Column(DateTime, nullable=True, comment="最后登录时间")
+
+    # 关系
+    liked_poetries = relationship("UserPoetryLike", back_populates="user", cascade="all, delete-orphan")
+    collected_poetries = relationship("UserPoetryCollection", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User {self.id} {self.nickname}>"
