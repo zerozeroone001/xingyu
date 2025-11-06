@@ -3,7 +3,8 @@
 使用 Pydantic Settings 管理环境变量
 """
 
-from typing import List
+from typing import List, Union
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -50,10 +51,15 @@ class Settings(BaseSettings):
     WENXIN_SECRET_KEY: str = ""
 
     # CORS配置
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:8080",
-    ]
+    CORS_ORIGINS: Union[List[str], str] = "http://localhost:3000,http://localhost:8080"
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v):
+        """解析 CORS_ORIGINS 环境变量，支持逗号分隔的字符串或列表"""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",")]
+        return v
 
     # 限流配置
     RATE_LIMIT_ENABLED: bool = True
