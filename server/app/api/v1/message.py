@@ -11,12 +11,12 @@ from app.api.deps import get_current_user
 from app.models.user import User
 from app.services.message_service import MessageService
 from app.schemas.message import MessageResponse, MessageStats
-from app.schemas.response import ResponseModel, PagedResponse
+from app.schemas.response import ResponseModel, PaginatedResponse
 
 router = APIRouter(prefix="/messages")
 
 
-@router.get("", response_model=ResponseModel[PagedResponse[MessageResponse]])
+@router.get("", response_model=ResponseModel[PaginatedResponse[MessageResponse]])
 async def get_messages(
     type_: str = Query(None, alias="type", description="消息类型筛选"),
     is_read: int = Query(None, ge=0, le=1, description="读取状态"),
@@ -47,7 +47,7 @@ async def get_messages(
     return ResponseModel(
         code=0,
         message="success",
-        data=PagedResponse(
+        data=PaginatedResponse(
             items=items,
             total=total,
             page=page,

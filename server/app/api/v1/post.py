@@ -15,12 +15,12 @@ from app.schemas.post import (
     PostUpdate,
     PostResponse,
 )
-from app.schemas.response import ResponseModel, PagedResponse
+from app.schemas.response import ResponseModel, PaginatedResponse
 
 router = APIRouter(prefix="/posts")
 
 
-@router.get("", response_model=ResponseModel[PagedResponse[PostResponse]])
+@router.get("", response_model=ResponseModel[PaginatedResponse[PostResponse]])
 async def get_posts(
     type_: str = Query(None, alias="type", pattern="^(original|share)$", description="类型"),
     user_id: int = Query(None, description="用户ID"),
@@ -60,7 +60,7 @@ async def get_posts(
     return ResponseModel(
         code=0,
         message="success",
-        data=PagedResponse(
+        data=PaginatedResponse(
             items=items,
             total=total,
             page=page,
@@ -69,7 +69,7 @@ async def get_posts(
     )
 
 
-@router.get("/following", response_model=ResponseModel[PagedResponse[PostResponse]])
+@router.get("/following", response_model=ResponseModel[PaginatedResponse[PostResponse]])
 async def get_following_posts(
     page: int = Query(1, ge=1, description="页码"),
     page_size: int = Query(20, ge=1, le=100, description="每页数量"),
@@ -92,7 +92,7 @@ async def get_following_posts(
     return ResponseModel(
         code=0,
         message="success",
-        data=PagedResponse(
+        data=PaginatedResponse(
             items=items,
             total=total,
             page=page,
