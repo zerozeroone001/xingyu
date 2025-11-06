@@ -116,6 +116,9 @@ import { ref, onMounted } from 'vue';
 import { useThemeStore } from '@/store/modules/theme';
 import { useUserStore } from '@/store/modules/user';
 import { getUnreadStats } from '@/api/notification';
+import { getFollowStats } from '@/api/follow';
+import { getUserLikedPoetryList, getUserCollectedPoetryList } from '@/api/poetry';
+import { getUserPostList } from '@/api/post';
 
 const themeStore = useThemeStore();
 const userStore = useUserStore();
@@ -128,6 +131,35 @@ const stats = ref({
 });
 
 const unreadCount = ref(0);
+
+/**
+ * 加载统计数据
+ */
+const loadStats = async () => {
+  if (!userStore.isLoggedIn) {
+    return;
+  }
+
+  try {
+    // 加载关注统计
+    const followResponse = await getFollowStats();
+    stats.value.following = followResponse.data.following_count || 0;
+
+    // 加载点赞数
+    const likesResponse = await getUserLikedPoetryList({ page: 1, size: 1 });
+    stats.value.likes = likesResponse.data.total || 0;
+
+    // 加载收藏数
+    const collectsResponse = await getUserCollectedPoetryList({ page: 1, size: 1 });
+    stats.value.collects = collectsResponse.data.total || 0;
+
+    // 加载动态数
+    const postsResponse = await getUserPostList(undefined, { page: 1, size: 1 });
+    stats.value.posts = postsResponse.data.total || 0;
+  } catch (error) {
+    console.error('加载统计数据失败:', error);
+  }
+};
 
 /**
  * 加载未读消息数
@@ -233,6 +265,7 @@ const goToSetting = () => {
 };
 
 onMounted(() => {
+  loadStats();
   loadUnreadCount();
 });
 </script>
