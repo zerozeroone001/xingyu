@@ -23,7 +23,7 @@ services:
     image: redis:7-alpine
     container_name: poetry-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"  # 改用6380端口避免冲突
     volumes:
       - redis_data:/data
     restart: unless-stopped
