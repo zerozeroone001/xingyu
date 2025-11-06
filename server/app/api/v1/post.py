@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.api.deps import get_current_user, get_current_user_optional
+from app.api.deps import get_current_user, get_optional_current_user
 from app.models.user import User
 from app.services.post_service import PostService
 from app.schemas.post import (
@@ -105,7 +105,7 @@ async def get_following_posts(
 async def get_post_detail(
     post_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user_optional),
+    current_user: User = Depends(get_optional_current_user),
 ):
     """
     获取广场内容详情
