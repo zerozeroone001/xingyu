@@ -13,15 +13,8 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `
-          @import "@/styles/variables.scss";
-
-          // 定义 rpx 转 px 的函数（1rpx = 0.5px）
-          @function rpx($value) {
-            @return $value * 0.5px;
-          }
-        `,
-        api: 'modern-compiler',
+        // 不自动导入，避免重复导入警告
+        // additionalData: '',
       },
     },
   },
