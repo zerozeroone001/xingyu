@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星语诗词平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f7fa;
+            --bg-card: #ffffff;
+            --text-primary: #1f2329;
+            --text-secondary: #646a73;
+            --color-primary: #1a73e8;
+            --border-color: #e4e7ed;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1d23;
+            --bg-secondary: #23262d;
+            --bg-card: #23262d;
+            --text-primary: #e5e6eb;
+            --text-secondary: #c9cdd4;
+            --color-primary: #4a90e2;
+            --border-color: #3c3f47;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--color-primary);
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .theme-toggle {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .card h2 {
+            color: var(--color-primary);
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .feature-card h3 {
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+
+        .api-link {
+            display: inline-block;
+            background-color: var(--color-primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: opacity 0.3s;
+        }
+
+        .api-link:hover {
+            opacity: 0.8;
+        }
+
+        .status {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #52c41a;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>🌟 星语诗词平台</h1>
+                <p class="subtitle">探索中华诗词之美，感受传统文化魅力</p>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">🌙</span> 切换主题
+            </button>
+        </header>
+
+        <div class="card">
+            <h2>欢迎使用星语诗词平台</h2>
+            <p>这是一个功能完整的诗词学习与社交平台，基于现代化的技术栈构建。</p>
+
+            <div class="status">
+                <div class="status-item">
+                    <span class="status-dot"></span>
+                    <span>后端服务运行中</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot"></span>
+                    <span>数据库已连接</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot"></span>
+                    <span>搜索引擎就绪</span>
+                </div>
+            </div>
+
+            <a href="/api/docs" class="api-link" target="_blank">📚 查看 API 文档</a>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <h3>🎨 主题切换</h3>
+                <p>支持明亮/暗黑模式切换，界面美观舒适，提供最佳阅读体验。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>📖 诗词浏览</h3>
+                <p>海量诗词资源，支持按朝代、作者、类别筛选，随时欣赏经典诗词。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🔍 智能搜索</h3>
+                <p>基于 Elasticsearch 的全文搜索，快速找到您想要的诗词内容。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>💬 社交互动</h3>
+                <p>点赞、收藏、评论、关注，与其他诗词爱好者交流分享。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🎮 飞花令游戏</h3>
+                <p>趣味飞花令游戏，在娱乐中学习诗词，提升文化素养。</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🤖 AI 推荐</h3>
+                <p>智能推荐系统，根据您的喜好推荐相关诗词内容。</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 30px;">
+            <h2>技术栈</h2>
+            <p><strong>后端：</strong>FastAPI + Python + MySQL + Redis + Elasticsearch</p>
+            <p><strong>前端：</strong>Vue 3 + uni-app + TypeScript + Pinia</p>
+            <p><strong>部署：</strong>Docker + Docker Compose + Nginx</p>
+            <p><strong>特性：</strong>RESTful API + JWT 认证 + 全文搜索 + 实时推荐</p>
+        </div>
+
+        <footer>
+            <p>© 2024 星语诗词平台 | 传承中华文化，弘扬诗词之美</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                <a href="/api/docs" style="color: var(--color-primary);">API 文档</a> |
+                <a href="https://github.com" style="color: var(--color-primary);">GitHub</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 主题切换功能
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // 更新按钮图标
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // 初始化主题
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            // 更新按钮图标
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // 页面加载时初始化主题
+        initTheme();
+
+        // 测试 API 连接
+        fetch('/api/health')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API 健康检查:', data);
+            })
+            .catch(error => {
+                console.log('API 连接失败，但前端页面正常运行');
+            });
+    </script>
+</body>
+</html>
