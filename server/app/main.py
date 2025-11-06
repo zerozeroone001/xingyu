@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.api.v1 import auth, users, poetry, author, interaction, comment, search
+from app.api.v1 import auth, users, poetry, author, interaction, comment, search, recommend
 from app.utils.elasticsearch_client import ESClient
 
 # 创建FastAPI应用
@@ -77,6 +77,7 @@ app.include_router(author.router, prefix="/api/v1", tags=["作者"])
 app.include_router(interaction.router, prefix="/api/v1", tags=["交互"])
 app.include_router(comment.router, prefix="/api/v1", tags=["评论"])
 app.include_router(search.router, prefix="/api/v1", tags=["搜索"])
+app.include_router(recommend.router, prefix="/api/v1", tags=["推荐"])
 
 
 # 全局异常处理
