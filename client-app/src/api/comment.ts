@@ -6,7 +6,8 @@ import request, { ApiResponse, PaginationResponse } from '@/utils/request';
 // 评论接口
 export interface Comment {
   id: number;
-  poetry_id: number;
+  poetry_id?: number;
+  post_id?: number;
   user_id: number;
   user_name: string;
   user_avatar?: string;
@@ -14,6 +15,8 @@ export interface Comment {
   content: string;
   likes_count: number;
   replies_count: number;
+  is_liked?: boolean;
+  replies?: Comment[];
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +31,8 @@ export interface CommentListParams {
 
 // 创建评论参数
 export interface CreateCommentParams {
-  poetry_id: number;
+  poetry_id?: number;
+  post_id?: number;
   content: string;
   parent_id?: number;
 }
@@ -79,4 +83,14 @@ export function deleteComment(id: number): Promise<ApiResponse<void>> {
  */
 export function getUserCommentList(params?: CommentListParams): Promise<ApiResponse<PaginationResponse<Comment>>> {
   return request.get('/user/comments', { params });
+}
+
+/**
+ * 获取动态的评论列表
+ */
+export function getPostCommentList(
+  postId: number,
+  params?: CommentListParams
+): Promise<ApiResponse<PaginationResponse<Comment>>> {
+  return request.get(`/posts/${postId}/comments`, { params });
 }

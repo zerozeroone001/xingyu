@@ -78,12 +78,7 @@
       </view>
 
       <!-- 评论区 -->
-      <view class="comments-section theme-card">
-        <view class="section-title">评论 ({{ post.comments_count || 0 }})</view>
-        <view class="comments-list">
-          <view class="empty-text theme-text-tertiary">评论功能开发中...</view>
-        </view>
-      </view>
+      <comment-section :post-id="post.id" :theme-class="themeStore.themeClass" />
     </view>
 
     <!-- 底部操作栏 -->
@@ -113,6 +108,7 @@
 import { ref, onMounted } from 'vue';
 import { useThemeStore } from '@/store/modules/theme';
 import { getPostDetail, likePost, unlikePost, collectPost, uncollectPost, type Post } from '@/api/post';
+import CommentSection from '@/components/comment-section/comment-section.vue';
 
 const themeStore = useThemeStore();
 
@@ -199,13 +195,14 @@ const handleCollect = async () => {
 };
 
 /**
- * 评论
+ * 评论（滚动到评论区）
  */
 const handleComment = () => {
+  // 可以添加滚动到评论区的逻辑
   uni.showToast({
-    title: '评论功能开发中',
+    title: '请在下方评论',
     icon: 'none',
-    duration: 2000,
+    duration: 1500,
   });
 };
 

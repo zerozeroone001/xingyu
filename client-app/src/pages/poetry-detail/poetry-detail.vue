@@ -86,15 +86,8 @@
         </view>
       </view>
 
-      <!-- 评论区占位 -->
-      <view class="comments-section">
-        <view class="section-header">
-          <text class="section-title">💬 评论 ({{ poetry.comments_count }})</text>
-        </view>
-        <view class="comments-placeholder theme-card">
-          <text class="placeholder-text">评论功能开发中...</text>
-        </view>
-      </view>
+      <!-- 评论区 -->
+      <comment-section :poetry-id="poetry.id" :theme-class="themeStore.themeClass" />
 
       <!-- 相似推荐 -->
       <view v-if="similarPoetry.length > 0" class="similar-section">
@@ -134,6 +127,7 @@ import {
   type Poetry,
 } from '@/api/poetry';
 import { getSimilarPoetry } from '@/api/recommendation';
+import CommentSection from '@/components/comment-section/comment-section.vue';
 
 const themeStore = useThemeStore();
 const userStore = useUserStore();
@@ -266,7 +260,28 @@ const handleCollect = async () => {
  * 处理分享
  */
 const handleShare = () => {
-  alert('分享功能开发中...');
+  if (!poetry.value) return;
+
+  // 复制诗词内容到剪贴板
+  const shareText = `【${poetry.value.title}】\n${poetry.value.dynasty} · ${poetry.value.author_name}\n\n${poetry.value.content}`;
+
+  uni.setClipboardData({
+    data: shareText,
+    success: () => {
+      uni.showToast({
+        title: '已复制到剪贴板，可分享给好友',
+        icon: 'success',
+        duration: 2000,
+      });
+    },
+    fail: () => {
+      uni.showToast({
+        title: '复制失败',
+        icon: 'none',
+        duration: 2000,
+      });
+    },
+  });
 };
 
 /**
