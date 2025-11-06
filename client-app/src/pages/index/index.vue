@@ -1,97 +1,221 @@
 <template>
   <view class="index-page" :class="themeStore.themeClass">
     <view class="container">
-      <!-- 头部 -->
+      <!-- 头部搜索栏 -->
       <view class="header">
-        <text class="title">星语诗词</text>
-        <text class="subtitle">探索中华诗词之美</text>
-      </view>
-
-      <!-- 诗词卡片列表 -->
-      <view class="poetry-list">
-        <view
-          v-for="poetry in poetryList"
-          :key="poetry.id"
-          class="poetry-card theme-card"
-        >
-          <view class="poetry-title">{{ poetry.title }}</view>
-          <view class="poetry-author theme-text-secondary">
-            {{ poetry.dynasty }} · {{ poetry.author }}
-          </view>
-          <view class="poetry-content">{{ poetry.content }}</view>
-          <view class="poetry-actions">
-            <view class="action-item">
-              <text class="icon">❤️</text>
-              <text class="count">{{ poetry.likes }}</text>
-            </view>
-            <view class="action-item">
-              <text class="icon">⭐</text>
-              <text class="count">{{ poetry.collects }}</text>
-            </view>
-            <view class="action-item">
-              <text class="icon">💬</text>
-              <text class="count">{{ poetry.comments }}</text>
-            </view>
-          </view>
+        <view class="search-bar theme-card" @click="goToSearch">
+          <text class="search-icon">🔍</text>
+          <text class="search-text theme-text-tertiary">搜索诗词、作者</text>
         </view>
       </view>
 
-      <!-- 当前主题提示 -->
-      <view class="theme-tip">
-        <text class="tip-text theme-text-tertiary">
-          当前主题: {{ themeStore.isDark ? '暗黑模式' : '明亮模式' }}
-        </text>
+      <!-- 每日推荐 -->
+      <view v-if="dailyPoetry" class="daily-section">
+        <view class="section-title">
+          <text class="title-text">每日一诗</text>
+          <text class="title-icon">✨</text>
+        </view>
+        <view class="daily-card theme-card" @click="goToDetail(dailyPoetry.id)">
+          <view class="poetry-title">{{ dailyPoetry.title }}</view>
+          <view class="poetry-author theme-text-secondary">
+            {{ dailyPoetry.dynasty }} · {{ dailyPoetry.author_name }}
+          </view>
+          <view class="poetry-content">{{ formatContent(dailyPoetry.content) }}</view>
+        </view>
+      </view>
+
+      <!-- 诗词列表 -->
+      <view class="poetry-section">
+        <view class="section-title">
+          <text class="title-text">推荐诗词</text>
+          <text class="more-link" @click="goToPoetryList">更多 →</text>
+        </view>
+
+        <view v-if="loading && poetryList.length === 0" class="loading-box">
+          <text class="loading-text">加载中...</text>
+        </view>
+
+        <view v-else-if="poetryList.length === 0" class="empty-box">
+          <text class="empty-text">暂无数据</text>
+        </view>
+
+        <view v-else class="poetry-list">
+          <view
+            v-for="poetry in poetryList"
+            :key="poetry.id"
+            class="poetry-card theme-card"
+            @click="goToDetail(poetry.id)"
+          >
+            <view class="poetry-title">{{ poetry.title }}</view>
+            <view class="poetry-author theme-text-secondary">
+              {{ poetry.dynasty }} · {{ poetry.author_name }}
+            </view>
+            <view class="poetry-content">{{ formatContent(poetry.content) }}</view>
+            <view class="poetry-actions">
+              <view class="action-item">
+                <text class="icon">❤️</text>
+                <text class="count">{{ poetry.likes_count || 0 }}</text>
+              </view>
+              <view class="action-item">
+                <text class="icon">⭐</text>
+                <text class="count">{{ poetry.collects_count || 0 }}</text>
+              </view>
+              <view class="action-item">
+                <text class="icon">💬</text>
+                <text class="count">{{ poetry.comments_count || 0 }}</text>
+              </view>
+            </view>
+          </view>
+        </view>
       </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useThemeStore } from '@/store/modules/theme';
+import { getHotPoetryList, getRandomPoetry, type Poetry } from '@/api/poetry';
+import { getDailyRecommendations } from '@/api/recommendation';
 
 const themeStore = useThemeStore();
 
-// 示例诗词数据
-const poetryList = ref([
-  {
-    id: 1,
-    title: '静夜思',
-    dynasty: '唐',
-    author: '李白',
-    content: '床前明月光，疑是地上霜。举头望明月，低头思故乡。',
-    likes: 1234,
-    collects: 567,
-    comments: 89,
-  },
-  {
-    id: 2,
-    title: '春晓',
-    dynasty: '唐',
-    author: '孟浩然',
-    content: '春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。',
-    likes: 987,
-    collects: 432,
-    comments: 56,
-  },
-  {
-    id: 3,
-    title: '登鹳雀楼',
-    dynasty: '唐',
-    author: '王之涣',
-    content: '白日依山尽，黄河入海流。欲穷千里目，更上一层楼。',
-    likes: 1567,
-    collects: 789,
-    comments: 123,
-  },
-]);
+const poetryList = ref<Poetry[]>([]);
+const dailyPoetry = ref<Poetry | null>(null);
+const loading = ref(false);
+const page = ref(1);
+const hasMore = ref(true);
 
-// 下拉刷新
-const onPullDownRefresh = () => {
-  setTimeout(() => {
-    uni.stopPullDownRefresh();
-  }, 1000);
+/**
+ * 加载每日推荐
+ */
+const loadDailyPoetry = async () => {
+  try {
+    const response = await getDailyRecommendations();
+    if (response.data && response.data.length > 0) {
+      dailyPoetry.value = response.data[0];
+    } else {
+      // 如果没有每日推荐，获取一个随机诗词
+      const randomResponse = await getRandomPoetry();
+      dailyPoetry.value = randomResponse.data;
+    }
+  } catch (error) {
+    console.error('加载每日推荐失败:', error);
+    // 失败时也尝试获取随机诗词
+    try {
+      const randomResponse = await getRandomPoetry();
+      dailyPoetry.value = randomResponse.data;
+    } catch (e) {
+      console.error('加载随机诗词失败:', e);
+    }
+  }
 };
+
+/**
+ * 加载诗词列表
+ */
+const loadPoetryList = async (refresh = false) => {
+  if (loading.value || (!refresh && !hasMore.value)) {
+    return;
+  }
+
+  try {
+    loading.value = true;
+
+    if (refresh) {
+      page.value = 1;
+      poetryList.value = [];
+      hasMore.value = true;
+    }
+
+    const response = await getHotPoetryList({
+      page: page.value,
+      size: 10,
+    });
+
+    const newPoetryList = response.data.items || [];
+
+    if (refresh) {
+      poetryList.value = newPoetryList;
+    } else {
+      poetryList.value.push(...newPoetryList);
+    }
+
+    hasMore.value = poetryList.value.length < (response.data.total || 0);
+    page.value++;
+  } catch (error) {
+    console.error('加载诗词列表失败:', error);
+    uni.showToast({
+      title: '加载失败',
+      icon: 'none',
+      duration: 2000,
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+/**
+ * 格式化内容（截取前80字）
+ */
+const formatContent = (content: string) => {
+  if (!content) return '';
+  return content.length > 80 ? content.substring(0, 80) + '...' : content;
+};
+
+/**
+ * 跳转到诗词详情
+ */
+const goToDetail = (id: number) => {
+  uni.navigateTo({
+    url: `/pages/poetry-detail/poetry-detail?id=${id}`,
+  });
+};
+
+/**
+ * 跳转到搜索页
+ */
+const goToSearch = () => {
+  uni.navigateTo({
+    url: '/pages/search/search',
+  });
+};
+
+/**
+ * 跳转到诗词列表
+ */
+const goToPoetryList = () => {
+  uni.navigateTo({
+    url: '/pages/poetry-list/poetry-list',
+  });
+};
+
+/**
+ * 下拉刷新
+ */
+const onPullDownRefresh = async () => {
+  await Promise.all([loadDailyPoetry(), loadPoetryList(true)]);
+  uni.stopPullDownRefresh();
+};
+
+/**
+ * 上拉加载更多
+ */
+const onReachBottom = () => {
+  loadPoetryList();
+};
+
+// 页面加载时获取数据
+onMounted(() => {
+  loadDailyPoetry();
+  loadPoetryList(true);
+});
+
+// 导出给页面生命周期使用
+defineExpose({
+  onPullDownRefresh,
+  onReachBottom,
+});
 </script>
 
 <style lang="scss" scoped>
@@ -101,95 +225,189 @@ const onPullDownRefresh = () => {
   padding-bottom: 120rpx;
 }
 
+.container {
+  padding: $spacing-md;
+}
+
 .header {
-  padding: 60rpx 0 40rpx;
-  text-align: center;
-
-  .title {
-    display: block;
-    font-size: $font-size-xxl;
-    font-weight: $font-weight-bold;
-    color: var(--text-primary);
-    margin-bottom: $spacing-xs;
-  }
-
-  .subtitle {
-    display: block;
-    font-size: $font-size-sm;
-    color: var(--text-secondary);
-  }
-}
-
-.poetry-list {
-  padding: 0 $spacing-md;
-}
-
-.poetry-card {
   margin-bottom: $spacing-lg;
-  padding: $spacing-lg;
 
-  .poetry-title {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-bold;
-    color: var(--text-primary);
-    margin-bottom: $spacing-xs;
-  }
-
-  .poetry-author {
-    font-size: $font-size-sm;
-    margin-bottom: $spacing-md;
-  }
-
-  .poetry-content {
-    font-size: $font-size-md;
-    line-height: 1.8;
-    color: var(--text-primary);
-    margin-bottom: $spacing-md;
-    white-space: pre-wrap;
-  }
-
-  .poetry-actions {
+  .search-bar {
     display: flex;
     align-items: center;
-    gap: $spacing-lg;
-    padding-top: $spacing-md;
-    border-top: 1px solid var(--border-primary);
+    padding: $spacing-md $spacing-lg;
+    background-color: var(--bg-card);
+    border-radius: $border-radius-lg;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all $transition-normal;
 
-    .action-item {
-      display: flex;
-      align-items: center;
-      gap: $spacing-xs;
-      cursor: pointer;
-      transition: transform $transition-fast;
+    &:active {
+      transform: scale(0.98);
+    }
 
-      &:active {
-        transform: scale(0.95);
-      }
+    .search-icon {
+      font-size: 32rpx;
+      margin-right: $spacing-sm;
+    }
 
-      .icon {
-        font-size: 32rpx;
-      }
-
-      .count {
-        font-size: $font-size-sm;
-        color: var(--text-secondary);
-      }
+    .search-text {
+      flex: 1;
+      font-size: $font-size-md;
     }
   }
 }
 
-.theme-tip {
-  position: fixed;
-  bottom: 120rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: $spacing-sm $spacing-md;
-  background-color: var(--bg-card);
-  border-radius: $border-radius-lg;
-  box-shadow: var(--shadow-md);
+.daily-section {
+  margin-bottom: $spacing-xl;
 
-  .tip-text {
-    font-size: $font-size-xs;
+  .section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-md;
+
+    .title-text {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: var(--text-primary);
+    }
+
+    .title-icon {
+      font-size: 32rpx;
+    }
+  }
+
+  .daily-card {
+    padding: $spacing-xl;
+    background-color: var(--bg-card);
+    border-radius: $border-radius-lg;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition: all $transition-normal;
+
+    &:active {
+      transform: translateY(-4rpx);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .poetry-title {
+      font-size: $font-size-xl;
+      font-weight: $font-weight-bold;
+      color: var(--text-primary);
+      margin-bottom: $spacing-sm;
+      text-align: center;
+    }
+
+    .poetry-author {
+      font-size: $font-size-sm;
+      text-align: center;
+      margin-bottom: $spacing-lg;
+    }
+
+    .poetry-content {
+      font-size: $font-size-md;
+      line-height: 1.8;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+    }
+  }
+}
+
+.poetry-section {
+  .section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-md;
+
+    .title-text {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: var(--text-primary);
+    }
+
+    .more-link {
+      font-size: $font-size-sm;
+      color: var(--color-primary);
+      cursor: pointer;
+
+      &:active {
+        opacity: 0.7;
+      }
+    }
+  }
+
+  .loading-box,
+  .empty-box {
+    padding: 80rpx 0;
+    text-align: center;
+
+    .loading-text,
+    .empty-text {
+      font-size: $font-size-md;
+      color: var(--text-tertiary);
+    }
+  }
+
+  .poetry-list {
+    .poetry-card {
+      margin-bottom: $spacing-lg;
+      padding: $spacing-lg;
+      background-color: var(--bg-card);
+      border-radius: $border-radius-lg;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all $transition-normal;
+
+      &:active {
+        transform: translateY(-4rpx);
+        box-shadow: var(--shadow-md);
+      }
+
+      .poetry-title {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+        color: var(--text-primary);
+        margin-bottom: $spacing-xs;
+      }
+
+      .poetry-author {
+        font-size: $font-size-sm;
+        margin-bottom: $spacing-md;
+      }
+
+      .poetry-content {
+        font-size: $font-size-md;
+        line-height: 1.8;
+        color: var(--text-primary);
+        margin-bottom: $spacing-md;
+        white-space: pre-wrap;
+      }
+
+      .poetry-actions {
+        display: flex;
+        align-items: center;
+        gap: $spacing-lg;
+        padding-top: $spacing-md;
+        border-top: 1px solid var(--border-primary);
+
+        .action-item {
+          display: flex;
+          align-items: center;
+          gap: $spacing-xs;
+
+          .icon {
+            font-size: 32rpx;
+          }
+
+          .count {
+            font-size: $font-size-sm;
+            color: var(--text-secondary);
+          }
+        }
+      }
+    }
   }
 }
 </style>
