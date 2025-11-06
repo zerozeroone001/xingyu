@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.api.v1 import auth, users, poetry, author, interaction
+from app.api.v1 import auth, users, poetry, author, interaction, comment
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -59,6 +59,7 @@ app.include_router(users.router, prefix="/api/v1", tags=["用户"])
 app.include_router(poetry.router, prefix="/api/v1", tags=["诗词"])
 app.include_router(author.router, prefix="/api/v1", tags=["作者"])
 app.include_router(interaction.router, prefix="/api/v1", tags=["交互"])
+app.include_router(comment.router, prefix="/api/v1", tags=["评论"])
 
 
 # 全局异常处理

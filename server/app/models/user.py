@@ -48,6 +48,7 @@ class User(Base):
     # 关系
     liked_poetries = relationship("UserPoetryLike", back_populates="user", cascade="all, delete-orphan")
     collected_poetries = relationship("UserPoetryCollection", back_populates="user", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User {self.id} {self.nickname}>"
