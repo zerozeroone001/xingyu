@@ -1,6 +1,11 @@
-# 诗词程序 - 项目文档总览
+# 星语诗词平台
 
-> 一个多端部署的诗词平台，包含微信小程序、H5网页、管理后台，支持AI诗词生成、智能推荐、社交互动等功能。
+> 面向诗词爱好者的多端互动平台，集诗词欣赏、学习、AI创作、社交于一体。
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com/)
+[![Vue](https://img.shields.io/badge/Vue-3.3-green.svg)](https://vuejs.org/)
 
 ---
 

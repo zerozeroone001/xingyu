@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: poetry-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=poetry_root_2024
+      - MYSQL_DATABASE=poetry_db
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - poetry-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: poetry-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - poetry-network
+
+  # Elasticsearch搜索引擎
+  elasticsearch:
+    image: elasticsearch:7.17.9
+    container_name: poetry-es
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    restart: unless-stopped
+    networks:
+      - poetry-network
+
+  # FastAPI应用
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: poetry-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+aiomysql://root:poetry_root_2024@mysql:3306/poetry_db
+      - REDIS_URL=redis://redis:6379/0
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - SECRET_KEY=poetry-secret-key-change-in-production-2024
+      - JWT_SECRET_KEY=poetry-jwt-secret-key-2024
+    depends_on:
+      - mysql
+      - redis
+      - elasticsearch
+    volumes:
+      - ./server:/app
+    restart: unless-stopped
+    networks:
+      - poetry-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  mysql_data:
+  redis_data:
+  es_data:
+
+networks:
+  poetry-network:
+    driver: bridge
