@@ -7,7 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.api.v1 import auth, users, poetry, author, interaction, comment
+from app.api.v1 import auth, users, poetry, author, interaction, comment, search
+from app.utils.elasticsearch_client import ESClient
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -26,6 +27,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# 应用生命周期事件
+@app.on_event("startup")
+async def startup_event():
+    """应用启动事件"""
+    # 初始化ES客户端
+    ESClient.get_client()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """应用关闭事件"""
+    # 关闭ES客户端
+    await ESClient.close()
 
 
 # 健康检查
@@ -60,6 +76,7 @@ app.include_router(poetry.router, prefix="/api/v1", tags=["诗词"])
 app.include_router(author.router, prefix="/api/v1", tags=["作者"])
 app.include_router(interaction.router, prefix="/api/v1", tags=["交互"])
 app.include_router(comment.router, prefix="/api/v1", tags=["评论"])
+app.include_router(search.router, prefix="/api/v1", tags=["搜索"])
 
 
 # 全局异常处理
