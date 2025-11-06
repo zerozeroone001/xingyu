@@ -7,6 +7,20 @@ from app.schemas.user import (
     UserLogin,
     UserRegister,
 )
+from app.schemas.author import (
+    AuthorCreate,
+    AuthorUpdate,
+    AuthorResponse,
+    AuthorSimple,
+)
+from app.schemas.poetry import (
+    PoetryCreate,
+    PoetryUpdate,
+    PoetryResponse,
+    PoetryDetail,
+    PoetryListItem,
+    PoetryQuery,
+)
 from app.schemas.response import ResponseModel, PaginatedResponse
 
 __all__ = [
@@ -15,6 +29,16 @@ __all__ = [
     "UserResponse",
     "UserLogin",
     "UserRegister",
+    "AuthorCreate",
+    "AuthorUpdate",
+    "AuthorResponse",
+    "AuthorSimple",
+    "PoetryCreate",
+    "PoetryUpdate",
+    "PoetryResponse",
+    "PoetryDetail",
+    "PoetryListItem",
+    "PoetryQuery",
     "ResponseModel",
     "PaginatedResponse",
 ]
