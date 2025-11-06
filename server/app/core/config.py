@@ -14,17 +14,17 @@ class Settings(BaseSettings):
     APP_NAME: str = "星语诗词平台"
     APP_ENV: str = "development"
     DEBUG: bool = True
-    SECRET_KEY: str
+    SECRET_KEY: str = "poetry-secret-key-change-in-production-2024"
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
     # 数据库配置
-    DATABASE_URL: str
-    REDIS_URL: str
-    ELASTICSEARCH_URL: str = "http://localhost:9200"
+    DATABASE_URL: str = "mysql+aiomysql://root:poetry_root_2024@mysql:3306/poetry_db"
+    REDIS_URL: str = "redis://redis:6379/0"
+    ELASTICSEARCH_URL: str = "http://elasticsearch:9200"
 
     # JWT配置
-    JWT_SECRET_KEY: str
+    JWT_SECRET_KEY: str = "poetry-jwt-secret-key-2024"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7天
 

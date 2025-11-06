@@ -88,13 +88,13 @@ services:
     restart: unless-stopped
     networks:
       - poetry-network
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: bash start.sh
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
   # 前端应用 (H5)
   # 注意：使用简化版 Dockerfile.simple 避免 npm 依赖问题
