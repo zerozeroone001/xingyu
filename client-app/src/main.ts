@@ -1,14 +1,10 @@
-import { createSSRApp } from 'vue';
+import { createApp } from 'vue';
 import App from './App.vue';
 import pinia from './store';
 
-export function createApp() {
-  const app = createSSRApp(App);
+const app = createApp(App);
 
-  // 使用 Pinia
-  app.use(pinia);
+// 使用 Pinia
+app.use(pinia);
 
-  return {
-    app,
-  };
-}
+app.mount('#app');
