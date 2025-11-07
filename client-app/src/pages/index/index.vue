@@ -64,16 +64,8 @@ import { ref, onMounted } from 'vue';
 import { useThemeStore } from '@/store/modules/theme';
 import { getHotPoetryList, getRandomPoetry, type Poetry } from '@/api/poetry';
 import { getDailyRecommendations } from '@/api/recommendation';
-import { mockPoetryList, mockDailyPoetry } from '@/mock/data';
-import dayjs from 'dayjs';
-import 'dayjs/locale/zh-cn';
-
-dayjs.locale('zh-cn');
-
-// 是否使用 mock 数据
-const useMockData = true;
-
-const themeStore = useThemeStore();
+import { solar2lunar, getWeekDay, formatDate } from '@/utils/lunar';
+import { getMockWeather, getWeatherPoetry } from '@/utils/weather';
 
 const dailyPoetry = ref<Poetry | null>(null);
 const loading = ref(false);
@@ -117,6 +109,16 @@ const initDateWeather = () => {
 };
 
 /**
+ * 获取随机模拟诗词
+ */
+const getRandomMockPoetry = (): Poetry => {
+  const now = new Date();
+  const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+  const index = seed % mockPoetryList.length;
+  return mockPoetryList[index];
+};
+
+/**
  * 加载每日推荐
  */
 const loadDailyPoetry = async () => {
@@ -144,6 +146,9 @@ const loadDailyPoetry = async () => {
       dailyPoetry.value = randomResponse.data;
     } catch (e) {
       console.error('加载随机诗词失败:', e);
+      // 所有 API 都失败，使用模拟数据
+      dailyPoetry.value = getRandomMockPoetry();
+      console.log('使用模拟数据:', dailyPoetry.value);
     }
   }
 };
@@ -152,13 +157,29 @@ const loadDailyPoetry = async () => {
  * 刷新诗词 - 换一首
  */
 const refreshPoetry = async () => {
-  await loadDailyPoetry();
-  if (typeof uni !== 'undefined') {
-    uni.showToast({
-      title: '已刷新',
-      icon: 'success',
-      duration: 1500,
-    });
+  try {
+    loading.value = true;
+    const response = await getRandomPoetry();
+    dailyPoetry.value = response.data;
+
+    if (typeof uni !== 'undefined') {
+      uni.showToast({
+        title: '已换一首',
+        icon: 'success',
+        duration: 1500,
+      });
+    }
+  } catch (error) {
+    console.error('刷新诗词失败:', error);
+    if (typeof uni !== 'undefined') {
+      uni.showToast({
+        title: '换一首失败',
+        icon: 'none',
+        duration: 2000,
+      });
+    }
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -208,7 +229,19 @@ const onPullDownRefresh = async () => {
 
 // 页面加载时获取数据
 onMounted(() => {
+  console.log('首页挂载，开始初始化...');
+
+  // 先设置模拟诗词，确保页面立即有内容
+  dailyPoetry.value = getRandomMockPoetry();
+  console.log('设置初始模拟诗词:', dailyPoetry.value);
+
+  // 初始化日期和天气
   initDateWeather();
+  console.log('日期信息:', dateInfo.value);
+  console.log('天气信息:', weatherInfo.value);
+  console.log('农历信息:', lunarInfo.value);
+
+  // 然后尝试从 API 加载
   loadDailyPoetry();
 });
 
