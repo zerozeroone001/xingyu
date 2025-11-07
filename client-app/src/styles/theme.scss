@@ -5,7 +5,7 @@
 // ===========================
 
 // 明亮模式
-page.theme-light {
+#app.theme-light {
   // CSS 变量定义
   --color-primary: #{$light-primary};
   --color-primary-light: #{$light-primary-light};
@@ -36,7 +36,7 @@ page.theme-light {
 }
 
 // 暗黑模式
-page.theme-dark {
+#app.theme-dark {
   // CSS 变量定义
   --color-primary: #{$dark-primary};
   --color-primary-light: #{$dark-primary-light};
@@ -67,7 +67,7 @@ page.theme-dark {
 }
 
 // 通用功能色（不受主题影响）
-page {
+#app {
   --color-success: #{$color-success};
   --color-warning: #{$color-warning};
   --color-error: #{$color-error};

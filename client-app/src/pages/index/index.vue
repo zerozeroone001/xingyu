@@ -75,8 +75,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useThemeStore } from '@/store/modules/theme';
-import { getHotPoetryList, getRandomPoetry, type Poetry } from '@/api/poetry';
-import { getDailyRecommendations } from '@/api/recommendation';
+import { type Poetry } from '@/api/poetry';
+import { mockPoetryList, mockDailyPoetry, getMockPoetryPage } from '@/mock/data';
 
 const themeStore = useThemeStore();
 
@@ -86,28 +86,30 @@ const loading = ref(false);
 const page = ref(1);
 const hasMore = ref(true);
 
+// 使用模拟数据标志
+const useMockData = true;
+
 /**
  * 加载每日推荐
  */
 const loadDailyPoetry = async () => {
   try {
-    const response = await getDailyRecommendations();
-    if (response.data && response.data.length > 0) {
-      dailyPoetry.value = response.data[0];
-    } else {
-      // 如果没有每日推荐，获取一个随机诗词
-      const randomResponse = await getRandomPoetry();
-      dailyPoetry.value = randomResponse.data;
+    if (useMockData) {
+      // 使用模拟数据
+      dailyPoetry.value = mockDailyPoetry;
+      return;
     }
+
+    // 以下是原来的 API 调用代码（暂时注释）
+    // const response = await getDailyRecommendations();
+    // if (response.data && response.data.length > 0) {
+    //   dailyPoetry.value = response.data[0];
+    // } else {
+    //   const randomResponse = await getRandomPoetry();
+    //   dailyPoetry.value = randomResponse.data;
+    // }
   } catch (error) {
     console.error('加载每日推荐失败:', error);
-    // 失败时也尝试获取随机诗词
-    try {
-      const randomResponse = await getRandomPoetry();
-      dailyPoetry.value = randomResponse.data;
-    } catch (e) {
-      console.error('加载随机诗词失败:', e);
-    }
   }
 };
 
@@ -128,28 +130,44 @@ const loadPoetryList = async (refresh = false) => {
       hasMore.value = true;
     }
 
-    const response = await getHotPoetryList({
-      page: page.value,
-      size: 10,
-    });
+    if (useMockData) {
+      // 使用模拟数据
+      const mockResponse = getMockPoetryPage(page.value, 10);
+      const newPoetryList = mockResponse.items;
 
-    const newPoetryList = response.data.items || [];
+      if (refresh) {
+        poetryList.value = newPoetryList;
+      } else {
+        poetryList.value.push(...newPoetryList);
+      }
 
-    if (refresh) {
-      poetryList.value = newPoetryList;
-    } else {
-      poetryList.value.push(...newPoetryList);
+      hasMore.value = poetryList.value.length < mockResponse.total;
+      page.value++;
+      return;
     }
 
-    hasMore.value = poetryList.value.length < (response.data.total || 0);
-    page.value++;
+    // 以下是原来的 API 调用代码（暂时注释）
+    // const response = await getHotPoetryList({
+    //   page: page.value,
+    //   size: 10,
+    // });
+    // const newPoetryList = response.data.items || [];
+    // if (refresh) {
+    //   poetryList.value = newPoetryList;
+    // } else {
+    //   poetryList.value.push(...newPoetryList);
+    // }
+    // hasMore.value = poetryList.value.length < (response.data.total || 0);
+    // page.value++;
   } catch (error) {
     console.error('加载诗词列表失败:', error);
-    uni.showToast({
-      title: '加载失败',
-      icon: 'none',
-      duration: 2000,
-    });
+    if (typeof uni !== 'undefined') {
+      uni.showToast({
+        title: '加载失败',
+        icon: 'none',
+        duration: 2000,
+      });
+    }
   } finally {
     loading.value = false;
   }

@@ -75,7 +75,7 @@ services:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - SECRET_KEY=${SECRET_KEY:-poetry-secret-key-change-in-production-2024}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-poetry-jwt-secret-key-2024}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:8080,http://localhost:3000}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
     depends_on:
       mysql:
         condition: service_healthy

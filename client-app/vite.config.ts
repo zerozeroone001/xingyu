@@ -13,7 +13,9 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: '@import "@/styles/variables.scss";',
+        // 自动导入变量到所有组件
+        additionalData: `@import "@/styles/variables.scss";`,
+        silenceDeprecations: ['legacy-js-api', 'import'],
       },
     },
   },

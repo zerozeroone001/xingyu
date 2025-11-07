@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     WENXIN_SECRET_KEY: str = ""
 
     # CORS配置
-    CORS_ORIGINS: Union[List[str], str] = "http://localhost:3000,http://localhost:8080"
+    CORS_ORIGINS: Union[List[str], str] = "http://localhost:3000,http://localhost:8080,http://localhost:5173,http://localhost:5174,http://localhost:5175"
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

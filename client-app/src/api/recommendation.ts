@@ -8,33 +8,33 @@ import { Poetry } from './poetry';
  * 获取热门推荐
  */
 export function getHotRecommendations(params?: { page?: number; size?: number }): Promise<ApiResponse<PaginationResponse<Poetry>>> {
-  return request.get('/recommendations/hot', { params });
+  return request.get('/recommend/hot', { params });
 }
 
 /**
  * 获取随机推荐
  */
 export function getRandomRecommendations(count?: number): Promise<ApiResponse<Poetry[]>> {
-  return request.get('/recommendations/random', { params: { count } });
+  return request.get('/recommend/random', { params: { count } });
 }
 
 /**
  * 获取每日推荐
  */
 export function getDailyRecommendations(): Promise<ApiResponse<Poetry[]>> {
-  return request.get('/recommendations/daily');
+  return request.get('/recommend/daily');
 }
 
 /**
  * 获取相似诗词推荐
  */
 export function getSimilarPoetry(poetryId: number, limit?: number): Promise<ApiResponse<Poetry[]>> {
-  return request.get(`/recommendations/similar/${poetryId}`, { params: { limit } });
+  return request.get(`/recommend/similar/${poetryId}`, { params: { limit } });
 }
 
 /**
  * 获取个性化推荐
  */
 export function getPersonalizedRecommendations(params?: { page?: number; size?: number }): Promise<ApiResponse<PaginationResponse<Poetry>>> {
-  return request.get('/recommendations/personalized', { params });
+  return request.get('/recommend/personalized', { params });
 }

@@ -5,7 +5,7 @@
 // ===========================
 
 // 全局重置
-page {
+body {
   font-size: $font-size-md;
   line-height: $line-height-base;
   font-weight: $font-weight-normal;
@@ -157,7 +157,7 @@ page {
 .rounded-md { border-radius: $border-radius-md; }
 .rounded-lg { border-radius: $border-radius-lg; }
 .rounded-xl { border-radius: $border-radius-xl; }
-.rounded-full { border-radius: 9999rpx; }
+.rounded-full { border-radius: 9999px; }
 
 // 阴影
 .shadow-sm { box-shadow: var(--shadow-sm); }
