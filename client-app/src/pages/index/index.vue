@@ -60,13 +60,83 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useThemeStore } from '@/store/modules/theme';
-import { getHotPoetryList, getRandomPoetry, type Poetry } from '@/api/poetry';
+import { ref, onMounted, computed } from 'vue';
+import { getRandomPoetry, type Poetry } from '@/api/poetry';
 import { getDailyRecommendations } from '@/api/recommendation';
 import { solar2lunar, getWeekDay, formatDate } from '@/utils/lunar';
 import { getMockWeather, getWeatherPoetry } from '@/utils/weather';
 
+// 模拟诗词数据（作为后备）
+const mockPoetryList: Poetry[] = [
+  {
+    id: 1,
+    title: '静夜思',
+    author_name: '李白',
+    dynasty: '唐代',
+    content: '床前明月光，疑是地上霜。\n举头望明月，低头思故乡。',
+    author_id: 1,
+    likes_count: 1000,
+    collects_count: 800,
+    comments_count: 200,
+  },
+  {
+    id: 2,
+    title: '登鹳雀楼',
+    author_name: '王之涣',
+    dynasty: '唐代',
+    content: '白日依山尽，黄河入海流。\n欲穷千里目，更上一层楼。',
+    author_id: 2,
+    likes_count: 900,
+    collects_count: 700,
+    comments_count: 150,
+  },
+  {
+    id: 3,
+    title: '春晓',
+    author_name: '孟浩然',
+    dynasty: '唐代',
+    content: '春眠不觉晓，处处闻啼鸟。\n夜来风雨声，花落知多少。',
+    author_id: 3,
+    likes_count: 950,
+    collects_count: 750,
+    comments_count: 180,
+  },
+  {
+    id: 4,
+    title: '望庐山瀑布',
+    author_name: '李白',
+    dynasty: '唐代',
+    content: '日照香炉生紫烟，遥看瀑布挂前川。\n飞流直下三千尺，疑是银河落九天。',
+    author_id: 1,
+    likes_count: 1100,
+    collects_count: 850,
+    comments_count: 220,
+  },
+  {
+    id: 5,
+    title: '江雪',
+    author_name: '柳宗元',
+    dynasty: '唐代',
+    content: '千山鸟飞绝，万径人踪灭。\n孤舟蓑笠翁，独钓寒江雪。',
+    author_id: 4,
+    likes_count: 880,
+    collects_count: 680,
+    comments_count: 160,
+  },
+];
+
+// ========== 工具函数（在响应式数据之前）==========
+/**
+ * 获取随机模拟诗词
+ */
+function getRandomMockPoetry(): Poetry {
+  const now = new Date();
+  const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+  const index = seed % mockPoetryList.length;
+  return mockPoetryList[index];
+}
+
+// ========== 响应式数据定义 ==========
 const dailyPoetry = ref<Poetry | null>(null);
 const loading = ref(false);
 const page = ref(1);
@@ -108,16 +178,7 @@ const initDateWeather = () => {
   lunarInfo.value = `农历${now.format('YYYY年 MM月DD日')}`;
 };
 
-/**
- * 获取随机模拟诗词
- */
-const getRandomMockPoetry = (): Poetry => {
-  const now = new Date();
-  const seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
-  const index = seed % mockPoetryList.length;
-  return mockPoetryList[index];
-};
-
+// ========== API 调用函数 ==========
 /**
  * 加载每日推荐
  */
