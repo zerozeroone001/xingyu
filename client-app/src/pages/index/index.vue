@@ -1,62 +1,62 @@
 <template>
-  <view class="index-page">
+  <div class="index-page">
     <!-- 背景层 -->
-    <view class="background-layer"></view>
+    <div class="background-layer"></div>
 
-    <view class="container">
+    <div class="container">
       <!-- 顶部日期和天气信息 -->
-      <view class="header-info">
-        <view class="date-section">
-          <view class="date-main">{{ dateInfo.date }}</view>
-          <view class="date-sub">{{ dateInfo.weekDay }}</view>
-        </view>
-        <view class="weather-section">
-          <view class="weather-icon">{{ weatherInfo.icon }}</view>
-          <view class="weather-info">
-            <view class="weather-temp">{{ weatherInfo.temperature }}°C</view>
-            <view class="weather-text">{{ weatherInfo.weather }}</view>
-          </view>
-        </view>
-      </view>
+      <div class="header-info">
+        <div class="date-section">
+          <div class="date-main">{{ dateInfo.date }}</div>
+          <div class="date-sub">{{ dateInfo.weekDay }}</div>
+        </div>
+        <div class="weather-section">
+          <div class="weather-icon">{{ weatherInfo.icon }}</div>
+          <div class="weather-info">
+            <div class="weather-temp">{{ weatherInfo.temperature }}°C</div>
+            <div class="weather-text">{{ weatherInfo.weather }}</div>
+          </div>
+        </div>
+      </div>
 
       <!-- 农历信息 -->
-      <view class="lunar-section">
-        <text class="lunar-text">{{ lunarInfo }}</text>
-      </view>
+      <div class="lunar-section">
+        <span class="lunar-text">{{ lunarInfo }}</span>
+      </div>
 
       <!-- 每日一诗 - 居中显示 -->
-      <view v-if="dailyPoetry" class="poetry-container" @click="goToDetail(dailyPoetry.id)">
-        <view class="poetry-card">
-          <view class="poetry-title">{{ dailyPoetry.title }}</view>
-          <view class="poetry-author">
+      <div v-if="dailyPoetry" class="poetry-container" @click="goToDetail(dailyPoetry.id)">
+        <div class="poetry-card">
+          <div class="poetry-title">{{ dailyPoetry.title }}</div>
+          <div class="poetry-author">
             {{ dailyPoetry.dynasty }} · {{ dailyPoetry.author_name }}
-          </view>
-          <view class="poetry-content">{{ dailyPoetry.content }}</view>
-        </view>
-      </view>
+          </div>
+          <div class="poetry-content">{{ dailyPoetry.content }}</div>
+        </div>
+      </div>
 
       <!-- 加载状态 -->
-      <view v-else class="loading-container">
-        <text class="loading-text">加载中...</text>
-      </view>
+      <div v-else class="loading-container">
+        <span class="loading-text">加载中...</span>
+      </div>
 
       <!-- 底部操作区 -->
-      <view class="bottom-actions">
-        <view class="action-btn" @click="refreshPoetry">
-          <text class="action-icon">🔄</text>
-          <text class="action-text">换一首</text>
-        </view>
-        <view class="action-btn" @click="goToSearch">
-          <text class="action-icon">🔍</text>
-          <text class="action-text">搜索</text>
-        </view>
-        <view class="action-btn" @click="goToPoetryList">
-          <text class="action-icon">📚</text>
-          <text class="action-text">更多</text>
-        </view>
-      </view>
-    </view>
-  </view>
+      <div class="bottom-actions">
+        <div class="action-btn" @click="refreshPoetry">
+          <span class="action-icon">🔄</span>
+          <span class="action-text">换一首</span>
+        </div>
+        <div class="action-btn" @click="goToSearch">
+          <span class="action-icon">🔍</span>
+          <span class="action-text">搜索</span>
+        </div>
+        <div class="action-btn" @click="goToPoetryList">
+          <span class="action-icon">📚</span>
+          <span class="action-text">更多</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -64,6 +64,14 @@ import { ref, onMounted } from 'vue';
 import { useThemeStore } from '@/store/modules/theme';
 import { getHotPoetryList, getRandomPoetry, type Poetry } from '@/api/poetry';
 import { getDailyRecommendations } from '@/api/recommendation';
+import { mockPoetryList, mockDailyPoetry } from '@/mock/data';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+
+dayjs.locale('zh-cn');
+
+// 是否使用 mock 数据
+const useMockData = true;
 
 const themeStore = useThemeStore();
 
@@ -71,11 +79,54 @@ const dailyPoetry = ref<Poetry | null>(null);
 const loading = ref(false);
 const page = ref(1);
 const hasMore = ref(true);
+const poetryList = ref<Poetry[]>([]);
+
+// 日期和天气信息
+const dateInfo = ref({
+  date: '',
+  weekDay: '',
+});
+
+const weatherInfo = ref({
+  icon: '☀️',
+  temperature: 22,
+  weather: '晴',
+});
+
+const lunarInfo = ref('农历甲辰年 冬月初七');
+
+/**
+ * 初始化日期和天气信息
+ */
+const initDateWeather = () => {
+  const now = dayjs();
+  dateInfo.value = {
+    date: now.format('MM月DD日'),
+    weekDay: now.format('dddd'),
+  };
+
+  // 这里可以接入真实的天气API
+  weatherInfo.value = {
+    icon: '☀️',
+    temperature: 22,
+    weather: '晴',
+  };
+
+  // 这里可以接入真实的农历API
+  lunarInfo.value = `农历${now.format('YYYY年 MM月DD日')}`;
+};
 
 /**
  * 加载每日推荐
  */
 const loadDailyPoetry = async () => {
+  if (useMockData) {
+    // 使用 mock 数据，随机选择一首诗
+    const randomIndex = Math.floor(Math.random() * mockPoetryList.length);
+    dailyPoetry.value = mockPoetryList[randomIndex];
+    return;
+  }
+
   try {
     const response = await getDailyRecommendations();
     if (response.data && response.data.length > 0) {
@@ -101,39 +152,13 @@ const loadDailyPoetry = async () => {
  * 刷新诗词 - 换一首
  */
 const refreshPoetry = async () => {
-  try {
-    loading.value = true;
-
-    if (refresh) {
-      page.value = 1;
-      poetryList.value = [];
-      hasMore.value = true;
-    }
-
-    const response = await getHotPoetryList({
-      page: page.value,
-      size: 10,
-    });
-
-    const newPoetryList = response.data.items || [];
-
-    if (refresh) {
-      poetryList.value = newPoetryList;
-    } else {
-      poetryList.value.push(...newPoetryList);
-    }
-
-    hasMore.value = poetryList.value.length < (response.data.total || 0);
-    page.value++;
-  } catch (error) {
-    console.error('加载诗词列表失败:', error);
+  await loadDailyPoetry();
+  if (typeof uni !== 'undefined') {
     uni.showToast({
-      title: '加载失败',
-      icon: 'none',
-      duration: 2000,
+      title: '已刷新',
+      icon: 'success',
+      duration: 1500,
     });
-  } finally {
-    loading.value = false;
   }
 };
 
