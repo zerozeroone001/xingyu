@@ -11,7 +11,9 @@
       "Bash(docker-compose restart:*)",
       "Bash(docker-compose up:*)",
       "Bash(curl:*)",
-      "Bash(docker logs:*)"
+      "Bash(docker logs:*)",
+      "Bash(NUL)",
+      "Bash(timeout 5 bash -c \"while ! curl -s http://localhost:5173 > /dev/null; do sleep 1; done && echo ''Server is up''\" 2)"
     ],
     "deny": [],
     "ask": []

@@ -538,6 +538,47 @@ const uni = {
    */
   stopPullDownRefresh() {
     console.log('stopPullDownRefresh: Not implemented in H5 environment');
+  },
+
+  /**
+   * Get system info (sync)
+   */
+  getSystemInfoSync(): any {
+    return {
+      platform: 'web',
+      theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height,
+    };
+  },
+
+  /**
+   * Event emitter (simple implementation for H5)
+   */
+  $emit(event: string, ...args: any[]) {
+    // In H5 environment, we can use custom events
+    const customEvent = new CustomEvent(event, { detail: args });
+    window.dispatchEvent(customEvent);
+  },
+
+  /**
+   * Event listener
+   */
+  $on(event: string, callback: (...args: any[]) => void) {
+    window.addEventListener(event, (e: any) => {
+      callback(...(e.detail || []));
+    });
+  },
+
+  /**
+   * Remove event listener
+   */
+  $off(event: string, callback?: (...args: any[]) => void) {
+    if (callback) {
+      window.removeEventListener(event, callback as any);
+    }
   }
 };
 

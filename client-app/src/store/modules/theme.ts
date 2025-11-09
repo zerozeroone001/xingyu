@@ -40,11 +40,20 @@ export const useThemeStore = defineStore('theme', () => {
    */
   const getSystemTheme = (): ThemeType => {
     try {
-      // 在小程序环境中，可能需要通过 uni.getSystemInfoSync 获取
-      const systemInfo = uni.getSystemInfoSync();
-      // 某些平台支持 theme 属性
-      if ('theme' in systemInfo) {
-        return (systemInfo as any).theme === 'dark' ? ThemeType.DARK : ThemeType.LIGHT;
+      // 在 H5 环境中，使用 window.matchMedia 检测系统主题
+      if (typeof window !== 'undefined' && window.matchMedia) {
+        const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        if (darkModeQuery.matches) {
+          return ThemeType.DARK;
+        }
+      }
+
+      // 在小程序环境中，尝试使用 uni API
+      if (typeof uni !== 'undefined' && uni.getSystemInfoSync) {
+        const systemInfo = uni.getSystemInfoSync();
+        if ('theme' in systemInfo) {
+          return (systemInfo as any).theme === 'dark' ? ThemeType.DARK : ThemeType.LIGHT;
+        }
       }
 
       // 默认返回明亮模式
@@ -89,19 +98,14 @@ export const useThemeStore = defineStore('theme', () => {
    * @param theme 主题类型
    */
   const applyTheme = (theme: ThemeType) => {
-    // 在 uni-app 中，我们需要动态修改页面的 class
-    // 这里使用页面级别的 class 来控制主题
     try {
-      // 获取页面实例
-      const pages = getCurrentPages();
-      if (pages.length > 0) {
-        const currentPage = pages[pages.length - 1];
-        // 为当前页面添加主题 class
-        // 注意：这需要在 App.vue 中配合使用
-      }
+      // 在 H5 环境中，主题通过 App.vue 的 :class 绑定自动应用
+      // 不需要额外的操作，只需要确保 currentTheme 已更新
 
-      // 通知其他组件主题已改变
-      uni.$emit('themeChanged', theme);
+      // 触发自定义事件（如果在 uni-app 环境中）
+      if (typeof uni !== 'undefined' && uni.$emit) {
+        uni.$emit('themeChanged', theme);
+      }
 
       console.log('主题已切换至:', theme);
     } catch (error) {

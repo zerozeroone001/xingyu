@@ -14,12 +14,12 @@ export interface WeatherInfo {
  * 天气类型配置
  */
 const weatherTypes = [
-  { weather: '晴', icon: '☀️', temp: [20, 28] },
-  { weather: '多云', icon: '⛅', temp: [18, 25] },
-  { weather: '阴', icon: '☁️', temp: [15, 22] },
-  { weather: '小雨', icon: '🌧️', temp: [12, 18] },
-  { weather: '雨', icon: '🌧️', temp: [10, 16] },
-  { weather: '雪', icon: '❄️', temp: [-5, 5] },
+  { weather: '晴', icon: '☀', temp: [20, 28] },
+  { weather: '多云', icon: '☁', temp: [18, 25] },
+  { weather: '阴', icon: '☁', temp: [15, 22] },
+  { weather: '小雨', icon: '☂', temp: [12, 18] },
+  { weather: '雨', icon: '☂', temp: [10, 16] },
+  { weather: '雪', icon: '❄', temp: [-5, 5] },
 ];
 
 /**

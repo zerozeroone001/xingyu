@@ -4,7 +4,9 @@
     <div class="background-layer"></div>
 
     <div class="container">
-      <!-- 顶部日期和天气信息 -->
+      
+
+      <!-- 日期和天气信息 -->
       <div class="header-info">
         <div class="date-section">
           <div class="date-main">{{ dateInfo.date }}</div>
@@ -19,13 +21,26 @@
         </div>
       </div>
 
+      <!-- 顶部搜索框 -->
+      <!-- <div class="search-bar" @click="goToSearch">
+        <span class="search-icon">⌕</span>
+        <span class="search-placeholder">搜索诗词、作者...</span>
+      </div> -->
+
       <!-- 农历信息 -->
       <div class="lunar-section">
         <span class="lunar-text">{{ lunarInfo }}</span>
       </div>
 
-      <!-- 每日一诗 - 居中显示 -->
-      <div v-if="dailyPoetry" class="poetry-container" @click="goToDetail(dailyPoetry.id)">
+      <!-- 每日一诗 - 支持左右滑动 -->
+      <div
+        v-if="dailyPoetry"
+        class="poetry-container"
+        @touchstart="handleTouchStart"
+        @touchmove="handleTouchMove"
+        @touchend="handleTouchEnd"
+        @click="goToDetail(dailyPoetry.id)"
+      >
         <div class="poetry-card">
           <div class="poetry-title">{{ dailyPoetry.title }}</div>
           <div class="poetry-author">
@@ -38,22 +53,6 @@
       <!-- 加载状态 -->
       <div v-else class="loading-container">
         <span class="loading-text">加载中...</span>
-      </div>
-
-      <!-- 底部操作区 -->
-      <div class="bottom-actions">
-        <div class="action-btn" @click="refreshPoetry">
-          <span class="action-icon">🔄</span>
-          <span class="action-text">换一首</span>
-        </div>
-        <div class="action-btn" @click="goToSearch">
-          <span class="action-icon">🔍</span>
-          <span class="action-text">搜索</span>
-        </div>
-        <div class="action-btn" @click="goToPoetryList">
-          <span class="action-icon">📚</span>
-          <span class="action-text">更多</span>
-        </div>
       </div>
     </div>
   </div>
@@ -137,6 +136,9 @@ function getRandomMockPoetry(): Poetry {
 }
 
 // ========== 响应式数据定义 ==========
+// 是否使用 mock 数据（开发环境下默认使用）
+const useMockData = true;
+
 const dailyPoetry = ref<Poetry | null>(null);
 const loading = ref(false);
 const page = ref(1);
@@ -157,25 +159,59 @@ const weatherInfo = ref({
 
 const lunarInfo = ref('农历甲辰年 冬月初七');
 
+// 触摸滑动相关
+const touchStartX = ref(0);
+const touchEndX = ref(0);
+
+/**
+ * 处理触摸开始
+ */
+const handleTouchStart = (e: TouchEvent) => {
+  touchStartX.value = e.touches[0].clientX;
+};
+
+/**
+ * 处理触摸移动
+ */
+const handleTouchMove = (e: TouchEvent) => {
+  touchEndX.value = e.touches[0].clientX;
+};
+
+/**
+ * 处理触摸结束
+ */
+const handleTouchEnd = async () => {
+  const swipeDistance = touchStartX.value - touchEndX.value;
+  const minSwipeDistance = 50; // 最小滑动距离
+
+  if (Math.abs(swipeDistance) > minSwipeDistance) {
+    // 左滑或右滑都换一首
+    await refreshPoetry();
+  }
+};
+
 /**
  * 初始化日期和天气信息
  */
 const initDateWeather = () => {
-  const now = dayjs();
+  const now = new Date();
+  const lunarDate = solar2lunar(now);
+
   dateInfo.value = {
-    date: now.format('MM月DD日'),
-    weekDay: now.format('dddd'),
+    date: formatDate(now),
+    weekDay: getWeekDay(now),
   };
 
-  // 这里可以接入真实的天气API
+  // 获取模拟天气信息
+  const weather = getMockWeather();
   weatherInfo.value = {
-    icon: '☀️',
-    temperature: 22,
-    weather: '晴',
+    icon: weather.icon,
+    temperature: weather.temperature,
+    weather: weather.weather,
   };
 
-  // 这里可以接入真实的农历API
-  lunarInfo.value = `农历${now.format('YYYY年 MM月DD日')}`;
+  // 获取农历信息
+  lunarInfo.value = `${lunarDate.yearCn} ${lunarDate.monthCn}${lunarDate.dayCn}`;
 };
 
 // ========== API 调用函数 ==========
@@ -267,17 +303,6 @@ const goToSearch = () => {
 };
 
 /**
- * 跳转到诗词列表
- */
-const goToPoetryList = () => {
-  if (typeof uni !== 'undefined') {
-    uni.navigateTo({
-      url: '/pages/poetry-list/poetry-list',
-    });
-  }
-};
-
-/**
  * 下拉刷新
  */
 const onPullDownRefresh = async () => {
@@ -315,7 +340,7 @@ defineExpose({
 <style lang="scss" scoped>
 .index-page {
   position: relative;
-  min-height: 100vh;
+  // height: 100vh;
   overflow: hidden;
 }
 
@@ -326,7 +351,7 @@ defineExpose({
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ffecd2 100%);
   animation: gradientShift 15s ease infinite;
   z-index: -1;
 
@@ -339,8 +364,8 @@ defineExpose({
     bottom: 0;
     background: linear-gradient(
       45deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0.15) 50%,
       rgba(255, 255, 255, 0) 100%
     );
   }
@@ -349,26 +374,58 @@ defineExpose({
 @keyframes gradientShift {
   0%,
   100% {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ffecd2 100%);
   }
   25% {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ffd3a5 100%);
+    background: linear-gradient(135deg, #ffd3a5 0%, #ffeaa7 50%, #fdcb6e 100%);
   }
   50% {
-    background: linear-gradient(135deg, #ffd3a5 0%, #fd6585 50%, #667eea 100%);
+    background: linear-gradient(135deg, #a29bfe 0%, #fab1a0 50%, #ffeaa7 100%);
   }
   75% {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #667eea 100%);
+    background: linear-gradient(135deg, #fdcb6e 0%, #ffecd2 50%, #fab1a0 100%);
   }
 }
 
 .container {
   position: relative;
-  min-height: 100vh;
+  // height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 60rpx 40rpx 40rpx;
-  color: #ffffff;
+  padding: 20px;
+  color: #2c3e50;
+  overflow: hidden;
+}
+
+// 搜索框
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-icon {
+    font-size: 18px;
+    color: #666;
+  }
+
+  .search-placeholder {
+    flex: 1;
+    font-size: 14px;
+    color: #999;
+  }
 }
 
 // 顶部日期和天气
@@ -376,14 +433,14 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 30rpx;
+  margin-bottom: 15px;
   animation: fadeInDown 0.8s ease;
 }
 
 @keyframes fadeInDown {
   from {
     opacity: 0;
-    transform: translateY(-30rpx);
+    transform: translateY(-15px);
   }
   to {
     opacity: 1;
@@ -393,42 +450,42 @@ defineExpose({
 
 .date-section {
   .date-main {
-    font-size: 36rpx;
+    font-size: 18px;
     font-weight: 500;
-    margin-bottom: 8rpx;
-    text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+    margin-bottom: 4px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   }
 
   .date-sub {
-    font-size: 28rpx;
+    font-size: 14px;
     opacity: 0.9;
-    text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   }
 }
 
 .weather-section {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 8px;
 
   .weather-icon {
-    font-size: 48rpx;
-    filter: drop-shadow(0 2rpx 8rpx rgba(0, 0, 0, 0.2));
+    font-size: 24px;
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
   }
 
   .weather-info {
     text-align: right;
 
     .weather-temp {
-      font-size: 32rpx;
+      font-size: 16px;
       font-weight: 500;
-      text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     }
 
     .weather-text {
-      font-size: 24rpx;
+      font-size: 12px;
       opacity: 0.9;
-      text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     }
   }
 }
@@ -436,14 +493,14 @@ defineExpose({
 // 农历信息
 .lunar-section {
   text-align: center;
-  margin-bottom: 40rpx;
+  margin-bottom: 20px;
   animation: fadeIn 1s ease 0.2s both;
 
   .lunar-text {
-    font-size: 28rpx;
+    font-size: 14px;
     opacity: 0.95;
-    text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-    letter-spacing: 2rpx;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
   }
 }
 
@@ -462,14 +519,14 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40rpx 0;
+  padding: 20px 0;
   animation: fadeInUp 1s ease 0.4s both;
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(50rpx);
+    transform: translateY(25px);
   }
   to {
     opacity: 1;
@@ -479,47 +536,47 @@ defineExpose({
 
 .poetry-card {
   width: 100%;
-  max-width: 600rpx;
-  padding: 80rpx 60rpx;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20rpx);
-  border-radius: 32rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 16rpx 64rpx rgba(0, 0, 0, 0.2);
+  max-width: 300px;
+  padding: 40px 30px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
 
   &:active {
     transform: scale(0.98);
-    box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
   .poetry-title {
-    font-size: 48rpx;
+    font-size: 24px;
     font-weight: 600;
     text-align: center;
-    margin-bottom: 24rpx;
-    letter-spacing: 4rpx;
-    text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.3);
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
     line-height: 1.4;
   }
 
   .poetry-author {
-    font-size: 28rpx;
+    font-size: 14px;
     text-align: center;
-    margin-bottom: 60rpx;
+    margin-bottom: 30px;
     opacity: 0.9;
-    text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-    letter-spacing: 2rpx;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
   }
 
   .poetry-content {
-    font-size: 32rpx;
+    font-size: 16px;
     line-height: 2;
     text-align: center;
     white-space: pre-wrap;
-    text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-    letter-spacing: 2rpx;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
     word-break: keep-all;
   }
 }
@@ -532,48 +589,9 @@ defineExpose({
   justify-content: center;
 
   .loading-text {
-    font-size: 32rpx;
+    font-size: 16px;
     opacity: 0.8;
-    text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-  }
-}
-
-// 底部操作区
-.bottom-actions {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 40rpx 0 20rpx;
-  animation: fadeInUp 1s ease 0.6s both;
-
-  .action-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12rpx;
-    padding: 20rpx 40rpx;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10rpx);
-    border-radius: 20rpx;
-    border: 1rpx solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
-    cursor: pointer;
-
-    &:active {
-      transform: scale(0.95);
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    .action-icon {
-      font-size: 40rpx;
-      filter: drop-shadow(0 2rpx 8rpx rgba(0, 0, 0, 0.2));
-    }
-
-    .action-text {
-      font-size: 24rpx;
-      opacity: 0.95;
-      text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
-    }
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   }
 }
 </style>

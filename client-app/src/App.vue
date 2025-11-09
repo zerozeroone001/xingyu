@@ -35,10 +35,10 @@ const route = useRoute();
 
 // 底部导航配置
 const tabs = [
-  { path: '/', icon: '🏠', text: '首页' },
-  { path: '/square', icon: '📢', text: '广场' },
-  { path: '/discover', icon: '🔍', text: '发现' },
-  { path: '/profile', icon: '👤', text: '我的' },
+  { path: '/', icon: '⌂', text: '首页' },
+  { path: '/square', icon: '◐', text: '广场' },
+  { path: '/discover', icon: '⌕', text: '发现' },
+  { path: '/profile', icon: '⚲', text: '我的' },
 ];
 
 // 需要显示底部导航的路由
