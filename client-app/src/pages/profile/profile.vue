@@ -2,25 +2,70 @@
   <view class="profile-page" :class="themeStore.themeClass">
     <view class="container">
       <!-- 未登录状态 -->
-      <view v-if="!userStore.isLoggedIn" class="login-prompt theme-card">
-        <view class="prompt-icon">👤</view>
-        <view class="prompt-text">登录后查看更多功能</view>
-        <button class="login-btn" @click="goToLogin">立即登录</button>
+      <view v-if="!userStore.isLoggedIn" class="not-logged-in">
+        <!-- 默认用户卡片 -->
+        <view class="user-card theme-card" @click="goToLogin">
+          <view class="avatar-container">
+            <view class="avatar-placeholder default">
+              <text class="avatar-icon">👤</text>
+            </view>
+          </view>
+          <view class="user-info">
+            <view class="nickname">未登录</view>
+            <view class="login-hint theme-text-tertiary">点击登录，体验更多功能</view>
+          </view>
+          <view class="login-arrow">→</view>
+        </view>
+
+        <!-- 功能预览 -->
+        <view class="feature-preview">
+          <view class="preview-title">登录后可以</view>
+          <view class="preview-grid">
+            <view class="preview-item theme-card" @click="goToLogin">
+              <text class="preview-icon">❤️</text>
+              <text class="preview-label">点赞诗词</text>
+            </view>
+            <view class="preview-item theme-card" @click="goToLogin">
+              <text class="preview-icon">⭐</text>
+              <text class="preview-label">收藏佳作</text>
+            </view>
+            <view class="preview-item theme-card" @click="goToLogin">
+              <text class="preview-icon">📝</text>
+              <text class="preview-label">发表动态</text>
+            </view>
+            <view class="preview-item theme-card" @click="goToLogin">
+              <text class="preview-icon">👥</text>
+              <text class="preview-label">关注好友</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 登录按钮 -->
+        <button class="login-btn-primary" @click="goToLogin">立即登录</button>
       </view>
 
       <!-- 已登录状态 -->
       <template v-else>
         <!-- 用户信息卡片 -->
         <view class="user-card theme-card">
-          <view class="avatar-container">
+          <view class="avatar-container" @click="handleEditProfile">
             <image v-if="userStore.avatar" class="avatar" :src="userStore.avatar" mode="aspectFill" />
             <view v-else class="avatar-placeholder">{{ userStore.username?.charAt(0).toUpperCase() }}</view>
+            <view class="edit-badge">
+              <text class="edit-icon">✏️</text>
+            </view>
           </view>
 
           <view class="user-info">
-            <view class="nickname">{{ userStore.nickname }}</view>
+            <view class="nickname-row">
+              <view class="nickname">{{ userStore.nickname }}</view>
+              <view class="edit-btn" @click="handleEditProfile">
+                <text>编辑</text>
+              </view>
+            </view>
             <view class="username theme-text-tertiary">@{{ userStore.username }}</view>
             <view v-if="userStore.userInfo?.bio" class="bio theme-text-secondary">{{ userStore.userInfo.bio }}</view>
+            <view v-else class="bio theme-text-tertiary" @click="handleEditProfile">添加个人简介...</view>
           </view>
         </view>
 
@@ -150,15 +195,15 @@ const mockStats = {
  * 加载统计数据
  */
 const loadStats = async () => {
-  if (!userStore.isLoggedIn) {
+  if (!userStore.isLoggedIn || !userStore.userId) {
     return;
   }
 
   try {
     isLoadingStats.value = true;
 
-    // 加载关注统计
-    const followResponse = await getFollowStats();
+    // 加载关注统计（现在需要userId参数）
+    const followResponse = await getFollowStats(userStore.userId);
     stats.value.following = followResponse.data.following_count || 0;
     stats.value.followers = followResponse.data.followers_count || 0;
 
@@ -174,7 +219,7 @@ const loadStats = async () => {
     const postsResponse = await getUserPostList(undefined, { page: 1, size: 1 });
     stats.value.posts = postsResponse.data.total || 0;
 
-    // 如果所有数据都为0，使用模拟数据
+    // 如果所有数据都为0，使用模拟数据（用于演示）
     if (
       stats.value.likes === 0 &&
       stats.value.collects === 0 &&
@@ -310,9 +355,26 @@ const goToSetting = () => {
   });
 };
 
+/**
+ * 编辑用户信息
+ */
+const handleEditProfile = () => {
+  uni.showModal({
+    title: '编辑资料',
+    content: '此功能正在开发中，敬请期待',
+    showCancel: false,
+  });
+  // TODO: 跳转到编辑资料页面
+  // uni.navigateTo({
+  //   url: '/pages/edit-profile/edit-profile',
+  // });
+};
+
 onMounted(() => {
-  loadStats();
-  loadUnreadCount();
+  if (userStore.isLoggedIn) {
+    loadStats();
+    loadUnreadCount();
+  }
 });
 </script>
 
@@ -327,35 +389,99 @@ onMounted(() => {
   padding: $spacing-md;
 }
 
-.login-prompt {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 100rpx $spacing-xl;
-  background-color: var(--bg-card);
-  border-radius: $border-radius-xl;
-  box-shadow: var(--shadow-md);
+// 未登录状态
+.not-logged-in {
+  .user-card {
+    cursor: pointer;
+    transition: all $transition-normal;
 
-  .prompt-icon {
-    font-size: 120rpx;
-    margin-bottom: $spacing-lg;
+    &:active {
+      transform: scale(0.98);
+    }
+
+    .avatar-placeholder.default {
+      background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+
+      .avatar-icon {
+        font-size: 64rpx;
+      }
+    }
+
+    .login-hint {
+      margin-top: 4rpx;
+      font-size: $font-size-sm;
+    }
+
+    .login-arrow {
+      font-size: 40rpx;
+      color: var(--text-tertiary);
+      opacity: 0.6;
+    }
   }
 
-  .prompt-text {
-    font-size: $font-size-lg;
-    color: var(--text-secondary);
+  .feature-preview {
+    margin-top: $spacing-lg;
     margin-bottom: $spacing-xl;
+
+    .preview-title {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: var(--text-primary);
+      margin-bottom: $spacing-md;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-md;
+
+      .preview-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: $spacing-xl;
+        background-color: var(--bg-card);
+        border-radius: $border-radius-lg;
+        box-shadow: var(--shadow-sm);
+        cursor: pointer;
+        transition: all $transition-normal;
+
+        &:active {
+          transform: scale(0.95);
+          box-shadow: var(--shadow-md);
+        }
+
+        .preview-icon {
+          font-size: 48rpx;
+          margin-bottom: $spacing-sm;
+        }
+
+        .preview-label {
+          font-size: $font-size-sm;
+          color: var(--text-secondary);
+        }
+      }
+    }
   }
 
-  .login-btn {
-    width: 400rpx;
-    height: 80rpx;
-    line-height: 80rpx;
-    font-size: $font-size-md;
+  .login-btn-primary {
+    width: 100%;
+    height: 90rpx;
+    line-height: 90rpx;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
     color: #ffffff;
-    background-color: var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary) 0%, #667eea 100%);
     border: none;
     border-radius: $border-radius-lg;
+    box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
+    transition: all $transition-normal;
+
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.2);
+    }
   }
 }
 
@@ -386,6 +512,7 @@ onMounted(() => {
   .avatar-container {
     position: relative;
     margin-right: $spacing-lg;
+    cursor: pointer;
 
     .avatar,
     .avatar-placeholder {
@@ -393,6 +520,7 @@ onMounted(() => {
       height: 140rpx;
       border-radius: 50%;
       border: 4rpx solid rgba(102, 126, 234, 0.1);
+      transition: all $transition-normal;
     }
 
     .avatar-placeholder {
@@ -405,20 +533,69 @@ onMounted(() => {
       font-weight: $font-weight-bold;
       box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.3);
     }
+
+    .edit-badge {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 44rpx;
+      height: 44rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #667eea 100%);
+      border-radius: 50%;
+      border: 3rpx solid var(--bg-card);
+      box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+
+      .edit-icon {
+        font-size: 20rpx;
+      }
+    }
+
+    &:active {
+      .avatar,
+      .avatar-placeholder {
+        transform: scale(0.95);
+      }
+    }
   }
 
   .user-info {
     flex: 1;
     min-width: 0;
 
-    .nickname {
-      font-size: $font-size-xl;
-      font-weight: $font-weight-bold;
-      color: var(--text-primary);
+    .nickname-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 8rpx;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+
+      .nickname {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        margin-right: $spacing-sm;
+      }
+
+      .edit-btn {
+        padding: 6rpx 16rpx;
+        font-size: $font-size-xs;
+        color: var(--color-primary);
+        background-color: rgba(102, 126, 234, 0.1);
+        border-radius: $border-radius-md;
+        cursor: pointer;
+        transition: all $transition-normal;
+
+        &:active {
+          transform: scale(0.95);
+          background-color: rgba(102, 126, 234, 0.15);
+        }
+      }
     }
 
     .username {
@@ -436,6 +613,12 @@ onMounted(() => {
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
+      cursor: pointer;
+
+      &.theme-text-tertiary {
+        font-style: italic;
+        opacity: 0.6;
+      }
     }
   }
 }

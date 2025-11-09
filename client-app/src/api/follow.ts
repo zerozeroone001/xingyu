@@ -8,63 +8,65 @@ import { UserInfo } from './auth';
 export interface FollowStats {
   following_count: number;
   followers_count: number;
-  friends_count: number;
+  is_following?: boolean;
+  is_followed?: boolean;
 }
 
 /**
  * 关注用户
  */
-export function followUser(userId: number): Promise<ApiResponse<void>> {
-  return request.post(`/users/${userId}/follow`);
+export function followUser(userId: number): Promise<ApiResponse<{ following: boolean }>> {
+  return request.post(`/follow/${userId}`);
 }
 
 /**
  * 取消关注
  */
-export function unfollowUser(userId: number): Promise<ApiResponse<void>> {
-  return request.delete(`/users/${userId}/follow`);
+export function unfollowUser(userId: number): Promise<ApiResponse<{ following: boolean }>> {
+  return request.delete(`/follow/${userId}`);
 }
 
 /**
  * 检查关注状态
  */
-export function checkFollowStatus(userId: number): Promise<ApiResponse<{ following: boolean }>> {
-  return request.get(`/users/${userId}/follow/status`);
+export function checkFollowStatus(userId: number): Promise<ApiResponse<{ is_following: boolean }>> {
+  return request.get(`/follow/${userId}/check`);
 }
 
 /**
- * 获取关注统计
+ * 获取关注统计（需要用户ID）
  */
-export function getFollowStats(userId?: number): Promise<ApiResponse<FollowStats>> {
-  const url = userId ? `/users/${userId}/follow/stats` : '/user/follow/stats';
-  return request.get(url);
+export function getFollowStats(userId: number): Promise<ApiResponse<FollowStats>> {
+  return request.get(`/follow/${userId}/stats`);
 }
 
 /**
  * 获取关注列表
  */
 export function getFollowingList(
-  userId?: number,
-  params?: { page?: number; size?: number }
+  userId: number,
+  params?: { page?: number; page_size?: number }
 ): Promise<ApiResponse<PaginationResponse<UserInfo>>> {
-  const url = userId ? `/users/${userId}/following` : '/user/following';
-  return request.get(url, { params });
+  return request.get('/follow/following/list', {
+    params: { user_id: userId, ...params },
+  });
 }
 
 /**
  * 获取粉丝列表
  */
 export function getFollowersList(
-  userId?: number,
-  params?: { page?: number; size?: number }
+  userId: number,
+  params?: { page?: number; page_size?: number }
 ): Promise<ApiResponse<PaginationResponse<UserInfo>>> {
-  const url = userId ? `/users/${userId}/followers` : '/user/followers';
-  return request.get(url, { params });
+  return request.get('/follow/followers/list', {
+    params: { user_id: userId, ...params },
+  });
 }
 
 /**
  * 获取好友列表（互关）
  */
-export function getFriendsList(params?: { page?: number; size?: number }): Promise<ApiResponse<PaginationResponse<UserInfo>>> {
-  return request.get('/user/friends', { params });
+export function getFriendsList(params?: { page?: number; page_size?: number }): Promise<ApiResponse<PaginationResponse<UserInfo>>> {
+  return request.get('/follow/friends/list', { params });
 }
