@@ -64,6 +64,7 @@ import { getRandomPoetry, type Poetry } from '@/api/poetry';
 import { getDailyRecommendations } from '@/api/recommendation';
 import { solar2lunar, getWeekDay, formatDate } from '@/utils/lunar';
 import { getMockWeather, getWeatherPoetry } from '@/utils/weather';
+import { showToast, navigateTo } from '@/utils/platform';
 
 // 模拟诗词数据（作为后备）
 const mockPoetryList: Poetry[] = [
@@ -136,8 +137,8 @@ function getRandomMockPoetry(): Poetry {
 }
 
 // ========== 响应式数据定义 ==========
-// 是否使用 mock 数据（开发环境下默认使用）
-const useMockData = true;
+// 是否使用 mock 数据（优先尝试API，失败后使用mock）
+const useMockData = false;
 
 const dailyPoetry = ref<Poetry | null>(null);
 const loading = ref(false);
@@ -259,22 +260,18 @@ const refreshPoetry = async () => {
     const response = await getRandomPoetry();
     dailyPoetry.value = response.data;
 
-    if (typeof uni !== 'undefined') {
-      uni.showToast({
-        title: '已换一首',
-        icon: 'success',
-        duration: 1500,
-      });
-    }
+    showToast({
+      title: '已换一首',
+      icon: 'success',
+      duration: 1500,
+    });
   } catch (error) {
     console.error('刷新诗词失败:', error);
-    if (typeof uni !== 'undefined') {
-      uni.showToast({
-        title: '换一首失败',
-        icon: 'none',
-        duration: 2000,
-      });
-    }
+    showToast({
+      title: '换一首失败',
+      icon: 'none',
+      duration: 2000,
+    });
   } finally {
     loading.value = false;
   }
@@ -284,22 +281,14 @@ const refreshPoetry = async () => {
  * 跳转到诗词详情
  */
 const goToDetail = (id: number) => {
-  if (typeof uni !== 'undefined') {
-    uni.navigateTo({
-      url: `/pages/poetry-detail/poetry-detail?id=${id}`,
-    });
-  }
+  navigateTo(`/pages/poetry-detail/poetry-detail?id=${id}`);
 };
 
 /**
  * 跳转到搜索页
  */
 const goToSearch = () => {
-  if (typeof uni !== 'undefined') {
-    uni.navigateTo({
-      url: '/pages/search/search',
-    });
-  }
+  navigateTo('/pages/search/search');
 };
 
 /**
