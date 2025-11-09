@@ -56,9 +56,18 @@
             @click="goToAuthorDetail(author.id)"
           >
             <view class="author-avatar">{{ author.name.charAt(0) }}</view>
-            <view class="author-name">{{ author.name }}</view>
-            <view class="author-dynasty theme-text-tertiary">{{ author.dynasty }}</view>
+            <view class="author-info">
+              <view class="author-name">{{ author.name }}</view>
+              <view class="author-dynasty theme-text-tertiary">{{ author.dynasty }}</view>
+              <view class="author-stats theme-text-tertiary">
+                <text>诗词 {{ author.poetry_count }}</text>
+              </view>
+            </view>
           </view>
+        </view>
+        <view v-else class="empty-state">
+          <text class="empty-icon">📚</text>
+          <text class="empty-text theme-text-tertiary">暂无作者数据</text>
         </view>
       </view>
     </view>
@@ -76,6 +85,82 @@ const themeStore = useThemeStore();
 const hotAuthors = ref<Author[]>([]);
 const dynastyList = ['先秦', '汉', '魏晋', '南北朝', '隋', '唐', '宋', '元', '明', '清'];
 
+// 模拟热门作者数据
+const mockHotAuthors: Author[] = [
+  {
+    id: 1,
+    name: '李白',
+    dynasty: '唐',
+    birth_year: '701',
+    death_year: '762',
+    biography: '唐代伟大的浪漫主义诗人',
+    poetry_count: 990,
+    views_count: 15000,
+    created_at: '2024-01-01T00:00:00',
+    updated_at: '2024-01-01T00:00:00',
+  },
+  {
+    id: 2,
+    name: '杜甫',
+    dynasty: '唐',
+    birth_year: '712',
+    death_year: '770',
+    biography: '唐代伟大的现实主义诗人',
+    poetry_count: 1450,
+    views_count: 14500,
+    created_at: '2024-01-01T00:00:00',
+    updated_at: '2024-01-01T00:00:00',
+  },
+  {
+    id: 3,
+    name: '白居易',
+    dynasty: '唐',
+    birth_year: '772',
+    death_year: '846',
+    biography: '唐代著名现实主义诗人',
+    poetry_count: 2800,
+    views_count: 12000,
+    created_at: '2024-01-01T00:00:00',
+    updated_at: '2024-01-01T00:00:00',
+  },
+  {
+    id: 4,
+    name: '苏轼',
+    dynasty: '宋',
+    birth_year: '1037',
+    death_year: '1101',
+    biography: '北宋著名文学家、书画家',
+    poetry_count: 3460,
+    views_count: 13000,
+    created_at: '2024-01-01T00:00:00',
+    updated_at: '2024-01-01T00:00:00',
+  },
+  {
+    id: 5,
+    name: '李清照',
+    dynasty: '宋',
+    birth_year: '1084',
+    death_year: '1155',
+    biography: '宋代著名女词人',
+    poetry_count: 60,
+    views_count: 11000,
+    created_at: '2024-01-01T00:00:00',
+    updated_at: '2024-01-01T00:00:00',
+  },
+  {
+    id: 6,
+    name: '辛弃疾',
+    dynasty: '宋',
+    birth_year: '1140',
+    death_year: '1207',
+    biography: '南宋豪放派词人',
+    poetry_count: 620,
+    views_count: 10500,
+    created_at: '2024-01-01T00:00:00',
+    updated_at: '2024-01-01T00:00:00',
+  },
+];
+
 /**
  * 加载热门作者
  */
@@ -83,8 +168,15 @@ const loadHotAuthors = async () => {
   try {
     const response = await getHotAuthorList({ page: 1, size: 6 });
     hotAuthors.value = response.data.items || [];
+
+    // 如果 API 返回数据为空，使用模拟数据
+    if (hotAuthors.value.length === 0) {
+      hotAuthors.value = mockHotAuthors;
+    }
   } catch (error) {
     console.error('加载热门作者失败:', error);
+    // API 调用失败时使用模拟数据
+    hotAuthors.value = mockHotAuthors;
   }
 };
 
@@ -278,12 +370,12 @@ onMounted(() => {
 
   .author-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: $spacing-md;
 
     .author-item {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
       padding: $spacing-lg;
       background-color: var(--bg-card);
@@ -293,35 +385,71 @@ onMounted(() => {
       transition: all $transition-normal;
 
       &:active {
-        transform: scale(0.95);
+        transform: scale(0.98);
+        box-shadow: var(--shadow-md);
       }
 
       .author-avatar {
         width: 100rpx;
         height: 100rpx;
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: $spacing-sm;
-        background-color: var(--color-primary);
+        margin-right: $spacing-md;
+        background: linear-gradient(135deg, var(--color-primary) 0%, #667eea 100%);
         color: #ffffff;
         font-size: $font-size-xl;
         font-weight: $font-weight-bold;
         border-radius: 50%;
+        box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
       }
 
-      .author-name {
-        font-size: $font-size-md;
-        font-weight: $font-weight-medium;
-        color: var(--text-primary);
-        margin-bottom: 4rpx;
-        text-align: center;
-      }
+      .author-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4rpx;
+        min-width: 0;
 
-      .author-dynasty {
-        font-size: $font-size-xs;
-        text-align: center;
+        .author-name {
+          font-size: $font-size-lg;
+          font-weight: $font-weight-bold;
+          color: var(--text-primary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .author-dynasty {
+          font-size: $font-size-sm;
+          line-height: 1.4;
+        }
+
+        .author-stats {
+          font-size: $font-size-xs;
+          line-height: 1.4;
+          opacity: 0.8;
+        }
       }
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xl * 2;
+
+    .empty-icon {
+      font-size: 72rpx;
+      margin-bottom: $spacing-md;
+      opacity: 0.5;
+    }
+
+    .empty-text {
+      font-size: $font-size-md;
     }
   }
 }
