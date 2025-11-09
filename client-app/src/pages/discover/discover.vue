@@ -167,7 +167,7 @@ const mockHotAuthors: Author[] = [
 const loadHotAuthors = async () => {
   try {
     const response = await getHotAuthorList({ page: 1, size: 6 });
-    hotAuthors.value = response.data.items || [];
+    hotAuthors.value = response.data.list || [];
 
     // 如果 API 返回数据为空，使用模拟数据
     if (hotAuthors.value.length === 0) {

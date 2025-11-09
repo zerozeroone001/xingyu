@@ -69,8 +69,8 @@ async def register(
 
     # 返回响应
     return ResponseModel(
-        code=0,
-        message="注册成功",
+        code=200,
+        msg="注册成功",
         data=TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
@@ -120,8 +120,8 @@ async def login(
 
     # 返回响应
     return ResponseModel(
-        code=0,
-        message="登录成功",
+        code=200,
+        msg="登录成功",
         data=TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
@@ -194,8 +194,8 @@ async def refresh_token(
     new_refresh_token = create_refresh_token({"user_id": user.id})
 
     return ResponseModel(
-        code=0,
-        message="刷新成功",
+        code=200,
+        msg="刷新成功",
         data=TokenResponse(
             access_token=new_access_token,
             refresh_token=new_refresh_token,

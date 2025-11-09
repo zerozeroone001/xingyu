@@ -45,10 +45,10 @@ async def get_messages(
     items = [MessageResponse.model_validate(m) for m in messages]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -70,8 +70,8 @@ async def get_message_stats(
     stats = await service.get_stats(current_user.id)
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=MessageStats(**stats),
     )
 
@@ -88,8 +88,8 @@ async def get_unread_count(
     count = await service.get_unread_count(current_user.id)
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=count,
     )
 
@@ -112,8 +112,8 @@ async def get_message_detail(
         raise HTTPException(status_code=404, detail="消息不存在")
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=MessageResponse.model_validate(message),
     )
 
@@ -136,8 +136,8 @@ async def mark_message_as_read(
         raise HTTPException(status_code=404, detail="消息不存在")
 
     return ResponseModel(
-        code=0,
-        message="标记成功",
+        code=200,
+        msg="标记成功",
         data=None,
     )
 
@@ -157,7 +157,7 @@ async def mark_all_as_read(
     count = await service.mark_all_as_read(current_user.id, type_)
 
     return ResponseModel(
-        code=0,
+        code=200,
         message=f"已标记{count}条消息为已读",
         data=count,
     )
@@ -181,7 +181,7 @@ async def delete_message(
         raise HTTPException(status_code=404, detail="消息不存在")
 
     return ResponseModel(
-        code=0,
-        message="删除成功",
+        code=200,
+        msg="删除成功",
         data=None,
     )

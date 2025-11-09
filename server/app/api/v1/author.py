@@ -58,10 +58,10 @@ async def get_authors(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -86,8 +86,8 @@ async def get_hot_authors(
     items = [AuthorSimple.model_validate(a) for a in authors]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )
 
@@ -108,8 +108,8 @@ async def get_authors_by_dynasty(
     items = [AuthorResponse.model_validate(a) for a in authors]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )
 
@@ -134,8 +134,8 @@ async def get_author_detail(
         )
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=AuthorResponse.model_validate(author),
     )
 
@@ -164,8 +164,8 @@ async def create_author(
     author = await service.create(author_data)
 
     return ResponseModel(
-        code=0,
-        message="创建成功",
+        code=200,
+        msg="创建成功",
         data=AuthorResponse.model_validate(author),
     )
 
@@ -192,8 +192,8 @@ async def update_author(
         )
 
     return ResponseModel(
-        code=0,
-        message="更新成功",
+        code=200,
+        msg="更新成功",
         data=AuthorResponse.model_validate(author),
     )
 

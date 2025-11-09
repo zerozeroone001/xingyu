@@ -39,8 +39,8 @@ async def follow_user(
         )
 
     return ResponseModel(
-        code=0,
-        message="关注成功",
+        code=200,
+        msg="关注成功",
         data={"following": True},
     )
 
@@ -68,8 +68,8 @@ async def unfollow_user(
         )
 
     return ResponseModel(
-        code=0,
-        message="取消关注成功",
+        code=200,
+        msg="取消关注成功",
         data={"following": False},
     )
 
@@ -91,8 +91,8 @@ async def check_following(
     is_following = await service.check_following(current_user.id, user_id)
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data={"is_following": is_following},
     )
 
@@ -121,8 +121,8 @@ async def get_follow_stats(
     is_followed = await service.check_following(user_id, current_user.id)
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=FollowStats(
             following_count=following_count,
             followers_count=followers_count,
@@ -156,10 +156,10 @@ async def get_following_list(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -192,10 +192,10 @@ async def get_followers_list(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -229,10 +229,10 @@ async def get_friends_list(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,

@@ -92,7 +92,7 @@ const loadUserList = async (refresh = false) => {
       size: 20,
     });
 
-    const newUserList = response.data.items || [];
+    const newUserList = response.data.list || [];
 
     if (refresh) {
       userList.value = newUserList;

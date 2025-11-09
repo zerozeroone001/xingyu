@@ -133,7 +133,7 @@ const loadMessageList = async (refresh = false) => {
       type: currentTab.value ? (currentTab.value as NotificationType) : undefined,
     });
 
-    const newMessageList = response.data.items || [];
+    const newMessageList = response.data.list || [];
 
     if (refresh) {
       messageList.value = newMessageList;

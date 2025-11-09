@@ -58,10 +58,10 @@ async def get_posts(
     items = [PostResponse.model_validate(p) for p in posts]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -90,10 +90,10 @@ async def get_following_posts(
     items = [PostResponse.model_validate(p) for p in posts]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -125,8 +125,8 @@ async def get_post_detail(
     await service.increment_view_count(post_id)
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PostResponse.model_validate(post),
     )
 
@@ -154,8 +154,8 @@ async def create_post(
         raise HTTPException(status_code=400, detail=str(e))
 
     return ResponseModel(
-        code=0,
-        message="发布成功",
+        code=200,
+        msg="发布成功",
         data=PostResponse.model_validate(post),
     )
 
@@ -189,8 +189,8 @@ async def update_post(
         raise HTTPException(status_code=404, detail="内容不存在")
 
     return ResponseModel(
-        code=0,
-        message="更新成功",
+        code=200,
+        msg="更新成功",
         data=PostResponse.model_validate(post),
     )
 
@@ -217,7 +217,7 @@ async def delete_post(
         raise HTTPException(status_code=404, detail="内容不存在")
 
     return ResponseModel(
-        code=0,
-        message="删除成功",
+        code=200,
+        msg="删除成功",
         data=None,
     )

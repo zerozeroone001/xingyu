@@ -40,8 +40,8 @@ async def get_hot_poetries(
     items = [PoetryDetail.model_validate(p) for p in poetries]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )
 
@@ -62,8 +62,8 @@ async def get_random_poetries(
     items = [PoetryDetail.model_validate(p) for p in poetries]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )
 
@@ -86,8 +86,8 @@ async def get_daily_recommend(
     items = [PoetryDetail.model_validate(p) for p in poetries]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )
 
@@ -123,8 +123,8 @@ async def get_similar_poetries(
     items = [PoetryDetail.model_validate(p) for p in poetries]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )
 
@@ -151,7 +151,7 @@ async def get_personalized_recommend(
     items = [PoetryDetail.model_validate(p) for p in poetries]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )

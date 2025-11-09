@@ -8,17 +8,18 @@ import { getStorageSync } from './storage';
 // 响应数据接口
 export interface ApiResponse<T = any> {
   code: number;
-  message: string;
+  status: boolean;
+  msg: string;
   data: T;
 }
 
 // 分页响应接口
 export interface PaginationResponse<T = any> {
-  items: T[];
+  list: T[];
   total: number;
   page: number;
-  size: number;
-  pages: number;
+  page_size: number;
+  total_pages: number;
 }
 
 // 创建 axios 实例
@@ -67,21 +68,21 @@ service.interceptors.response.use(
 
     const res = response.data;
 
-    // 如果响应成功，直接返回 data
-    if (response.status === 200 || response.status === 201) {
+    // 如果响应成功（code为200），直接返回
+    if (res.code === 200 && res.status === true) {
       return res;
     }
 
-    // 其他情况显示错误信息
+    // 如果响应成功但code不是200，显示错误信息
     if (typeof uni !== 'undefined') {
       uni.showToast({
-        title: res.message || '请求失败',
+        title: res.msg || '请求失败',
         icon: 'none',
         duration: 2000,
       });
     }
 
-    return Promise.reject(new Error(res.message || '请求失败'));
+    return Promise.reject(new Error(res.msg || '请求失败'));
   },
   (error: AxiosError<ApiResponse>) => {
     if (typeof uni !== 'undefined') {
@@ -92,7 +93,7 @@ service.interceptors.response.use(
 
     // 处理不同的错误状态码
     const status = error.response?.status;
-    const message = error.response?.data?.message || error.message;
+    const message = error.response?.data?.msg || error.message;
 
     if (typeof uni !== 'undefined') {
       switch (status) {

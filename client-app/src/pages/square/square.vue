@@ -111,7 +111,7 @@ const loadPostList = async (refresh = false) => {
       size: 20,
     });
 
-    const newPostList = response.data.items || [];
+    const newPostList = response.data.list || [];
 
     if (refresh) {
       postList.value = newPostList;

@@ -94,7 +94,7 @@ const loadPoetryList = async (refresh = false) => {
       size: 10,
     });
 
-    const newPoetryList = response.data.items || [];
+    const newPoetryList = response.data.list || [];
 
     if (refresh) {
       poetryList.value = newPoetryList;

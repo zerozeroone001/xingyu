@@ -58,10 +58,10 @@ async def get_comments(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -90,8 +90,8 @@ async def get_comment_detail(
         )
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=CommentResponse.model_validate(comment),
     )
 
@@ -132,10 +132,10 @@ async def get_comment_replies(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -184,8 +184,8 @@ async def create_comment(
     comment = await service.create(current_user.id, comment_data)
 
     return ResponseModel(
-        code=0,
-        message="评论成功",
+        code=200,
+        msg="评论成功",
         data=CommentResponse.model_validate(comment),
     )
 
@@ -215,8 +215,8 @@ async def update_comment(
         )
 
     return ResponseModel(
-        code=0,
-        message="更新成功",
+        code=200,
+        msg="更新成功",
         data=CommentResponse.model_validate(comment),
     )
 
@@ -273,10 +273,10 @@ async def get_my_comments(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,

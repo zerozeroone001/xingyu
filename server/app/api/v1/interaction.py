@@ -39,8 +39,8 @@ async def like_poetry(
         )
 
     return ResponseModel(
-        code=0,
-        message="点赞成功",
+        code=200,
+        msg="点赞成功",
         data={"liked": True},
     )
 
@@ -66,8 +66,8 @@ async def unlike_poetry(
         )
 
     return ResponseModel(
-        code=0,
-        message="取消点赞成功",
+        code=200,
+        msg="取消点赞成功",
         data={"liked": False},
     )
 
@@ -87,8 +87,8 @@ async def check_poetry_liked(
     liked = await service.check_liked(current_user.id, poetry_id)
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data={"liked": liked},
     )
 
@@ -117,10 +117,10 @@ async def get_liked_poetries(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -152,8 +152,8 @@ async def collect_poetry(
         )
 
     return ResponseModel(
-        code=0,
-        message="收藏成功",
+        code=200,
+        msg="收藏成功",
         data={"collected": True},
     )
 
@@ -179,8 +179,8 @@ async def uncollect_poetry(
         )
 
     return ResponseModel(
-        code=0,
-        message="取消收藏成功",
+        code=200,
+        msg="取消收藏成功",
         data={"collected": False},
     )
 
@@ -200,8 +200,8 @@ async def check_poetry_collected(
     collected = await service.check_collected(current_user.id, poetry_id)
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data={"collected": collected},
     )
 
@@ -230,10 +230,10 @@ async def get_collected_poetries(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,

@@ -194,7 +194,7 @@ const handleSearch = async (refresh = true) => {
       size: 20,
     });
 
-    const newResults = response.data.items || [];
+    const newResults = response.data.list || [];
 
     if (refresh) {
       resultList.value = newResults;

@@ -11,15 +11,17 @@ T = TypeVar("T")
 class ResponseModel(BaseModel, Generic[T]):
     """统一响应模型"""
 
-    code: int = Field(default=0, description="响应码,0表示成功")
-    message: str = Field(default="success", description="响应消息")
+    code: int = Field(default=200, description="响应码,200表示成功")
+    status: bool = Field(default=True, description="请求状态")
+    msg: str = Field(default="请求成功", description="响应消息")
     data: Optional[T] = Field(default=None, description="响应数据")
 
     class Config:
         json_schema_extra = {
             "example": {
-                "code": 0,
-                "message": "success",
+                "code": 200,
+                "status": True,
+                "msg": "请求成功",
                 "data": {"id": 1, "name": "示例"}
             }
         }
@@ -28,7 +30,7 @@ class ResponseModel(BaseModel, Generic[T]):
 class PaginatedResponse(BaseModel, Generic[T]):
     """分页响应模型"""
 
-    items: List[T] = Field(description="数据列表")
+    list: List[T] = Field(description="数据列表")
     total: int = Field(description="总数")
     page: int = Field(description="当前页码")
     page_size: int = Field(description="每页数量")
@@ -37,7 +39,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
     class Config:
         json_schema_extra = {
             "example": {
-                "items": [],
+                "list": [],
                 "total": 100,
                 "page": 1,
                 "page_size": 20,

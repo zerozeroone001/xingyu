@@ -67,10 +67,10 @@ async def get_poetries(
     total_pages = (total + page_size - 1) // page_size
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PaginatedResponse(
-            items=items,
+            list=items,
             total=total,
             page=page,
             page_size=page_size,
@@ -95,8 +95,8 @@ async def get_random_poetries(
     items = [PoetryDetail.model_validate(p) for p in poetries]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )
 
@@ -117,8 +117,8 @@ async def get_hot_poetries(
     items = [PoetryDetail.model_validate(p) for p in poetries]
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=items,
     )
 
@@ -150,8 +150,8 @@ async def get_poetry_detail(
     await service.increment_read_count(poetry_id)
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=PoetryDetail.model_validate(poetry),
     )
 
@@ -171,8 +171,8 @@ async def create_poetry(
     poetry = await service.create(poetry_data)
 
     return ResponseModel(
-        code=0,
-        message="创建成功",
+        code=200,
+        msg="创建成功",
         data=PoetryDetail.model_validate(poetry),
     )
 
@@ -199,8 +199,8 @@ async def update_poetry(
         )
 
     return ResponseModel(
-        code=0,
-        message="更新成功",
+        code=200,
+        msg="更新成功",
         data=PoetryDetail.model_validate(poetry),
     )
 

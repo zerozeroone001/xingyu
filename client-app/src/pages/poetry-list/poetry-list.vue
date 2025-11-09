@@ -137,7 +137,7 @@ const loadPoetryList = async (refresh = false) => {
       ? await getHotPoetryList(params)
       : await getPoetryList(params);
 
-    const newPoetryList = response.data.items || [];
+    const newPoetryList = response.data.list || [];
 
     if (refresh) {
       poetryList.value = newPoetryList;

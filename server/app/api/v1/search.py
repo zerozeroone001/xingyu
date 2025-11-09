@@ -56,7 +56,7 @@ async def search_poetries(
         order=order,
     )
 
-    return ResponseModel(code=0, message="success", data=result)
+    return ResponseModel(code=200, msg="success", data=result)
 
 
 @router.get("/suggest", response_model=ResponseModel[List[str]])
@@ -75,7 +75,7 @@ async def search_suggest(
     service = SearchService(db, es_client)
     suggestions = await service.suggest(q, size)
 
-    return ResponseModel(code=0, message="success", data=suggestions)
+    return ResponseModel(code=200, msg="success", data=suggestions)
 
 
 @router.post("/index/rebuild", response_model=ResponseModel[dict])
@@ -104,7 +104,7 @@ async def rebuild_search_index(
     count = await es_client.count(index=service.POETRY_INDEX)
 
     return ResponseModel(
-        code=0,
-        message="索引重建成功",
+        code=200,
+        msg="索引重建成功",
         data={"indexed_count": count["count"]},
     )

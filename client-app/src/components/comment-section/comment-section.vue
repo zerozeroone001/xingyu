@@ -194,7 +194,7 @@ const loadComments = async (refresh = false) => {
       ? await getPoetryCommentList(props.poetryId, params)
       : await getPostCommentList(props.postId!, params);
 
-    const newComments = response.data.items || [];
+    const newComments = response.data.list || [];
     total.value = response.data.total || 0;
 
     if (refresh) {
@@ -227,7 +227,7 @@ const loadReplies = async (comment: Comment) => {
       size: 10,
     });
 
-    comment.replies = response.data.items || [];
+    comment.replies = response.data.list || [];
   } catch (error) {
     console.error('加载回复失败:', error);
   }

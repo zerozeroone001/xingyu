@@ -151,7 +151,7 @@ const loadAuthorList = async (refresh = false) => {
       });
     }
 
-    const newAuthorList = response.data.items || [];
+    const newAuthorList = response.data.list || [];
 
     if (refresh) {
       authorList.value = newAuthorList;

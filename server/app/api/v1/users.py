@@ -22,8 +22,8 @@ async def get_current_user_info(
     获取当前用户信息
     """
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=UserResponse.model_validate(current_user),
     )
 
@@ -51,8 +51,8 @@ async def update_current_user(
     await db.refresh(current_user)
 
     return ResponseModel(
-        code=0,
-        message="更新成功",
+        code=200,
+        msg="更新成功",
         data=UserResponse.model_validate(current_user),
     )
 
@@ -83,7 +83,7 @@ async def get_user_by_id(
         )
 
     return ResponseModel(
-        code=0,
-        message="success",
+        code=200,
+        msg="success",
         data=UserResponse.model_validate(user),
     )
