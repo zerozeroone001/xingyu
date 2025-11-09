@@ -3,6 +3,7 @@
 诗词数据导入脚本
 
 从sample_data.json导入作者和诗词数据到数据库
+支持自动繁简转换
 """
 
 import asyncio
@@ -15,10 +16,30 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from opencc import OpenCC
 
 from app.core.config import settings
 from app.models.author import Author
 from app.models.poetry import Poetry
+
+
+# 创建繁体转简体转换器
+cc = OpenCC('t2s')  # Traditional to Simplified
+
+
+def convert_to_simplified(text: str | None) -> str | None:
+    """
+    将繁体中文转换为简体中文
+
+    Args:
+        text: 需要转换的文本，可以为None
+
+    Returns:
+        转换后的简体文本，如果输入为None则返回None
+    """
+    if text is None:
+        return None
+    return cc.convert(text)
 
 
 async def import_data():
@@ -68,19 +89,19 @@ async def import_data():
                     print(f"   ⏭️  作者已存在，跳过: {author_data['name']}")
                     continue
 
-                # 创建作者
+                # 创建作者（自动转换繁体为简体）
                 author = Author(
                     id=author_data["id"],
-                    name=author_data["name"],
-                    dynasty=author_data["dynasty"],
-                    intro=author_data.get("intro"),
+                    name=convert_to_simplified(author_data["name"]),
+                    dynasty=convert_to_simplified(author_data["dynasty"]),
+                    intro=convert_to_simplified(author_data.get("intro")),
                     birth_year=author_data.get("birth_year"),
                     death_year=author_data.get("death_year"),
                 )
 
                 session.add(author)
                 authors_imported += 1
-                print(f"   ✅ 导入作者: {author_data['name']} ({author_data['dynasty']})")
+                print(f"   ✅ 导入作者: {author.name} ({author.dynasty})")
 
             await session.commit()
             print(f"\n✅ 作者数据导入完成，成功导入 {authors_imported} 位作者")
@@ -100,19 +121,19 @@ async def import_data():
                     print(f"   ⏭️  诗词已存在，跳过: {poetry_data['title']}")
                     continue
 
-                # 创建诗词
+                # 创建诗词（自动转换繁体为简体）
                 poetry = Poetry(
                     id=poetry_data["id"],
-                    title=poetry_data["title"],
-                    content=poetry_data["content"],
+                    title=convert_to_simplified(poetry_data["title"]),
+                    content=convert_to_simplified(poetry_data["content"]),
                     author_id=poetry_data.get("author_id"),
-                    dynasty=poetry_data["dynasty"],
-                    type=poetry_data.get("type"),
-                    tags=poetry_data.get("tags"),
-                    translation=poetry_data.get("translation"),
-                    annotation=poetry_data.get("annotation"),
-                    appreciation=poetry_data.get("appreciation"),
-                    background=poetry_data.get("background"),
+                    dynasty=convert_to_simplified(poetry_data["dynasty"]),
+                    type=convert_to_simplified(poetry_data.get("type")),
+                    tags=convert_to_simplified(poetry_data.get("tags")),
+                    translation=convert_to_simplified(poetry_data.get("translation")),
+                    annotation=convert_to_simplified(poetry_data.get("annotation")),
+                    appreciation=convert_to_simplified(poetry_data.get("appreciation")),
+                    background=convert_to_simplified(poetry_data.get("background")),
                     read_count=0,
                     like_count=0,
                     comment_count=0,
@@ -122,7 +143,7 @@ async def import_data():
 
                 session.add(poetry)
                 poetries_imported += 1
-                print(f"   ✅ 导入诗词: {poetry_data['title']} - {poetry_data['dynasty']} {poetry_data.get('type', '')}")
+                print(f"   ✅ 导入诗词: {poetry.title} - {poetry.dynasty} {poetry.type or ''}")
 
             await session.commit()
             print(f"\n✅ 诗词数据导入完成，成功导入 {poetries_imported} 首诗词")
