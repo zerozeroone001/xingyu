@@ -46,7 +46,18 @@
 | 401 | 未授权，需要登录 |
 | 403 | 无权限访问 |
 | 404 | 资源不存在 |
+| 422 | 参数验证失败 |
 | 500 | 服务器内部错误 |
+
+## 异常处理
+
+后端使用全局异常处理器统一所有错误响应格式，包括：
+
+1. **HTTPException** - 认证错误、权限错误、404等HTTP异常
+2. **RequestValidationError** - 参数验证错误（状态码422）
+3. **Exception** - 未捕获的服务器内部错误（状态码500）
+
+所有异常都会返回统一的错误响应格式。
 
 ## 列表数据格式
 
@@ -161,6 +172,44 @@
   "data": null
 }
 ```
+
+### 5. 认证失败（错误响应）
+
+**请求：** `GET /api/v1/users/me`（未提供token）
+
+**响应：**
+```json
+{
+  "code": 401,
+  "status": false,
+  "msg": "Not authenticated",
+  "data": null
+}
+```
+
+### 6. 参数验证失败（错误响应）
+
+**请求：** `POST /api/v1/auth/register`（缺少必填字段）
+
+**响应：**
+```json
+{
+  "code": 422,
+  "status": false,
+  "msg": "参数验证失败: body.username: field required; body.password: field required",
+  "data": {
+    "errors": [
+      {
+        "loc": ["body", "username"],
+        "msg": "field required",
+        "type": "value_error.missing"
+      }
+    ]
+  }
+}
+```
+
+注意：`data.errors` 字段仅在DEBUG模式下返回。
 
 ## 前端使用
 

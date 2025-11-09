@@ -2,9 +2,10 @@
 FastAPI应用主入口
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 
 from app.core.config import settings
 from app.api.v1 import auth, users, poetry, author, interaction, comment, search, recommend, follow, post, message
@@ -84,15 +85,51 @@ app.include_router(message.router, prefix="/api/v1", tags=["消息"])
 
 
 # 全局异常处理
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc: HTTPException):
+    """HTTP异常处理器 - 处理认证、权限等HTTP错误"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "code": exc.status_code,
+            "status": False,
+            "msg": exc.detail,
+            "data": None,
+        },
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc: RequestValidationError):
+    """参数验证异常处理器"""
+    errors = exc.errors()
+    error_msgs = []
+    for error in errors:
+        field = ".".join(str(loc) for loc in error["loc"])
+        msg = error["msg"]
+        error_msgs.append(f"{field}: {msg}")
+
+    return JSONResponse(
+        status_code=422,
+        content={
+            "code": 422,
+            "status": False,
+            "msg": "参数验证失败: " + "; ".join(error_msgs),
+            "data": {"errors": errors} if settings.DEBUG else None,
+        },
+    )
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    """全局异常处理器"""
+    """全局异常处理器 - 捕获所有未处理的异常"""
     return JSONResponse(
         status_code=500,
         content={
-            "code": 50000,
-            "message": "服务器内部错误",
-            "detail": str(exc) if settings.DEBUG else None,
+            "code": 500,
+            "status": False,
+            "msg": "服务器内部错误",
+            "data": {"detail": str(exc)} if settings.DEBUG else None,
         },
     )
 
