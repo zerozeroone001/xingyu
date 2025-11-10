@@ -95,7 +95,7 @@ export const useUserStore = defineStore('user', () => {
       // 跳转到登录页
       setTimeout(() => {
         uni.reLaunch({
-          url: '/pages/login/login',
+          url: '/login',
         });
       }, 1500);
 
@@ -139,7 +139,7 @@ export const useUserStore = defineStore('user', () => {
         success: (res) => {
           if (res.confirm) {
             uni.navigateTo({
-              url: '/pages/login/login',
+              url: '/login',
             });
           }
         },

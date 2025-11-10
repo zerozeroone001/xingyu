@@ -18,22 +18,22 @@
         >
           <view class="poetry-title">{{ poetry.title }}</view>
           <view class="poetry-author theme-text-secondary">
-            {{ poetry.dynasty }} · {{ poetry.author_name }}
+            {{ poetry.dynasty }} · {{ poetry.author?.name || '佚名' }}
           </view>
           <view class="poetry-content">{{ formatContent(poetry.content) }}</view>
           <view class="poetry-footer">
             <view class="poetry-actions">
               <view class="action-item">
                 <text class="icon">❤️</text>
-                <text class="count">{{ poetry.likes_count || 0 }}</text>
+                <text class="count">{{ poetry.like_count || 0 }}</text>
               </view>
               <view class="action-item">
                 <text class="icon">⭐</text>
-                <text class="count">{{ poetry.collects_count || 0 }}</text>
+                <text class="count">{{ poetry.collect_count || 0 }}</text>
               </view>
               <view class="action-item">
                 <text class="icon">💬</text>
-                <text class="count">{{ poetry.comments_count || 0 }}</text>
+                <text class="count">{{ poetry.comment_count || 0 }}</text>
               </view>
             </view>
             <button
@@ -160,7 +160,7 @@ const handleUncollect = async (id: number) => {
  */
 const goToDetail = (id: number) => {
   uni.navigateTo({
-    url: `/pages/poetry-detail/poetry-detail?id=${id}`,
+    url: `/poetry-detail?id=${id}`,
   });
 };
 
@@ -169,7 +169,7 @@ const goToDetail = (id: number) => {
  */
 const goToIndex = () => {
   uni.switchTab({
-    url: '/pages/index/index',
+    url: '/',
   });
 };
 

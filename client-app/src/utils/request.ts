@@ -96,7 +96,7 @@ service.interceptors.response.use(
           uni.removeStorageSync(STORAGE_KEYS.USER_INFO);
           setTimeout(() => {
             uni.reLaunch({
-              url: '/pages/login/login',
+              url: '/login',
             });
           }, 1500);
         }

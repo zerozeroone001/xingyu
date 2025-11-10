@@ -44,7 +44,7 @@
         <div class="poetry-card">
           <div class="poetry-title">{{ dailyPoetry.title }}</div>
           <div class="poetry-author">
-            {{ dailyPoetry.dynasty }} · {{ dailyPoetry.author_name }}
+            {{ dailyPoetry.dynasty }} · {{ dailyPoetry.author?.name || '佚名' }}
           </div>
           <div class="poetry-content">{{ dailyPoetry.content }}</div>
         </div>
@@ -71,57 +71,77 @@ const mockPoetryList: Poetry[] = [
   {
     id: 1,
     title: '静夜思',
-    author_name: '李白',
-    dynasty: '唐代',
+    author: { id: 1, name: '李白', dynasty: '唐' },
+    dynasty: '唐',
     content: '床前明月光，疑是地上霜。\n举头望明月，低头思故乡。',
     author_id: 1,
-    likes_count: 1000,
-    collects_count: 800,
-    comments_count: 200,
+    read_count: 0,
+    like_count: 1000,
+    collect_count: 800,
+    comment_count: 200,
+    status: 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: 2,
     title: '登鹳雀楼',
-    author_name: '王之涣',
-    dynasty: '唐代',
+    author: { id: 2, name: '王之涣', dynasty: '唐' },
+    dynasty: '唐',
     content: '白日依山尽，黄河入海流。\n欲穷千里目，更上一层楼。',
     author_id: 2,
-    likes_count: 900,
-    collects_count: 700,
-    comments_count: 150,
+    read_count: 0,
+    like_count: 900,
+    collect_count: 700,
+    comment_count: 150,
+    status: 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: 3,
     title: '春晓',
-    author_name: '孟浩然',
-    dynasty: '唐代',
+    author: { id: 3, name: '孟浩然', dynasty: '唐' },
+    dynasty: '唐',
     content: '春眠不觉晓，处处闻啼鸟。\n夜来风雨声，花落知多少。',
     author_id: 3,
-    likes_count: 950,
-    collects_count: 750,
-    comments_count: 180,
+    read_count: 0,
+    like_count: 950,
+    collect_count: 750,
+    comment_count: 180,
+    status: 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: 4,
     title: '望庐山瀑布',
-    author_name: '李白',
-    dynasty: '唐代',
+    author: { id: 1, name: '李白', dynasty: '唐' },
+    dynasty: '唐',
     content: '日照香炉生紫烟，遥看瀑布挂前川。\n飞流直下三千尺，疑是银河落九天。',
     author_id: 1,
-    likes_count: 1100,
-    collects_count: 850,
-    comments_count: 220,
+    read_count: 0,
+    like_count: 1100,
+    collect_count: 850,
+    comment_count: 220,
+    status: 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
   {
     id: 5,
     title: '江雪',
-    author_name: '柳宗元',
-    dynasty: '唐代',
+    author: { id: 4, name: '柳宗元', dynasty: '唐' },
+    dynasty: '唐',
     content: '千山鸟飞绝，万径人踪灭。\n孤舟蓑笠翁，独钓寒江雪。',
     author_id: 4,
-    likes_count: 880,
-    collects_count: 680,
-    comments_count: 160,
+    read_count: 0,
+    like_count: 880,
+    collect_count: 680,
+    comment_count: 160,
+    status: 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
@@ -146,6 +166,10 @@ const page = ref(1);
 const hasMore = ref(true);
 const poetryList = ref<Poetry[]>([]);
 
+// 诗词历史记录（用于"上一首"功能）
+const poetryHistory = ref<Poetry[]>([]);
+const currentHistoryIndex = ref(-1);
+
 // 日期和天气信息
 const dateInfo = ref({
   date: '',
@@ -163,12 +187,17 @@ const lunarInfo = ref('农历甲辰年 冬月初七');
 // 触摸滑动相关
 const touchStartX = ref(0);
 const touchEndX = ref(0);
+const touchStartTime = ref(0);
+const isSwiping = ref(false);
 
 /**
  * 处理触摸开始
  */
 const handleTouchStart = (e: TouchEvent) => {
   touchStartX.value = e.touches[0].clientX;
+  touchEndX.value = e.touches[0].clientX; // 初始化结束位置
+  touchStartTime.value = Date.now();
+  isSwiping.value = false;
 };
 
 /**
@@ -176,19 +205,37 @@ const handleTouchStart = (e: TouchEvent) => {
  */
 const handleTouchMove = (e: TouchEvent) => {
   touchEndX.value = e.touches[0].clientX;
+  const distance = Math.abs(touchStartX.value - touchEndX.value);
+
+  // 如果移动距离超过10px，标记为正在滑动
+  if (distance > 10) {
+    isSwiping.value = true;
+  }
 };
 
 /**
  * 处理触摸结束
  */
-const handleTouchEnd = async () => {
+const handleTouchEnd = async (e: TouchEvent) => {
   const swipeDistance = touchStartX.value - touchEndX.value;
   const minSwipeDistance = 50; // 最小滑动距离
+  const touchDuration = Date.now() - touchStartTime.value;
 
-  if (Math.abs(swipeDistance) > minSwipeDistance) {
-    // 左滑或右滑都换一首
-    await refreshPoetry();
+  // 只有在明确是滑动操作时才处理（距离足够 或 持续时间较长且有移动）
+  if (Math.abs(swipeDistance) > minSwipeDistance && isSwiping.value) {
+    e.preventDefault(); // 阻止默认行为
+    e.stopPropagation(); // 阻止事件冒泡，防止触发click
+
+    if (swipeDistance > 0) {
+      // 从右往左滑（swipeDistance > 0）→ 随机下一首
+      await getNextPoetry();
+    } else {
+      // 从左往右滑（swipeDistance < 0）→ 上一首
+      await getPreviousPoetry();
+    }
   }
+  // 如果不是滑动（小于最小距离或快速点击），重置状态，让click事件正常触发
+  isSwiping.value = false;
 };
 
 /**
@@ -228,49 +275,107 @@ const loadDailyPoetry = async () => {
   }
 
   try {
+    console.log('开始加载每日推荐...');
     const response = await getDailyRecommendations();
+    console.log('每日推荐API响应:', response);
+
     if (response.data && response.data.length > 0) {
       dailyPoetry.value = response.data[0];
+      console.log('设置每日诗词:', dailyPoetry.value);
+      // 添加到历史记录
+      addToHistory(response.data[0]);
     } else {
       // 如果没有每日推荐，获取一个随机诗词
+      console.log('没有每日推荐，获取随机诗词...');
       const randomResponse = await getRandomPoetry();
-      dailyPoetry.value = randomResponse.data;
+      console.log('随机诗词API响应:', randomResponse);
+      // 后端返回数组，取第一个元素
+      if (randomResponse.data && randomResponse.data.length > 0) {
+        dailyPoetry.value = randomResponse.data[0];
+        console.log('设置随机诗词:', dailyPoetry.value);
+        // 添加到历史记录
+        addToHistory(randomResponse.data[0]);
+      }
     }
   } catch (error) {
     console.error('加载每日推荐失败:', error);
     // 失败时也尝试获取随机诗词
     try {
+      console.log('尝试获取随机诗词作为备选...');
       const randomResponse = await getRandomPoetry();
-      dailyPoetry.value = randomResponse.data;
+      console.log('随机诗词API响应:', randomResponse);
+      // 后端返回数组，取第一个元素
+      if (randomResponse.data && randomResponse.data.length > 0) {
+        dailyPoetry.value = randomResponse.data[0];
+        console.log('设置随机诗词:', dailyPoetry.value);
+        // 添加到历史记录
+        addToHistory(randomResponse.data[0]);
+      }
     } catch (e) {
       console.error('加载随机诗词失败:', e);
       // 所有 API 都失败，使用模拟数据
       dailyPoetry.value = getRandomMockPoetry();
       console.log('使用模拟数据:', dailyPoetry.value);
+      // 添加到历史记录
+      if (dailyPoetry.value) {
+        addToHistory(dailyPoetry.value);
+      }
     }
   }
 };
 
 /**
- * 刷新诗词 - 换一首
+ * 添加到历史记录
  */
-const refreshPoetry = async () => {
+const addToHistory = (poetry: Poetry) => {
+  // 如果当前不是在历史记录的末尾，删除后面的记录
+  if (currentHistoryIndex.value < poetryHistory.value.length - 1) {
+    poetryHistory.value = poetryHistory.value.slice(0, currentHistoryIndex.value + 1);
+  }
+
+  // 添加新诗词到历史
+  poetryHistory.value.push(poetry);
+  currentHistoryIndex.value = poetryHistory.value.length - 1;
+
+  // 限制历史记录数量（最多保存50首）
+  if (poetryHistory.value.length > 50) {
+    poetryHistory.value.shift();
+    currentHistoryIndex.value--;
+  }
+};
+
+/**
+ * 获取下一首（随机）
+ */
+const getNextPoetry = async () => {
   try {
     loading.value = true;
     const response = await getRandomPoetry();
-    dailyPoetry.value = response.data;
 
-    showToast({
-      title: '已换一首',
-      icon: 'success',
-      duration: 1500,
-    });
+    if (response.data && response.data.length > 0) {
+      const newPoetry = response.data[0];
+
+      // 添加当前诗词到历史（如果还没添加）
+      if (dailyPoetry.value && currentHistoryIndex.value === -1) {
+        addToHistory(dailyPoetry.value);
+      }
+
+      // 设置新诗词并添加到历史
+      dailyPoetry.value = newPoetry;
+      addToHistory(newPoetry);
+
+      showToast({
+        title: '换一首',
+        icon: 'success',
+        duration: 1000,
+      });
+    }
   } catch (error) {
-    console.error('刷新诗词失败:', error);
+    console.error('获取随机诗词失败:', error);
     showToast({
-      title: '换一首失败',
+      title: '加载失败',
       icon: 'none',
-      duration: 2000,
+      duration: 1500,
     });
   } finally {
     loading.value = false;
@@ -278,17 +383,39 @@ const refreshPoetry = async () => {
 };
 
 /**
+ * 获取上一首
+ */
+const getPreviousPoetry = async () => {
+  if (currentHistoryIndex.value > 0) {
+    currentHistoryIndex.value--;
+    dailyPoetry.value = poetryHistory.value[currentHistoryIndex.value];
+
+    showToast({
+      title: '上一首',
+      icon: 'success',
+      duration: 1000,
+    });
+  } else {
+    showToast({
+      title: '已经是第一首了',
+      icon: 'none',
+      duration: 1500,
+    });
+  }
+};
+
+/**
  * 跳转到诗词详情
  */
 const goToDetail = (id: number) => {
-  navigateTo(`/pages/poetry-detail/poetry-detail?id=${id}`);
+  navigateTo(`/poetry-detail?id=${id}`);
 };
 
 /**
  * 跳转到搜索页
  */
 const goToSearch = () => {
-  navigateTo('/pages/search/search');
+  navigateTo('/search');
 };
 
 /**

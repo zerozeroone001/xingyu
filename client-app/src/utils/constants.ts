@@ -22,15 +22,15 @@ export const API_BASE_URL = process.env.NODE_ENV === 'development'
 
 // 页面路径
 export const PAGE_PATHS = {
-  INDEX: '/pages/index/index',
-  LOGIN: '/pages/login/login',
-  PROFILE: '/pages/profile/profile',
-  SETTING: '/pages/setting/setting',
-  POETRY_DETAIL: '/pages/poetry-detail/poetry-detail',
-  POETRY_LIST: '/pages/poetry-list/poetry-list',
-  SQUARE: '/pages/square/square',
-  GAME: '/pages/game/game',
-  MESSAGE: '/pages/message/message',
+  INDEX: '/',
+  LOGIN: '/login',
+  PROFILE: '/profile',
+  SETTING: '/setting',
+  POETRY_DETAIL: '/poetry-detail',
+  POETRY_LIST: '/poetry-list',
+  SQUARE: '/square',
+  GAME: '/game',
+  MESSAGE: '/message',
 } as const;
 
 // 请求超时时间

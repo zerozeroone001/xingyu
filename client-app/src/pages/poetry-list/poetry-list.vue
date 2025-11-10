@@ -14,9 +14,9 @@
         <view class="filter-item">
           <select v-model="filters.sort_by" class="filter-select" @change="handleFilterChange">
             <option value="created_at">最新</option>
-            <option value="views_count">最多浏览</option>
-            <option value="likes_count">最多点赞</option>
-            <option value="collects_count">最多收藏</option>
+            <option value="read_count">最多浏览</option>
+            <option value="like_count">最多点赞</option>
+            <option value="collect_count">最多收藏</option>
           </select>
         </view>
       </view>
@@ -41,15 +41,15 @@
           <view class="poetry-header">
             <view class="poetry-title">{{ poetry.title }}</view>
             <view class="poetry-meta theme-text-tertiary">
-              {{ poetry.dynasty }} · {{ poetry.author_name }}
+              {{ poetry.dynasty }} · {{ poetry.author?.name || '佚名' }}
             </view>
           </view>
           <view class="poetry-content">{{ formatContent(poetry.content) }}</view>
           <view class="poetry-footer">
             <view class="stats">
-              <text class="stat-item">👀 {{ poetry.views_count }}</text>
-              <text class="stat-item">❤️ {{ poetry.likes_count }}</text>
-              <text class="stat-item">⭐ {{ poetry.collects_count }}</text>
+              <text class="stat-item">👀 {{ poetry.read_count }}</text>
+              <text class="stat-item">❤️ {{ poetry.like_count }}</text>
+              <text class="stat-item">⭐ {{ poetry.collect_count }}</text>
             </view>
           </view>
         </view>
@@ -180,7 +180,7 @@ const formatContent = (content: string) => {
  * 跳转到详情
  */
 const goToDetail = (id: number) => {
-  window.location.href = `/pages/poetry-detail/poetry-detail?id=${id}`;
+  window.location.href = `/poetry-detail?id=${id}`;
 };
 
 onMounted(() => {

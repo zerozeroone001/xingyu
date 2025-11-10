@@ -181,7 +181,7 @@ const goToUserDetail = (userId: number) => {
  */
 const goToSquare = () => {
   uni.switchTab({
-    url: '/pages/square/square',
+    url: '/square',
   });
 };
 

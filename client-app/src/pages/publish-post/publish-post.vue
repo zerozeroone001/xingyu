@@ -25,7 +25,7 @@
         <view class="poetry-card">
           <view class="poetry-title">{{ selectedPoetry.title }}</view>
           <view class="poetry-author theme-text-secondary">
-            {{ selectedPoetry.dynasty }} · {{ selectedPoetry.author_name }}
+            {{ selectedPoetry.dynasty }} · {{ selectedPoetry.author?.name || '佚名' }}
           </view>
         </view>
       </view>

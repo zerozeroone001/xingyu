@@ -71,13 +71,13 @@
           >
             <view class="poetry-title">{{ poetry.title }}</view>
             <view class="poetry-author theme-text-tertiary">
-              {{ poetry.dynasty }} · {{ poetry.author_name }}
+              {{ poetry.dynasty }} · {{ poetry.author?.name || '佚名' }}
             </view>
             <view class="poetry-content">{{ formatContent(poetry.content) }}</view>
             <view class="poetry-stats">
-              <text class="stat-item">❤️ {{ poetry.likes_count }}</text>
-              <text class="stat-item">⭐ {{ poetry.collects_count }}</text>
-              <text class="stat-item">💬 {{ poetry.comments_count }}</text>
+              <text class="stat-item">❤️ {{ poetry.like_count }}</text>
+              <text class="stat-item">⭐ {{ poetry.collect_count }}</text>
+              <text class="stat-item">💬 {{ poetry.comment_count }}</text>
             </view>
           </view>
         </view>
@@ -283,7 +283,7 @@ const formatContent = (content: string) => {
  * 跳转到详情
  */
 const goToDetail = (id: number) => {
-  window.location.href = `/pages/poetry-detail/poetry-detail?id=${id}`;
+  window.location.href = `/poetry-detail?id=${id}`;
 };
 
 // 初始化

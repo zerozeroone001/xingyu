@@ -235,7 +235,7 @@ const goToUserDetail = () => {
 const goToPoetryDetail = () => {
   if (post.value?.poetry_id) {
     uni.navigateTo({
-      url: `/pages/poetry-detail/poetry-detail?id=${post.value.poetry_id}`,
+      url: `/poetry-detail?id=${post.value.poetry_id}`,
     });
   }
 };

@@ -288,7 +288,7 @@ const handleLogout = () => {
  */
 const goToLogin = () => {
   uni.navigateTo({
-    url: '/pages/login/login',
+    url: '/login',
   });
 };
 
@@ -351,7 +351,7 @@ const goToMessage = () => {
  */
 const goToSetting = () => {
   uni.switchTab({
-    url: '/pages/setting/setting',
+    url: '/setting',
   });
 };
 

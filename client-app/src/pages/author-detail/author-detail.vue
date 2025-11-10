@@ -54,15 +54,15 @@
             <view class="poetry-actions">
               <view class="action-item">
                 <text class="icon">❤️</text>
-                <text class="count">{{ poetry.likes_count || 0 }}</text>
+                <text class="count">{{ poetry.like_count || 0 }}</text>
               </view>
               <view class="action-item">
                 <text class="icon">⭐</text>
-                <text class="count">{{ poetry.collects_count || 0 }}</text>
+                <text class="count">{{ poetry.collect_count || 0 }}</text>
               </view>
               <view class="action-item">
                 <text class="icon">💬</text>
-                <text class="count">{{ poetry.comments_count || 0 }}</text>
+                <text class="count">{{ poetry.comment_count || 0 }}</text>
               </view>
             </view>
           </view>
@@ -174,7 +174,7 @@ const formatContent = (content: string) => {
  */
 const goToPoetryDetail = (id: number) => {
   uni.navigateTo({
-    url: `/pages/poetry-detail/poetry-detail?id=${id}`,
+    url: `/poetry-detail?id=${id}`,
   });
 };
 

@@ -3,23 +3,32 @@
  */
 import request, { ApiResponse, PaginationResponse } from '@/utils/request';
 
+// 作者简单信息
+export interface AuthorSimple {
+  id: number;
+  name: string;
+  dynasty: string;
+}
+
 // 诗词接口
 export interface Poetry {
   id: number;
   title: string;
   content: string;
-  author_id: number;
-  author_name: string;
+  author_id?: number;
+  author?: AuthorSimple; // 作者对象
   dynasty: string;
   type?: string;
   tags?: string[];
   translation?: string;
   annotation?: string;
   appreciation?: string;
-  views_count: number;
-  likes_count: number;
-  collects_count: number;
-  comments_count: number;
+  background?: string;
+  read_count: number;
+  like_count: number;
+  collect_count: number;
+  comment_count: number;
+  status: number;
   created_at: string;
   updated_at: string;
 }
@@ -52,8 +61,9 @@ export function getPoetryDetail(id: number): Promise<ApiResponse<Poetry>> {
 
 /**
  * 获取随机诗词
+ * 注意：后端返回数组，这里取第一个元素
  */
-export function getRandomPoetry(): Promise<ApiResponse<Poetry>> {
+export function getRandomPoetry(): Promise<ApiResponse<Poetry[]>> {
   return request.get('/poetries/random');
 }
 

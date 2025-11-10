@@ -203,7 +203,7 @@ const formatBio = (bio: string) => {
  */
 const goToDetail = (id: number) => {
   uni.navigateTo({
-    url: `/pages/author-detail/author-detail?id=${id}`,
+    url: `/author-detail?id=${id}`,
   });
 };
 

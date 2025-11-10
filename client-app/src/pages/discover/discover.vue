@@ -191,7 +191,7 @@ const getRandomPoetryAndGo = async () => {
 
     if (response.data) {
       uni.navigateTo({
-        url: `/pages/poetry-detail/poetry-detail?id=${response.data.id}`,
+        url: `/poetry-detail?id=${response.data.id}`,
       });
     }
   } catch (error) {
@@ -205,7 +205,7 @@ const getRandomPoetryAndGo = async () => {
  */
 const goToSearch = () => {
   uni.navigateTo({
-    url: '/pages/search/search',
+    url: '/search',
   });
 };
 
@@ -214,7 +214,7 @@ const goToSearch = () => {
  */
 const goToPoetryList = () => {
   uni.navigateTo({
-    url: '/pages/poetry-list/poetry-list',
+    url: '/poetry-list',
   });
 };
 
@@ -223,7 +223,7 @@ const goToPoetryList = () => {
  */
 const goToAuthorList = () => {
   uni.navigateTo({
-    url: '/pages/author-list/author-list',
+    url: '/author-list',
   });
 };
 
@@ -232,7 +232,7 @@ const goToAuthorList = () => {
  */
 const goToHotPoetry = () => {
   uni.navigateTo({
-    url: '/pages/poetry-list/poetry-list?type=hot',
+    url: '/poetry-list?type=hot',
   });
 };
 
@@ -241,7 +241,7 @@ const goToHotPoetry = () => {
  */
 const goToPoetryByDynasty = (dynasty: string) => {
   uni.navigateTo({
-    url: `/pages/poetry-list/poetry-list?dynasty=${dynasty}`,
+    url: `/poetry-list?dynasty=${dynasty}`,
   });
 };
 
@@ -250,7 +250,7 @@ const goToPoetryByDynasty = (dynasty: string) => {
  */
 const goToAuthorDetail = (id: number) => {
   uni.navigateTo({
-    url: `/pages/author-detail/author-detail?id=${id}`,
+    url: `/author-detail?id=${id}`,
   });
 };
 

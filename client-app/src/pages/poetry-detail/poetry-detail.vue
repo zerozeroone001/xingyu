@@ -16,7 +16,7 @@
         <view class="poetry-meta">
           <text class="dynasty">{{ poetry.dynasty }}</text>
           <text class="separator">·</text>
-          <text class="author" @click="goToAuthor">{{ poetry.author_name }}</text>
+          <text class="author" @click="goToAuthor">{{ poetry.author?.name || '佚名' }}</text>
         </view>
       </view>
 
@@ -48,17 +48,17 @@
         <view class="action-item" @click="handleLike">
           <text class="icon" :class="{ active: isLiked }">{{ isLiked ? '❤️' : '🤍' }}</text>
           <text class="label">{{ isLiked ? '已点赞' : '点赞' }}</text>
-          <text class="count">{{ poetry.likes_count }}</text>
+          <text class="count">{{ poetry.like_count }}</text>
         </view>
         <view class="action-item" @click="handleCollect">
           <text class="icon" :class="{ active: isCollected }">{{ isCollected ? '⭐' : '☆' }}</text>
           <text class="label">{{ isCollected ? '已收藏' : '收藏' }}</text>
-          <text class="count">{{ poetry.collects_count }}</text>
+          <text class="count">{{ poetry.collect_count }}</text>
         </view>
         <view class="action-item" @click="scrollToComments">
           <text class="icon">💬</text>
           <text class="label">评论</text>
-          <text class="count">{{ poetry.comments_count }}</text>
+          <text class="count">{{ poetry.comment_count }}</text>
         </view>
         <view class="action-item" @click="handleShare">
           <text class="icon">📤</text>
@@ -69,19 +69,19 @@
       <!-- 统计信息 -->
       <view class="stats-bar theme-card">
         <view class="stat-item">
-          <text class="stat-value">{{ poetry.views_count }}</text>
+          <text class="stat-value">{{ poetry.read_count }}</text>
           <text class="stat-label">阅读</text>
         </view>
         <view class="stat-item">
-          <text class="stat-value">{{ poetry.likes_count }}</text>
+          <text class="stat-value">{{ poetry.like_count }}</text>
           <text class="stat-label">点赞</text>
         </view>
         <view class="stat-item">
-          <text class="stat-value">{{ poetry.collects_count }}</text>
+          <text class="stat-value">{{ poetry.collect_count }}</text>
           <text class="stat-label">收藏</text>
         </view>
         <view class="stat-item">
-          <text class="stat-value">{{ poetry.comments_count }}</text>
+          <text class="stat-value">{{ poetry.comment_count }}</text>
           <text class="stat-label">评论</text>
         </view>
       </view>
@@ -103,7 +103,7 @@
           >
             <view class="similar-title">{{ item.title }}</view>
             <view class="similar-author theme-text-tertiary">
-              {{ item.dynasty }} · {{ item.author_name }}
+              {{ item.dynasty }} · {{ item.author?.name || '佚名' }}
             </view>
           </view>
         </view>
@@ -215,13 +215,13 @@ const handleLike = async () => {
       await unlikePoetry(poetryId.value);
       isLiked.value = false;
       if (poetry.value) {
-        poetry.value.likes_count--;
+        poetry.value.like_count--;
       }
     } else {
       await likePoetry(poetryId.value);
       isLiked.value = true;
       if (poetry.value) {
-        poetry.value.likes_count++;
+        poetry.value.like_count++;
       }
     }
   } catch (error) {
@@ -242,13 +242,13 @@ const handleCollect = async () => {
       await uncollectPoetry(poetryId.value);
       isCollected.value = false;
       if (poetry.value) {
-        poetry.value.collects_count--;
+        poetry.value.collect_count--;
       }
     } else {
       await collectPoetry(poetryId.value);
       isCollected.value = true;
       if (poetry.value) {
-        poetry.value.collects_count++;
+        poetry.value.collect_count++;
       }
     }
   } catch (error) {
@@ -263,7 +263,7 @@ const handleShare = () => {
   if (!poetry.value) return;
 
   // 复制诗词内容到剪贴板
-  const shareText = `【${poetry.value.title}】\n${poetry.value.dynasty} · ${poetry.value.author_name}\n\n${poetry.value.content}`;
+  const shareText = `【${poetry.value.title}】\n${poetry.value.dynasty} · ${poetry.value.author?.name || '佚名'}\n\n${poetry.value.content}`;
 
   uni.setClipboardData({
     data: shareText,
@@ -299,7 +299,7 @@ const scrollToComments = () => {
  */
 const goToAuthor = () => {
   if (poetry.value) {
-    window.location.href = `/pages/author-detail/author-detail?id=${poetry.value.author_id}`;
+    window.location.href = `/author-detail?id=${poetry.value.author_id}`;
   }
 };
 
@@ -307,7 +307,7 @@ const goToAuthor = () => {
  * 跳转到其他诗词详情
  */
 const goToDetail = (id: number) => {
-  window.location.href = `/pages/poetry-detail/poetry-detail?id=${id}`;
+  window.location.href = `/poetry-detail?id=${id}`;
 };
 
 /**

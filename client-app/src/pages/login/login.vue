@@ -89,7 +89,7 @@ const handleLogin = async () => {
     // 登录成功，跳转到首页
     setTimeout(() => {
       uni.switchTab({
-        url: '/pages/index/index',
+        url: '/',
       });
     }, 1500);
   }
@@ -100,7 +100,7 @@ const handleLogin = async () => {
  */
 const goToRegister = () => {
   uni.navigateTo({
-    url: '/pages/register/register',
+    url: '/register',
   });
 };
 
@@ -109,7 +109,7 @@ const goToRegister = () => {
  */
 const goToHome = () => {
   uni.switchTab({
-    url: '/pages/index/index',
+    url: '/',
   });
 };
 </script>
