@@ -226,3 +226,32 @@ async def delete_poetry(
         )
 
     return None
+
+
+@router.get("/debug/ids", response_model=ResponseModel[list])
+async def debug_poetry_ids(
+    limit: int = Query(20, ge=1, le=100, description="数量"),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    调试接口：查看数据库中的诗词ID
+
+    返回诗词ID列表，用于调试
+    """
+    from sqlalchemy import select
+    from app.models.poetry import Poetry
+
+    stmt = select(Poetry.id, Poetry.title, Poetry.status).order_by(Poetry.id).limit(limit)
+    result = await db.execute(stmt)
+    rows = result.all()
+
+    data = [
+        {"id": row[0], "title": row[1], "status": row[2]}
+        for row in rows
+    ]
+
+    return ResponseModel(
+        code=200,
+        msg="success",
+        data=data,
+    )

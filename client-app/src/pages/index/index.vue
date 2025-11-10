@@ -278,10 +278,12 @@ const loadDailyPoetry = async () => {
     console.log('开始加载每日推荐...');
     const response = await getDailyRecommendations();
     console.log('每日推荐API响应:', response);
+    console.log('每日推荐API响应 data:', response.data);
 
     if (response.data && response.data.length > 0) {
       dailyPoetry.value = response.data[0];
       console.log('设置每日诗词:', dailyPoetry.value);
+      console.log('每日诗词ID:', dailyPoetry.value.id, '类型:', typeof dailyPoetry.value.id);
       // 添加到历史记录
       addToHistory(response.data[0]);
     } else {
@@ -289,10 +291,12 @@ const loadDailyPoetry = async () => {
       console.log('没有每日推荐，获取随机诗词...');
       const randomResponse = await getRandomPoetry();
       console.log('随机诗词API响应:', randomResponse);
+      console.log('随机诗词API响应 data:', randomResponse.data);
       // 后端返回数组，取第一个元素
       if (randomResponse.data && randomResponse.data.length > 0) {
         dailyPoetry.value = randomResponse.data[0];
         console.log('设置随机诗词:', dailyPoetry.value);
+        console.log('随机诗词ID:', dailyPoetry.value.id, '类型:', typeof dailyPoetry.value.id);
         // 添加到历史记录
         addToHistory(randomResponse.data[0]);
       }
@@ -408,6 +412,11 @@ const getPreviousPoetry = async () => {
  * 跳转到诗词详情
  */
 const goToDetail = (id: number) => {
+  console.log('========== 诗词详情跳转调试 ==========');
+  console.log('点击的诗词ID:', id);
+  console.log('ID类型:', typeof id);
+  console.log('当前诗词对象:', dailyPoetry.value);
+  console.log('=====================================');
   navigateTo(`/poetry-detail?id=${id}`);
 };
 
