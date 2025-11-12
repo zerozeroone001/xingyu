@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # 数据库配置
+    # 数据库配置 - 支持从环境变量或.env文件读取
     DATABASE_URL: str = "mysql+aiomysql://root:poetry_root_2024@mysql:3306/poetry_db"
     REDIS_URL: str = "redis://redis:6379/0"
     ELASTICSEARCH_URL: str = "http://elasticsearch:9200"

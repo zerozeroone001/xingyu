@@ -20,11 +20,13 @@ COPY . .
 
 # 复制并确保 entrypoint 脚本使用 LF 换行符
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh && \
-    sed -i 's/\r$//' /entrypoint.sh
+COPY entrypoint-simple.sh /entrypoint-simple.sh
+RUN chmod +x /entrypoint.sh /entrypoint-simple.sh && \
+    sed -i 's/\r$//' /entrypoint.sh && \
+    sed -i 's/\r$//' /entrypoint-simple.sh
 
 # 暴露端口
 EXPOSE 8000
 
-# 使用 entrypoint 脚本
-ENTRYPOINT ["/entrypoint.sh"]
+# 使用简化的 entrypoint 脚本（跳过数据库迁移）
+ENTRYPOINT ["/entrypoint-simple.sh"]

@@ -2,7 +2,7 @@
 用户相关API
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -10,6 +10,7 @@ from app.api.deps import get_current_user
 from app.models.user import User
 from app.schemas.user import UserResponse, UserUpdate
 from app.schemas.response import ResponseModel
+from app.services.user_service import user_service
 
 router = APIRouter(prefix="/users")
 
@@ -42,12 +43,13 @@ async def update_current_user(
     - **gender**: 性别
     - **intro**: 个人简介
     """
-    # 更新用户信息
-    update_data = user_update.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(current_user, field, value)
+    # 使用服务层更新用户信息
+    updated_user = await user_service.update_user(
+        db, current_user.id, user_update
+    )
 
-    await db.commit()
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="用户不存在")
     await db.refresh(current_user)
 
     return ResponseModel(

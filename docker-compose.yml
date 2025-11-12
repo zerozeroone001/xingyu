@@ -70,11 +70,11 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+aiomysql://root:${MYSQL_ROOT_PASSWORD:-poetry_root_2024}@mysql:3306/${MYSQL_DATABASE:-poetry_db}
+      - DATABASE_URL=mysql+aiomysql://root:poetry_root_2024@mysql:3306/poetry_db
       - REDIS_URL=redis://redis:6379/0
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - SECRET_KEY=${SECRET_KEY:-poetry-secret-key-change-in-production-2024}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-poetry-jwt-secret-key-2024}
+      - SECRET_KEY=${SECRET_KEY:-3baad3873493b5e5b813066485ac35b931cc11e375d3d64357fa961c158a1d8d}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-255307db4774ba7b86b708405337263c7088f94da4ff8b810dc268a884e745cb}
       - CORS_ORIGINS=${CORS_ORIGINS:-*}
     depends_on:
       mysql:
@@ -97,11 +97,11 @@ services:
 
   # 前端应用 (H5)
   # 注意：使用简化版 Dockerfile.simple 避免 npm 依赖问题
-  # 如需完整 uni-app 功能，切换回 Dockerfile（需要稳定的网络环境）
+  # uni-app H5 前端服务
   web:
     build:
       context: ./client-app
-      dockerfile: Dockerfile.simple  # 使用简化版，无需 npm install
+      dockerfile: Dockerfile  # 使用完整的uni-app构建
     container_name: poetry-web
     ports:
       - "8080:80"
