@@ -1,0 +1,365 @@
+/**
+ * 全局样式文件
+ * 定义通用样式类和基础样式
+ */
+
+/* 引入变量 */
+@import './variables.scss';
+
+/* ==================== 全局重置 ==================== */
+
+* {
+  box-sizing: border-box;
+}
+
+view,
+scroll-view,
+swiper,
+swiper-item,
+cover-view,
+cover-image,
+icon,
+text,
+rich-text,
+progress,
+button,
+checkbox,
+form,
+input,
+label,
+picker,
+radio,
+slider,
+switch,
+textarea,
+navigator,
+audio,
+camera,
+image,
+video {
+  box-sizing: border-box;
+}
+
+/* ==================== 通用布局类 ==================== */
+
+/* Flex 布局 */
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+.flex-align-center {
+  @include flex-align-center;
+}
+
+.flex-justify-center {
+  @include flex-justify-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* ==================== 间距类 ==================== */
+
+/* Margin */
+.m-xs { margin: $spacing-xs; }
+.m-sm { margin: $spacing-sm; }
+.m-md { margin: $spacing-md; }
+.m-lg { margin: $spacing-lg; }
+.m-xl { margin: $spacing-xl; }
+
+.mt-xs { margin-top: $spacing-xs; }
+.mt-sm { margin-top: $spacing-sm; }
+.mt-md { margin-top: $spacing-md; }
+.mt-lg { margin-top: $spacing-lg; }
+.mt-xl { margin-top: $spacing-xl; }
+
+.mb-xs { margin-bottom: $spacing-xs; }
+.mb-sm { margin-bottom: $spacing-sm; }
+.mb-md { margin-bottom: $spacing-md; }
+.mb-lg { margin-bottom: $spacing-lg; }
+.mb-xl { margin-bottom: $spacing-xl; }
+
+.ml-xs { margin-left: $spacing-xs; }
+.ml-sm { margin-left: $spacing-sm; }
+.ml-md { margin-left: $spacing-md; }
+.ml-lg { margin-left: $spacing-lg; }
+.ml-xl { margin-left: $spacing-xl; }
+
+.mr-xs { margin-right: $spacing-xs; }
+.mr-sm { margin-right: $spacing-sm; }
+.mr-md { margin-right: $spacing-md; }
+.mr-lg { margin-right: $spacing-lg; }
+.mr-xl { margin-right: $spacing-xl; }
+
+/* Padding */
+.p-xs { padding: $spacing-xs; }
+.p-sm { padding: $spacing-sm; }
+.p-md { padding: $spacing-md; }
+.p-lg { padding: $spacing-lg; }
+.p-xl { padding: $spacing-xl; }
+
+.pt-xs { padding-top: $spacing-xs; }
+.pt-sm { padding-top: $spacing-sm; }
+.pt-md { padding-top: $spacing-md; }
+.pt-lg { padding-top: $spacing-lg; }
+.pt-xl { padding-top: $spacing-xl; }
+
+.pb-xs { padding-bottom: $spacing-xs; }
+.pb-sm { padding-bottom: $spacing-sm; }
+.pb-md { padding-bottom: $spacing-md; }
+.pb-lg { padding-bottom: $spacing-lg; }
+.pb-xl { padding-bottom: $spacing-xl; }
+
+.pl-xs { padding-left: $spacing-xs; }
+.pl-sm { padding-left: $spacing-sm; }
+.pl-md { padding-left: $spacing-md; }
+.pl-lg { padding-left: $spacing-lg; }
+.pl-xl { padding-left: $spacing-xl; }
+
+.pr-xs { padding-right: $spacing-xs; }
+.pr-sm { padding-right: $spacing-sm; }
+.pr-md { padding-right: $spacing-md; }
+.pr-lg { padding-right: $spacing-lg; }
+.pr-xl { padding-right: $spacing-xl; }
+
+/* ==================== 文本类 ==================== */
+
+/* 字体大小 */
+.text-xs { font-size: $font-size-xs; }
+.text-sm { font-size: $font-size-sm; }
+.text-base { font-size: $font-size-base; }
+.text-lg { font-size: $font-size-lg; }
+.text-xl { font-size: $font-size-xl; }
+.text-xxl { font-size: $font-size-xxl; }
+
+/* 字体颜色 */
+.text-primary { color: $primary-color; }
+.text-secondary { color: $text-secondary; }
+.text-third { color: $text-third; }
+.text-success { color: $success-color; }
+.text-warning { color: $warning-color; }
+.text-danger { color: $danger-color; }
+.text-info { color: $info-color; }
+
+/* 文本对齐 */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* 文本粗细 */
+.text-bold { font-weight: bold; }
+.text-normal { font-weight: normal; }
+
+/* 文本省略 */
+.text-ellipsis {
+  @include text-ellipsis(1);
+}
+
+.text-ellipsis-2 {
+  @include text-ellipsis(2);
+}
+
+.text-ellipsis-3 {
+  @include text-ellipsis(3);
+}
+
+/* ==================== 背景类 ==================== */
+
+.bg-primary { background-color: $primary-color; }
+.bg-secondary { background-color: $bg-secondary; }
+.bg-white { background-color: #FFFFFF; }
+.bg-transparent { background-color: transparent; }
+
+/* ==================== 圆角类 ==================== */
+
+.radius-sm { border-radius: $border-radius-sm; }
+.radius-md { border-radius: $border-radius-md; }
+.radius-lg { border-radius: $border-radius-lg; }
+.radius-xl { border-radius: $border-radius-xl; }
+.radius-circle { border-radius: $border-radius-circle; }
+
+/* ==================== 卡片类 ==================== */
+
+.card {
+  background-color: $card-bg;
+  border-radius: $border-radius-lg;
+  padding: $spacing-md;
+  @include card-shadow;
+  @include transition;
+
+  &:active {
+    @include hover-shadow;
+  }
+}
+
+/* ==================== 按钮类 ==================== */
+
+.btn {
+  @include reset-button;
+  @include flex-center;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  @include transition;
+
+  &.btn-primary {
+    background-color: $button-primary;
+    color: #FFFFFF;
+  }
+
+  &.btn-secondary {
+    background-color: $button-secondary;
+    color: $primary-color;
+  }
+
+  &.btn-block {
+    width: 100%;
+  }
+
+  &.btn-sm {
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-sm;
+  }
+
+  &.btn-lg {
+    padding: $spacing-md $spacing-xl;
+    font-size: $font-size-lg;
+  }
+}
+
+/* ==================== 边框类 ==================== */
+
+.border {
+  border: 1rpx solid $border-color;
+}
+
+.border-top {
+  border-top: 1rpx solid $border-color;
+}
+
+.border-bottom {
+  border-bottom: 1rpx solid $border-color;
+}
+
+.border-left {
+  border-left: 1rpx solid $border-color;
+}
+
+.border-right {
+  border-right: 1rpx solid $border-color;
+}
+
+/* ==================== 定位类 ==================== */
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.fixed {
+  position: fixed;
+}
+
+/* ==================== 显示类 ==================== */
+
+.block {
+  display: block;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ==================== 动画类 ==================== */
+
+.fade-in {
+  animation: fadeIn $transition-base ease;
+}
+
+.fade-out {
+  animation: fadeOut $transition-base ease;
+}
+
+.slide-up {
+  animation: slideUp $transition-base ease;
+}
+
+.slide-down {
+  animation: slideDown $transition-base ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==================== 主题过渡动画 ==================== */
+
+.theme-transition {
+  * {
+    transition: background-color $transition-base ease,
+                color $transition-base ease,
+                border-color $transition-base ease,
+                box-shadow $transition-base ease !important;
+  }
+}
