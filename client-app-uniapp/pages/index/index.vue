@@ -73,7 +73,7 @@
         v-else
         icon="📝"
         text="暂无推荐诗词"
-        description="稍后再来看看吧"
+        description="点击刷新加载诗词"
         show-button
         button-text="刷新"
         @action="loadDailyPoetry"
@@ -162,14 +162,49 @@ const poetryLines = computed(() => {
 })
 
 /**
+ * 获取模拟数据（当后端服务不可用时使用）
+ */
+const getMockPoetry = () => {
+  return {
+    id: 1,
+    title: '静夜思',
+    author: '李白',
+    dynasty: '唐代',
+    content: '床前明月光\n疑是地上霜\n举头望明月\n低头思故乡',
+    like_count: 12580,
+    comment_count: 356,
+    collect_count: 8964,
+    read_count: 45230
+  }
+}
+
+/**
  * 加载每日诗词
  */
 const loadDailyPoetry = async () => {
   try {
     loading.value = true
-    dailyPoetry.value = await getRandomPoetry()
+
+    // 尝试从 API 获取
+    try {
+      dailyPoetry.value = await getRandomPoetry()
+      console.log('从 API 加载诗词成功')
+    } catch (apiError) {
+      // API 失败时使用模拟数据
+      console.warn('API 请求失败，使用模拟数据:', apiError.message || apiError)
+      dailyPoetry.value = getMockPoetry()
+
+      // 友好提示
+      uni.showToast({
+        title: '演示模式（后端未连接）',
+        icon: 'none',
+        duration: 2000
+      })
+    }
   } catch (e) {
     console.error('加载每日诗词失败:', e)
+    // 确保显示模拟数据
+    dailyPoetry.value = getMockPoetry()
   } finally {
     loading.value = false
   }
@@ -183,7 +218,32 @@ const loadRecommendPoetries = async () => {
     const data = await poetryStore.fetchRecommendPoetries({ page: 1, page_size: 5 })
     recommendList.value = data.items || []
   } catch (e) {
-    console.error('加载推荐诗词失败:', e)
+    console.warn('加载推荐诗词失败，使用模拟数据:', e)
+    // 使用模拟数据
+    recommendList.value = [
+      {
+        id: 2,
+        title: '望庐山瀑布',
+        author: '李白',
+        dynasty: '唐代',
+        content: '日照香炉生紫烟\n遥看瀑布挂前川\n飞流直下三千尺\n疑是银河落九天',
+        like_count: 9876,
+        comment_count: 234,
+        collect_count: 5432,
+        read_count: 28900
+      },
+      {
+        id: 3,
+        title: '春晓',
+        author: '孟浩然',
+        dynasty: '唐代',
+        content: '春眠不觉晓\n处处闻啼鸟\n夜来风雨声\n花落知多少',
+        like_count: 8765,
+        comment_count: 198,
+        collect_count: 4321,
+        read_count: 21000
+      }
+    ]
   }
 }
 
@@ -209,8 +269,17 @@ const handleLike = async () => {
     await likePoetry(dailyPoetry.value.id)
     isLiked.value = !isLiked.value
     dailyPoetry.value.like_count += isLiked.value ? 1 : -1
+
+    uni.showToast({
+      title: isLiked.value ? '点赞成功' : '取消点赞',
+      icon: 'none',
+      duration: 1000
+    })
   } catch (e) {
-    console.error('点赞失败:', e)
+    console.warn('点赞失败（演示模式）:', e)
+    // 演示模式：直接修改数据
+    isLiked.value = !isLiked.value
+    dailyPoetry.value.like_count += isLiked.value ? 1 : -1
   }
 }
 
@@ -224,12 +293,17 @@ const handleCollect = async () => {
     await collectPoetry(dailyPoetry.value.id)
     isCollected.value = !isCollected.value
     dailyPoetry.value.collect_count += isCollected.value ? 1 : -1
+
     uni.showToast({
       title: isCollected.value ? '收藏成功' : '取消收藏',
-      icon: 'none'
+      icon: 'none',
+      duration: 1000
     })
   } catch (e) {
-    console.error('收藏失败:', e)
+    console.warn('收藏失败（演示模式）:', e)
+    // 演示模式：直接修改数据
+    isCollected.value = !isCollected.value
+    dailyPoetry.value.collect_count += isCollected.value ? 1 : -1
   }
 }
 
@@ -245,9 +319,9 @@ const handleComment = () => {
  * 分享
  */
 const handleShare = () => {
-  uni.showShareMenu({
-    title: `${dailyPoetry.value.title} - ${dailyPoetry.value.author}`,
-    path: `/pages/poetry-detail/index?id=${dailyPoetry.value.id}`
+  uni.showToast({
+    title: '分享功能开发中',
+    icon: 'none'
   })
 }
 
@@ -292,7 +366,7 @@ const goToTheme = () => {
  * 跳转到诗词列表
  */
 const goToPoetryList = () => {
-  uni.switchTab({
+  uni.navigateTo({
     url: '/pages/poetry-list/index'
   })
 }
@@ -326,6 +400,7 @@ const goToGame = () => {
 
 // 页面加载
 onMounted(() => {
+  console.log('首页加载')
   loadDailyPoetry()
   loadRecommendPoetries()
 })
