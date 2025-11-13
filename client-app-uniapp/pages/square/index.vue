@@ -62,7 +62,7 @@
             <!-- 图片网格 -->
             <view
               class="images-grid"
-              :class="`grid-${Math.min(post.images?.length || 0, 9)}`"
+              :class="`grid-${Math.min((post.images && post.images.length) || 0, 9)}`"
               v-if="post.images && post.images.length > 0"
             >
               <image
