@@ -11,7 +11,8 @@ module.exports = {
       scss: {
         // 全局导入 SCSS 变量文件
         // 注意：这里的路径是相对于项目根目录
-        additionalData: `@import "@/styles/variables.scss";`
+        // UniApp 使用 prependData 而不是 additionalData
+        prependData: `@import "@/styles/variables.scss";`
       }
     }
   },
