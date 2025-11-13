@@ -3,40 +3,40 @@
  * 定义全局样式变量和混入
  */
 
-/* ==================== 颜色变量（通过 CSS Variables 动态设置） ==================== */
+/* ==================== SCSS 静态变量（用于编译时） ==================== */
 
 /* 主色调 */
-$primary-color: var(--primary, #3B7EFF);
-$secondary-color: var(--secondary, #7DABFF);
+$primary-color: #3B7EFF !default;
+$secondary-color: #7DABFF !default;
 
 /* 背景色 */
-$bg-color: var(--bg-color, #FFFFFF);
-$bg-secondary: var(--bg-secondary, #F5F7FA);
-$bg-third: var(--bg-third, #EDF1F7);
+$bg-color: #FFFFFF !default;
+$bg-secondary: #F5F7FA !default;
+$bg-third: #EDF1F7 !default;
 
 /* 文字颜色 */
-$text-color: var(--text-color, #2C3E50);
-$text-secondary: var(--text-secondary, #606266);
-$text-third: var(--text-third, #909399);
+$text-color: #2C3E50 !default;
+$text-secondary: #606266 !default;
+$text-third: #909399 !default;
 
 /* 边框颜色 */
-$border-color: var(--border-color, #DCDFE6);
+$border-color: #DCDFE6 !default;
 
 /* 阴影颜色 */
-$shadow-color: var(--shadow-color, rgba(0, 0, 0, 0.1));
+$shadow-color: rgba(0, 0, 0, 0.1) !default;
 
 /* 卡片背景 */
-$card-bg: var(--card-bg, #FFFFFF);
+$card-bg: #FFFFFF !default;
 
 /* 按钮颜色 */
-$button-primary: var(--button-primary, #3B7EFF);
-$button-secondary: var(--button-secondary, #ECF5FF);
+$button-primary: #3B7EFF !default;
+$button-secondary: #ECF5FF !default;
 
 /* 状态颜色 */
-$success-color: var(--success-color, #67C23A);
-$warning-color: var(--warning-color, #E6A23C);
-$danger-color: var(--danger-color, #F56C6C);
-$info-color: var(--info-color, #909399);
+$success-color: #67C23A !default;
+$warning-color: #E6A23C !default;
+$danger-color: #F56C6C !default;
+$info-color: #909399 !default;
 
 /* ==================== 尺寸变量 ==================== */
 
