@@ -1,18 +1,13 @@
 <template>
 	<view class="home-page" :style="pageStyle">
-		<!-- 导航栏 -->
-		<view class="nav-bar">
-			<text class="nav-title">星语诗词</text>
-			<view class="nav-right">
-				<!-- 主题切换按钮 -->
-				<ThemeSwitch />
-			</view>
+		<!-- 顶部信息栏 -->
+		<view class="top-bar">
+			<DateWeather />
+			<ThemeSwitch />
 		</view>
 
 		<!-- 页面内容 -->
-		<scroll-view scroll-y class="page-content" refresher-enabled :refresher-triggered="refreshing"
-			@refresherrefresh="handleRefresh">
-
+		<view class="page-content">
 			<!-- 加载中状态 -->
 			<LoadingState v-if="loading" text="正在加载推荐诗词..." />
 
@@ -20,19 +15,34 @@
 			<ErrorState v-else-if="error" :text="errorMessage" @retry="loadRecommendPoetry" />
 
 			<!-- 空状态 -->
-			<EmptyState v-else-if="!poetry" icon="📖" text="暂无推荐诗词" :show-button="true" buttonText="刷新"
-				@button-click="loadRecommendPoetry" />
+			<EmptyState v-else-if="poetryList.length === 0" icon="📖" text="暂无推荐诗词" :show-button="true"
+				buttonText="刷新" @button-click="loadRecommendPoetry" />
 
-			<!-- 诗词推荐卡片 -->
-			<view v-else>
-				<PoetryCard :poetry="poetry" />
+			<!-- 诗词轮播区域 -->
+			<view v-else class="poetry-swiper-container">
+				<swiper class="poetry-swiper" :current="currentIndex" @change="onSwiperChange"
+					:circular="true" :duration="300">
+					<swiper-item v-for="(poem, index) in poetryList" :key="poem.id">
+						<view class="swiper-item-wrapper">
+							<PoetryCard :poetry="poem" />
+						</view>
+					</swiper-item>
+				</swiper>
 
-				<!-- 操作按钮 -->
-				<view class="action-buttons">
-					<button class="refresh-btn" @click="loadRecommendPoetry">
-						<text class="btn-icon">🔄</text>
-						<text class="btn-text">换一首</text>
-					</button>
+				<!-- 滑动指示器 -->
+				<view class="swipe-indicator">
+					<view class="indicator-left">
+						<text class="indicator-icon">←</text>
+						<text class="indicator-text">上一首</text>
+					</view>
+					<view class="indicator-dots">
+						<view v-for="(poem, index) in poetryList" :key="index"
+							:class="['dot', index === currentIndex ? 'active' : '']"></view>
+					</view>
+					<view class="indicator-right">
+						<text class="indicator-text">下一首</text>
+						<text class="indicator-icon">→</text>
+					</view>
 				</view>
 
 				<!-- 快捷入口 -->
@@ -61,7 +71,7 @@
 					</view>
 				</view>
 			</view>
-		</scroll-view>
+		</view>
 	</view>
 </template>
 
@@ -72,6 +82,7 @@
 	} from '../../stores/theme.js'
 	import PoetryCard from '../../components/poetry/PoetryCard.vue'
 	import ThemeSwitch from '../../components/common/ThemeSwitch.vue'
+	import DateWeather from '../../components/common/DateWeather.vue'
 	import LoadingState from '../../components/common/LoadingState.vue'
 	import ErrorState from '../../components/common/ErrorState.vue'
 	import EmptyState from '../../components/common/EmptyState.vue'
@@ -80,6 +91,7 @@
 		components: {
 			PoetryCard,
 			ThemeSwitch,
+			DateWeather,
 			LoadingState,
 			ErrorState,
 			EmptyState
@@ -90,10 +102,10 @@
 				loading: false, // 加载中
 				error: false, // 是否有错误
 				errorMessage: '', // 错误信息
-				refreshing: false, // 下拉刷新中
 
 				// 数据
-				poetry: null, // 推荐诗词
+				poetryList: [], // 诗词列表
+				currentIndex: 0, // 当前显示的诗词索引
 				dailyQuote: '读书破万卷，下笔如有神。', // 每日一句
 
 				// 主题相关 - 直接在 data 中初始化,避免计算属性访问 undefined
@@ -164,20 +176,20 @@
 				await new Promise(resolve => setTimeout(resolve, 500))
 
 				// 直接使用模拟数据
-				this.poetry = this.getMockPoetry()
-				console.log('推荐诗词:', this.poetry)
+				this.poetryList = this.getMockPoetryList()
+				this.currentIndex = 0
+				console.log('推荐诗词列表:', this.poetryList)
 
 				this.loading = false
-				this.refreshing = false
 			},
 
 			/**
-			 * 获取模拟数据
+			 * 获取模拟数据列表
 			 * 用于演示和开发调试
-			 * @returns {Object} 模拟诗词数据
+			 * @returns {Array} 模拟诗词数据数组
 			 */
-			getMockPoetry() {
-				const mockPoems = [{
+			getMockPoetryList() {
+				return [{
 						id: 1,
 						title: '静夜思',
 						content: '床前明月光,疑是地上霜。举头望明月,低头思故乡。',
@@ -206,11 +218,41 @@
 						read_count: 34567,
 						like_count: 789,
 						comment_count: 234
+					},
+					{
+						id: 4,
+						title: '望庐山瀑布',
+						content: '日照香炉生紫烟,遥看瀑布挂前川。飞流直下三千尺,疑是银河落九天。',
+						author: '李白',
+						dynasty: '唐代',
+						read_count: 45678,
+						like_count: 890,
+						comment_count: 345
+					},
+					{
+						id: 5,
+						title: '早发白帝城',
+						content: '朝辞白帝彩云间,千里江陵一日还。两岸猿声啼不住,轻舟已过万重山。',
+						author: '李白',
+						dynasty: '唐代',
+						read_count: 56789,
+						like_count: 901,
+						comment_count: 456
 					}
 				]
+			},
 
-				// 随机返回一首
-				return mockPoems[Math.floor(Math.random() * mockPoems.length)]
+			/**
+			 * 处理滑动切换事件
+			 */
+			onSwiperChange(e) {
+				this.currentIndex = e.detail.current
+				console.log('切换到诗词索引:', this.currentIndex)
+
+				// 震动反馈
+				uni.vibrateShort({
+					type: 'light'
+				})
 			},
 
 			/**
@@ -225,15 +267,6 @@
 					'问渠那得清如许,为有源头活水来。'
 				]
 				this.dailyQuote = quotes[Math.floor(Math.random() * quotes.length)]
-			},
-
-			/**
-			 * 处理下拉刷新
-			 */
-			handleRefresh() {
-				console.log('下拉刷新')
-				this.refreshing = true
-				this.loadRecommendPoetry()
 			},
 
 			/**
@@ -269,73 +302,99 @@
 	/* 首页容器 */
 	.home-page {
 		min-height: 100vh;
-		background-color: var(--bg-primary, #FFFFFF);
+		background: linear-gradient(180deg,
+				var(--bg-secondary, #F7F8FA) 0%,
+				var(--bg-primary, #FFFFFF) 30%);
 		transition: background-color 0.3s ease;
 	}
 
-	/* 导航栏 */
-	.nav-bar {
+	/* 顶部信息栏 */
+	.top-bar {
 		position: sticky;
 		top: 0;
 		z-index: 100;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 20rpx 32rpx;
-		background-color: var(--bg-card, #FFFFFF);
+		padding: 32rpx 40rpx 24rpx;
+		background: linear-gradient(180deg,
+				var(--bg-card, #FFFFFF) 0%,
+				rgba(255, 255, 255, 0.95) 100%);
+		backdrop-filter: blur(20rpx);
 		border-bottom: 1rpx solid var(--divider, #F0F0F0);
-		box-shadow: 0 2rpx 8rpx var(--shadow, rgba(0, 0, 0, 0.05));
-	}
-
-	.nav-title {
-		font-size: 36rpx;
-		font-weight: bold;
-		color: var(--text-primary, #1A1A1A);
-		letter-spacing: 2rpx;
-	}
-
-	.nav-right {
-		display: flex;
-		align-items: center;
+		box-shadow: 0 4rpx 16rpx var(--shadow, rgba(0, 0, 0, 0.04));
 	}
 
 	/* 页面内容 */
 	.page-content {
-		height: calc(100vh - 140rpx);
+		min-height: calc(100vh - 120rpx);
+		padding-top: 20rpx;
 	}
 
-	/* 操作按钮 */
-	.action-buttons {
-		display: flex;
-		justify-content: center;
-		padding: 32rpx;
+	/* 诗词轮播容器 */
+	.poetry-swiper-container {
+		padding-bottom: 40rpx;
 	}
 
-	.refresh-btn {
+	/* 诗词轮播 */
+	.poetry-swiper {
+		height: 500rpx;
+		margin-bottom: 24rpx;
+	}
+
+	.swiper-item-wrapper {
+		height: 100%;
+		padding: 0 32rpx;
+	}
+
+	/* 滑动指示器 */
+	.swipe-indicator {
 		display: flex;
 		align-items: center;
-		gap: 16rpx;
-		padding: 24rpx 48rpx;
-		background: linear-gradient(135deg, var(--primary, #2979FF) 0%, var(--primary-dark, #2962FF) 100%);
-		color: var(--text-inverse, #FFFFFF);
-		border: none;
-		border-radius: 48rpx;
-		box-shadow: 0 8rpx 20rpx var(--shadow, rgba(0, 0, 0, 0.1));
+		justify-content: space-between;
+		padding: 24rpx 40rpx;
+		margin: 0 32rpx 32rpx;
+		background-color: var(--bg-card, #FFFFFF);
+		border-radius: 24rpx;
+		box-shadow: 0 4rpx 16rpx var(--shadow, rgba(0, 0, 0, 0.06));
+	}
+
+	.indicator-left,
+	.indicator-right {
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+	}
+
+	.indicator-icon {
+		font-size: 32rpx;
+		color: var(--primary, #2979FF);
+	}
+
+	.indicator-text {
+		font-size: 24rpx;
+		color: var(--text-secondary, #666666);
+	}
+
+	.indicator-dots {
+		display: flex;
+		gap: 12rpx;
+	}
+
+	.dot {
+		width: 12rpx;
+		height: 12rpx;
+		background-color: var(--divider, #E0E0E0);
+		border-radius: 50%;
 		transition: all 0.3s ease;
 	}
 
-	.refresh-btn:active {
-		transform: scale(0.95);
-		box-shadow: 0 4rpx 12rpx var(--shadow, rgba(0, 0, 0, 0.15));
-	}
-
-	.btn-icon {
-		font-size: 32rpx;
-	}
-
-	.btn-text {
-		font-size: 28rpx;
-		font-weight: 500;
+	.dot.active {
+		width: 32rpx;
+		background: linear-gradient(90deg,
+				var(--primary, #2979FF) 0%,
+				var(--primary-dark, #2962FF) 100%);
+		border-radius: 6rpx;
 	}
 
 	/* 快捷入口 */
@@ -343,63 +402,89 @@
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 24rpx;
-		padding: 32rpx;
-		margin-top: 32rpx;
+		padding: 0 32rpx 32rpx;
 	}
 
 	.quick-link-item {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding: 32rpx 24rpx;
-		background-color: var(--bg-card, #FFFFFF);
-		border-radius: 16rpx;
-		box-shadow: 0 4rpx 12rpx var(--shadow, rgba(0, 0, 0, 0.06));
+		padding: 40rpx 24rpx;
+		background: linear-gradient(135deg,
+				var(--bg-card, #FFFFFF) 0%,
+				var(--bg-secondary, #F7F8FA) 100%);
+		border-radius: 20rpx;
+		box-shadow: 0 4rpx 16rpx var(--shadow, rgba(0, 0, 0, 0.06));
+		border: 2rpx solid var(--border, #F0F0F0);
 		transition: all 0.3s ease;
 	}
 
 	.quick-link-item:active {
-		transform: scale(0.95);
+		transform: translateY(4rpx);
 		box-shadow: 0 2rpx 8rpx var(--shadow, rgba(0, 0, 0, 0.1));
 	}
 
 	.link-icon {
-		font-size: 56rpx;
+		font-size: 64rpx;
 		margin-bottom: 16rpx;
+		filter: drop-shadow(0 2rpx 4rpx rgba(0, 0, 0, 0.1));
 	}
 
 	.link-text {
-		font-size: 24rpx;
-		color: var(--text-secondary, #666666);
+		font-size: 26rpx;
+		font-weight: 500;
+		color: var(--text-primary, #1A1A1A);
 	}
 
 	/* 每日一句 */
 	.daily-quote {
 		margin: 32rpx;
-		padding: 32rpx;
-		background: linear-gradient(135deg, var(--bg-secondary, #F7F8FA) 0%, var(--bg-card, #FFFFFF) 100%);
-		border-radius: 16rpx;
-		border-left: 6rpx solid var(--primary, #2979FF);
+		padding: 40rpx;
+		background: linear-gradient(135deg,
+				var(--primary-light, #E3F2FD) 0%,
+				var(--bg-card, #FFFFFF) 100%);
+		border-radius: 24rpx;
+		border-left: 8rpx solid var(--primary, #2979FF);
+		box-shadow: 0 8rpx 24rpx var(--shadow, rgba(41, 121, 255, 0.1));
+		position: relative;
+		overflow: hidden;
+	}
+
+	.daily-quote::before {
+		content: '"';
+		position: absolute;
+		top: -20rpx;
+		left: 20rpx;
+		font-size: 200rpx;
+		color: var(--primary, #2979FF);
+		opacity: 0.05;
+		font-family: Georgia, serif;
 	}
 
 	.quote-header {
-		margin-bottom: 20rpx;
+		margin-bottom: 24rpx;
+		position: relative;
+		z-index: 1;
 	}
 
 	.quote-title {
-		font-size: 28rpx;
+		font-size: 30rpx;
 		font-weight: bold;
-		color: var(--text-primary, #1A1A1A);
+		color: var(--primary, #2979FF);
+		letter-spacing: 1rpx;
 	}
 
 	.quote-content {
 		padding: 16rpx 0;
+		position: relative;
+		z-index: 1;
 	}
 
 	.quote-text {
-		font-size: 26rpx;
-		line-height: 1.8;
-		color: var(--text-secondary, #666666);
+		font-size: 28rpx;
+		line-height: 2;
+		color: var(--text-primary, #1A1A1A);
 		font-style: italic;
+		font-weight: 500;
 	}
 </style>
