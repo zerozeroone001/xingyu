@@ -96,8 +96,8 @@
 				poetry: null, // 推荐诗词
 				dailyQuote: '读书破万卷，下笔如有神。', // 每日一句
 
-				// 主题相关
-				themeData: null
+				// 主题相关 - 直接在 data 中初始化,避免计算属性访问 undefined
+				themeData: useTheme()
 			}
 		},
 		computed: {
@@ -106,9 +106,14 @@
 			 * 根据当前主题动态设置CSS变量
 			 */
 			pageStyle() {
-				if (!this.themeData) return {}
+				// 检查 themeData 是否存在
+				if (!this.themeData || !this.themeData.currentTheme) return {}
 
 				const theme = this.themeData.currentTheme.value
+
+				// 检查 theme 对象是否存在
+				if (!theme) return {}
+
 				return {
 					'--bg-primary': theme.bgPrimary,
 					'--bg-secondary': theme.bgSecondary,
@@ -129,9 +134,6 @@
 		},
 		onLoad() {
 			console.log('首页加载')
-
-			// 初始化主题数据
-			this.themeData = useTheme()
 
 			// 监听主题变化
 			uni.$on('themeChange', this.handleThemeChange)
