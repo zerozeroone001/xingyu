@@ -66,9 +66,7 @@
 </template>
 
 <script>
-	import {
-		getRecommendPoetry
-	} from '../../api/poetry.js'
+	// 注意: 当前版本使用模拟数据,不请求后端接口
 	import {
 		useTheme
 	} from '../../stores/theme.js'
@@ -151,35 +149,24 @@
 		methods: {
 			/**
 			 * 加载推荐诗词
+			 * 使用模拟数据,不请求后端接口
 			 */
 			async loadRecommendPoetry() {
-				console.log('加载推荐诗词')
+				console.log('加载推荐诗词(使用模拟数据)')
 
 				this.loading = true
 				this.error = false
 				this.errorMessage = ''
 
-				try {
-					// 调用API获取推荐诗词
-					const data = await getRecommendPoetry()
-					this.poetry = data
+				// 模拟网络请求延迟,提升用户体验
+				await new Promise(resolve => setTimeout(resolve, 500))
 
-					console.log('推荐诗词:', data)
-				} catch (err) {
-					console.error('加载推荐诗词失败:', err)
+				// 直接使用模拟数据
+				this.poetry = this.getMockPoetry()
+				console.log('推荐诗词:', this.poetry)
 
-					// 如果没有后端服务,使用模拟数据
-					if (err.code === -1 || err.code === 404) {
-						console.log('使用模拟数据')
-						this.poetry = this.getMockPoetry()
-					} else {
-						this.error = true
-						this.errorMessage = err.message || '加载失败,请重试'
-					}
-				} finally {
-					this.loading = false
-					this.refreshing = false
-				}
+				this.loading = false
+				this.refreshing = false
 			},
 
 			/**
