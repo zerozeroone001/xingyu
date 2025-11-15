@@ -42,7 +42,10 @@
       "Bash(npm run dev:h5:*)",
       "Bash(powershell -Command \"try { (Invoke-WebRequest -Uri ''http://localhost:5173'' -UseBasicParsing).StatusCode } catch { $_Exception.Response.StatusCode.value__ }\")",
       "Bash(powershell -Command:*)",
-      "Bash(timeout 15 bash:*)"
+      "Bash(timeout 15 bash:*)",
+      "Bash(timeout 5 bash:*)",
+      "Bash(dir /b)",
+      "Bash(timeout 8 bash:*)"
     ],
     "deny": [],
     "ask": []

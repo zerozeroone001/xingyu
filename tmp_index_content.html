@@ -1,0 +1,672 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>
+            星语诗词
+        </title>
+        <script>
+            var coverSupport = 'CSS' in window && typeof CSS.supports === 'function' && (CSS.supports('top: env(a)') || CSS.supports('top: constant(a)'))
+            document.write('<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' + (coverSupport ? ', viewport-fit=cover' : '') + '" />')
+        </script><meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
+        <link rel="stylesheet" href="/static/index.2da1efab.css">
+    <style type="text/css">@charset "UTF-8";
+/**
+ * SCSS 变量文件
+ * 定义全局样式变量和混入
+ */
+/* ==================== SCSS 静态变量（用于编译时） ==================== */
+/* 主色调 */
+/* 背景色 */
+/* 文字颜色 */
+/* 边框颜色 */
+/* 阴影颜色 */
+/* 卡片背景 */
+/* 按钮颜色 */
+/* 状态颜色 */
+/* ==================== 尺寸变量 ==================== */
+/* 间距 */
+/* 字体大小 */
+/* 圆角 */
+/* 动画时长 */
+/* ==================== Mixins ==================== */
+/**
+ * Flex 布局居中
+ */
+/**
+ * Flex 布局 - 垂直居中
+ */
+/**
+ * Flex 布局 - 水平居中
+ */
+/**
+ * Flex 布局 - 两端对齐
+ */
+/**
+ * 文本溢出省略
+ * @param {number} $lines - 行数，默认 1
+ */
+/**
+ * 卡片阴影
+ */
+/**
+ * 悬浮阴影
+ */
+/**
+ * 过渡动画
+ * @param {string} $property - 属性，默认 all
+ */
+/**
+ * 清除按钮默认样式
+ */
+/**
+ * 绝对定位居中
+ */
+/**
+ * 响应式字体大小
+ * @param {number} $size - 基础大小 (rpx)
+ */
+/* 全局样式 */
+/**
+ * 全局样式文件
+ * 定义通用样式类和基础样式
+ */
+/* 引入变量 */
+/**
+ * SCSS 变量文件
+ * 定义全局样式变量和混入
+ */
+/* ==================== SCSS 静态变量（用于编译时） ==================== */
+/* 主色调 */
+/* 背景色 */
+/* 文字颜色 */
+/* 边框颜色 */
+/* 阴影颜色 */
+/* 卡片背景 */
+/* 按钮颜色 */
+/* 状态颜色 */
+/* ==================== 尺寸变量 ==================== */
+/* 间距 */
+/* 字体大小 */
+/* 圆角 */
+/* 动画时长 */
+/* ==================== Mixins ==================== */
+/**
+ * Flex 布局居中
+ */
+/**
+ * Flex 布局 - 垂直居中
+ */
+/**
+ * Flex 布局 - 水平居中
+ */
+/**
+ * Flex 布局 - 两端对齐
+ */
+/**
+ * 文本溢出省略
+ * @param {number} $lines - 行数，默认 1
+ */
+/**
+ * 卡片阴影
+ */
+/**
+ * 悬浮阴影
+ */
+/**
+ * 过渡动画
+ * @param {string} $property - 属性，默认 all
+ */
+/**
+ * 清除按钮默认样式
+ */
+/**
+ * 绝对定位居中
+ */
+/**
+ * 响应式字体大小
+ * @param {number} $size - 基础大小 (rpx)
+ */
+/* ==================== 全局重置 ==================== */
+* {
+  box-sizing: border-box;
+}
+uni-view,
+uni-scroll-view,
+uni-swiper,
+uni-swiper-item,
+uni-cover-view,
+uni-cover-image,
+uni-icon,
+uni-text,
+uni-rich-text,
+uni-progress,
+uni-button,
+uni-checkbox,
+uni-form,
+uni-input,
+uni-label,
+uni-picker,
+uni-radio,
+uni-slider,
+uni-switch,
+uni-textarea,
+uni-navigator,
+uni-audio,
+uni-camera,
+uni-image,
+uni-video {
+  box-sizing: border-box;
+}
+/* ==================== 通用布局类 ==================== */
+/* Flex 布局 */
+.flex {
+  display: flex;
+}
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flex-align-center {
+  display: flex;
+  align-items: center;
+}
+.flex-justify-center {
+  display: flex;
+  justify-content: center;
+}
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.flex-1 {
+  flex: 1;
+}
+/* ==================== 间距类 ==================== */
+/* Margin */
+.m-xs {
+  margin: 2px;
+}
+.m-sm {
+  margin: 4px;
+}
+.m-md {
+  margin: 8px;
+}
+.m-lg {
+  margin: 12px;
+}
+.m-xl {
+  margin: 16px;
+}
+.mt-xs {
+  margin-top: 2px;
+}
+.mt-sm {
+  margin-top: 4px;
+}
+.mt-md {
+  margin-top: 8px;
+}
+.mt-lg {
+  margin-top: 12px;
+}
+.mt-xl {
+  margin-top: 16px;
+}
+.mb-xs {
+  margin-bottom: 2px;
+}
+.mb-sm {
+  margin-bottom: 4px;
+}
+.mb-md {
+  margin-bottom: 8px;
+}
+.mb-lg {
+  margin-bottom: 12px;
+}
+.mb-xl {
+  margin-bottom: 16px;
+}
+.ml-xs {
+  margin-left: 2px;
+}
+.ml-sm {
+  margin-left: 4px;
+}
+.ml-md {
+  margin-left: 8px;
+}
+.ml-lg {
+  margin-left: 12px;
+}
+.ml-xl {
+  margin-left: 16px;
+}
+.mr-xs {
+  margin-right: 2px;
+}
+.mr-sm {
+  margin-right: 4px;
+}
+.mr-md {
+  margin-right: 8px;
+}
+.mr-lg {
+  margin-right: 12px;
+}
+.mr-xl {
+  margin-right: 16px;
+}
+/* Padding */
+.p-xs {
+  padding: 2px;
+}
+.p-sm {
+  padding: 4px;
+}
+.p-md {
+  padding: 8px;
+}
+.p-lg {
+  padding: 12px;
+}
+.p-xl {
+  padding: 16px;
+}
+.pt-xs {
+  padding-top: 2px;
+}
+.pt-sm {
+  padding-top: 4px;
+}
+.pt-md {
+  padding-top: 8px;
+}
+.pt-lg {
+  padding-top: 12px;
+}
+.pt-xl {
+  padding-top: 16px;
+}
+.pb-xs {
+  padding-bottom: 2px;
+}
+.pb-sm {
+  padding-bottom: 4px;
+}
+.pb-md {
+  padding-bottom: 8px;
+}
+.pb-lg {
+  padding-bottom: 12px;
+}
+.pb-xl {
+  padding-bottom: 16px;
+}
+.pl-xs {
+  padding-left: 2px;
+}
+.pl-sm {
+  padding-left: 4px;
+}
+.pl-md {
+  padding-left: 8px;
+}
+.pl-lg {
+  padding-left: 12px;
+}
+.pl-xl {
+  padding-left: 16px;
+}
+.pr-xs {
+  padding-right: 2px;
+}
+.pr-sm {
+  padding-right: 4px;
+}
+.pr-md {
+  padding-right: 8px;
+}
+.pr-lg {
+  padding-right: 12px;
+}
+.pr-xl {
+  padding-right: 16px;
+}
+/* ==================== 文本类 ==================== */
+/* 字体大小 */
+.text-xs {
+  font-size: 10px;
+}
+.text-sm {
+  font-size: 12px;
+}
+.text-base {
+  font-size: 14px;
+}
+.text-lg {
+  font-size: 16px;
+}
+.text-xl {
+  font-size: 18px;
+}
+.text-xxl {
+  font-size: 24px;
+}
+/* 字体颜色 */
+.text-primary {
+  color: #3B7EFF;
+}
+.text-secondary {
+  color: #606266;
+}
+.text-third {
+  color: #909399;
+}
+.text-success {
+  color: #67C23A;
+}
+.text-warning {
+  color: #E6A23C;
+}
+.text-danger {
+  color: #F56C6C;
+}
+.text-info {
+  color: #909399;
+}
+/* 文本对齐 */
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+/* 文本粗细 */
+.text-bold {
+  font-weight: bold;
+}
+.text-normal {
+  font-weight: normal;
+}
+/* 文本省略 */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.text-ellipsis-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.text-ellipsis-3 {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+/* ==================== 背景类 ==================== */
+.bg-primary {
+  background-color: #3B7EFF;
+}
+.bg-secondary {
+  background-color: #F5F7FA;
+}
+.bg-white {
+  background-color: #FFFFFF;
+}
+.bg-transparent {
+  background-color: transparent;
+}
+/* ==================== 圆角类 ==================== */
+.radius-sm {
+  border-radius: 2px;
+}
+.radius-md {
+  border-radius: 4px;
+}
+.radius-lg {
+  border-radius: 6px;
+}
+.radius-xl {
+  border-radius: 8px;
+}
+.radius-circle {
+  border-radius: 50%;
+}
+/* ==================== 卡片类 ==================== */
+.card {
+  background-color: #FFFFFF;
+  border-radius: 6px;
+  padding: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+.card:active {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+/* ==================== 按钮类 ==================== */
+.btn {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+.btn::after {
+    border: none;
+}
+.btn.btn-primary {
+    background-color: #3B7EFF;
+    color: #FFFFFF;
+}
+.btn.btn-secondary {
+    background-color: #ECF5FF;
+    color: #3B7EFF;
+}
+.btn.btn-block {
+    width: 100%;
+}
+.btn.btn-sm {
+    padding: 2px 8px;
+    font-size: 12px;
+}
+.btn.btn-lg {
+    padding: 8px 16px;
+    font-size: 16px;
+}
+/* ==================== 边框类 ==================== */
+.border {
+  border: 1px solid #DCDFE6;
+}
+.border-top {
+  border-top: 1px solid #DCDFE6;
+}
+.border-bottom {
+  border-bottom: 1px solid #DCDFE6;
+}
+.border-left {
+  border-left: 1px solid #DCDFE6;
+}
+.border-right {
+  border-right: 1px solid #DCDFE6;
+}
+/* ==================== 定位类 ==================== */
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
+.fixed {
+  position: fixed;
+}
+/* ==================== 显示类 ==================== */
+.block {
+  display: block;
+}
+.inline-block {
+  display: inline-block;
+}
+.hidden {
+  display: none;
+}
+/* ==================== 动画类 ==================== */
+.fade-in {
+  -webkit-animation: fadeIn 0.3s ease;
+          animation: fadeIn 0.3s ease;
+}
+.fade-out {
+  -webkit-animation: fadeOut 0.3s ease;
+          animation: fadeOut 0.3s ease;
+}
+.slide-up {
+  -webkit-animation: slideUp 0.3s ease;
+          animation: slideUp 0.3s ease;
+}
+.slide-down {
+  -webkit-animation: slideDown 0.3s ease;
+          animation: slideDown 0.3s ease;
+}
+@-webkit-keyframes fadeIn {
+from {
+    opacity: 0;
+}
+to {
+    opacity: 1;
+}
+}
+@keyframes fadeIn {
+from {
+    opacity: 0;
+}
+to {
+    opacity: 1;
+}
+}
+@-webkit-keyframes fadeOut {
+from {
+    opacity: 1;
+}
+to {
+    opacity: 0;
+}
+}
+@keyframes fadeOut {
+from {
+    opacity: 1;
+}
+to {
+    opacity: 0;
+}
+}
+@-webkit-keyframes slideUp {
+from {
+    -webkit-transform: translateY(100%);
+            transform: translateY(100%);
+    opacity: 0;
+}
+to {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+    opacity: 1;
+}
+}
+@keyframes slideUp {
+from {
+    -webkit-transform: translateY(100%);
+            transform: translateY(100%);
+    opacity: 0;
+}
+to {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+    opacity: 1;
+}
+}
+@-webkit-keyframes slideDown {
+from {
+    -webkit-transform: translateY(-100%);
+            transform: translateY(-100%);
+    opacity: 0;
+}
+to {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+    opacity: 1;
+}
+}
+@keyframes slideDown {
+from {
+    -webkit-transform: translateY(-100%);
+            transform: translateY(-100%);
+    opacity: 0;
+}
+to {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+    opacity: 1;
+}
+}
+/* ==================== 主题过渡动画 ==================== */
+.theme-transition * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+/* 主题变量将通过 CSS Variables 动态注入 */
+uni-page-body {
+  background-color: var(--bg-color, #FFFFFF);
+  color: var(--text-color, #2C3E50);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+body{
+  background-color: var(--bg-color, #FFFFFF);
+}
+</style></head>
+
+    <body class="uni-body pages-index-index">
+        <noscript>
+            <strong>Please enable JavaScript to continue.</strong>
+        </noscript>
+        <div id="app"></div>
+        <!-- built files will be auto injected -->
+    <script type="text/javascript" src="/static/js/chunk-vendors.js"></script><script type="text/javascript" src="/static/js/index.js"></script><div style="position: absolute; left: 0px; top: 0px; width: 0px; height: 0px; z-index: -1; overflow: hidden; visibility: hidden;"><div style="position: absolute; width: 100px; height: 200px; box-sizing: border-box; overflow: hidden; padding-bottom: env(safe-area-inset-top);"><div style="transition: all; animation: auto ease 0s 1 normal none running none; width: 400px; height: 400px;"></div></div><div style="position: absolute; width: 100px; height: 200px; box-sizing: border-box; overflow: hidden; padding-bottom: env(safe-area-inset-top);"><div style="transition: all; animation: auto ease 0s 1 normal none running none; width: 250%; height: 250%;"></div></div><div style="position: absolute; width: 100px; height: 200px; box-sizing: border-box; overflow: hidden; padding-bottom: env(safe-area-inset-left);"><div style="transition: all; animation: auto ease 0s 1 normal none running none; width: 400px; height: 400px;"></div></div><div style="position: absolute; width: 100px; height: 200px; box-sizing: border-box; overflow: hidden; padding-bottom: env(safe-area-inset-left);"><div style="transition: all; animation: auto ease 0s 1 normal none running none; width: 250%; height: 250%;"></div></div><div style="position: absolute; width: 100px; height: 200px; box-sizing: border-box; overflow: hidden; padding-bottom: env(safe-area-inset-right);"><div style="transition: all; animation: auto ease 0s 1 normal none running none; width: 400px; height: 400px;"></div></div><div style="position: absolute; width: 100px; height: 200px; box-sizing: border-box; overflow: hidden; padding-bottom: env(safe-area-inset-right);"><div style="transition: all; animation: auto ease 0s 1 normal none running none; width: 250%; height: 250%;"></div></div><div style="position: absolute; width: 100px; height: 200px; box-sizing: border-box; overflow: hidden; padding-bottom: env(safe-area-inset-bottom);"><div style="transition: all; animation: auto ease 0s 1 normal none running none; width: 400px; height: 400px;"></div></div><div style="position: absolute; width: 100px; height: 200px; box-sizing: border-box; overflow: hidden; padding-bottom: env(safe-area-inset-bottom);"><div style="transition: all; animation: auto ease 0s 1 normal none running none; width: 250%; height: 250%;"></div></div></div>
+
+
+        <script>
+        (function () {
+  var userAgent = navigator.userAgent
+  window.addEventListener('resize', function () {
+    if (navigator.userAgent !== userAgent) {
+      /* eslint-disable no-undef */
+      location.reload()
+    }
+  })
+})()
+
+        </script>
+        </body></html>
