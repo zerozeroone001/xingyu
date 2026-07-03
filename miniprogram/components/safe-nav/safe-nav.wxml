@@ -1,0 +1,16 @@
+<view class="safe-nav" style="height: {{navHeight}}px; background: {{background}}; {{borderStyle}}">
+  <view
+    class="safe-nav__row"
+    style="top: {{rowTop}}px; height: {{navBarHeight}}px; padding-left: {{sideGap}}px; padding-right: {{rightInset}}px;"
+  >
+    <view class="safe-nav__left">
+      <slot name="left"></slot>
+    </view>
+    <view class="safe-nav__center">
+      <slot name="center"></slot>
+    </view>
+    <view class="safe-nav__right">
+      <slot name="right"></slot>
+    </view>
+  </view>
+</view>

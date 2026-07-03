@@ -1,0 +1,87 @@
+<view class="detail-page">
+  <scroll-view class="detail-scroll" scroll-y enhanced>
+    <view class="detail-content">
+      <view wx:if="{{loading}}" class="loading-state">正在加载话题...</view>
+
+      <block wx:elif="{{topic}}">
+        <view class="topic-head">
+          <view class="topic-avatar topic-avatar--{{topic.author.avatarTone}}">{{topic.author.avatarText}}</view>
+          <view class="topic-author">
+            <view class="topic-author-row">
+              <text class="topic-name">{{topic.author.nickname}}</text>
+            </view>
+            <text class="topic-time">{{topic.time}}</text>
+          </view>
+        </view>
+
+        <view class="topic-tags" wx:if="{{topic.tags.length}}">
+          <block wx:for="{{topic.tags}}" wx:for-item="tag" wx:key="*this">
+            <text class="topic-tag">{{tag}}</text>
+          </block>
+        </view>
+
+        <view class="topic-main">
+          <text class="topic-content">{{topic.content}}</text>
+        </view>
+
+        <view wx:if="{{topic.images.length}}" class="image-grid {{topic.imageGridClass}}">
+          <block wx:for="{{topic.images}}" wx:for-item="image" wx:key="*this">
+            <image class="topic-image" src="{{image}}" mode="aspectFill" data-src="{{image}}" bindtap="previewImage"></image>
+          </block>
+        </view>
+
+        <view class="topic-actions">
+          <view class="action-button {{topic.isLiked ? 'action-button--active' : ''}}" bindtap="toggleLike">
+            <image class="action-icon" src="/assets/icons/点赞.svg" mode="aspectFit"></image>
+            <text>{{topic.likeCount}}</text>
+          </view>
+          <view class="action-button {{topic.isFavorited ? 'action-button--active' : ''}}" bindtap="toggleFavorite">
+            <image class="action-icon" src="/assets/icons/收藏.svg" mode="aspectFit"></image>
+            <text>{{topic.favoriteCount}}</text>
+          </view>
+          <view class="action-button" bindtap="shareTopic">
+            <image class="action-icon" src="/assets/icons/分 享.svg" mode="aspectFit"></image>
+            <text>{{topic.shareCount}}</text>
+          </view>
+        </view>
+
+        <view class="comment-section">
+          <view class="comment-head">
+            <text class="comment-title">评论 {{topic.comments.length}}</text>
+            <text class="comment-sort">最新</text>
+          </view>
+
+          <view wx:if="{{!topic.comments.length}}" class="empty-comments">还没有评论，写下第一句回应。</view>
+
+          <block wx:for="{{topic.comments}}" wx:for-item="comment" wx:key="id">
+            <view class="comment-item">
+              <view class="comment-avatar comment-avatar--{{comment.avatarTone}}">{{comment.avatarText}}</view>
+              <view class="comment-body">
+                <view class="comment-meta">
+                  <text class="comment-name">{{comment.nickname}}</text>
+                  <text class="comment-time">{{comment.time}}</text>
+                </view>
+                <text class="comment-content">{{comment.content}}</text>
+                <view class="comment-actions">
+                  <view class="comment-action {{comment.isLiked ? 'comment-action--active' : ''}}" data-comment-id="{{comment.id}}" bindtap="toggleCommentLike">
+                    <image class="comment-action-icon" src="/assets/icons/点赞.svg" mode="aspectFit"></image>
+                    <text>{{comment.likeCount}}</text>
+                  </view>
+                  <view class="comment-action {{comment.isFavorited ? 'comment-action--active' : ''}}" data-comment-id="{{comment.id}}" bindtap="toggleCommentFavorite">
+                    <image class="comment-action-icon" src="/assets/icons/收藏.svg" mode="aspectFit"></image>
+                    <text>{{comment.favoriteCount}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </block>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{topic}}" class="comment-bar">
+    <input class="comment-input" value="{{commentValue}}" maxlength="120" placeholder="写评论..." confirm-type="send" bindinput="handleCommentInput" bindconfirm="submitComment" />
+    <button class="send-button {{sendingComment ? 'send-button--loading' : ''}}" loading="{{sendingComment}}" bindtap="submitComment">发送</button>
+  </view>
+</view>

@@ -1,0 +1,213 @@
+<view class="square-page">
+  <scroll-view class="square-scroll" scroll-y enhanced lower-threshold="120" bindscrolltolower="onScrollToLower">
+    <view class="square-content">
+      <view class="search-row">
+        <button wx:if="{{activeChannel === 'square'}}" class="search-bar" aria-label="搜索" bindtap="openSearch">
+          <view class="search-icon"></view>
+          <text class="search-placeholder">搜索诗句、诗人或话题</text>
+        </button>
+        <view wx:else class="search-bar room-search">
+          <view class="search-icon"></view>
+          <input class="room-search-input" value="{{roomSearchValue}}" placeholder="搜索令字、对局或诗友" bindinput="handleRoomSearchInput" />
+          <button wx:if="{{roomSearchValue}}" class="search-clear" bindtap="clearRoomSearch">清</button>
+        </view>
+        <button class="publish-button" aria-label="发布" bindtap="composePost">{{activeChannel === 'square' ? '发布' : '发起'}}</button>
+      </view>
+
+      <view class="channel-tabs">
+        <button class="channel-tab {{activeChannel === 'square' ? 'channel-tab--active' : ''}}" data-channel="square" bindtap="switchChannel">
+          广场
+        </button>
+        <button class="channel-tab {{activeChannel === 'feihualing' ? 'channel-tab--active' : ''}}" data-channel="feihualing" bindtap="switchChannel">
+          飞花令
+        </button>
+      </view>
+
+      <block wx:if="{{activeChannel === 'square'}}">
+        <view class="feed-list">
+          <block wx:for="{{list}}" wx:key="id">
+            <view class="topic-card" data-id="{{item.id}}" bindtap="openTopic">
+              <view class="topic-head">
+                <view class="topic-avatar topic-avatar--{{item.author.avatarTone}}">{{item.author.avatarText}}</view>
+                <view class="topic-author">
+                  <view class="topic-author-row">
+                    <text class="topic-name">{{item.author.nickname}}</text>
+                  </view>
+                  <text class="topic-time">{{item.time}}</text>
+                </view>
+              </view>
+
+              <view class="topic-tags" wx:if="{{item.tags.length}}">
+                <block wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">
+                  <text class="topic-tag">{{tag}}</text>
+                </block>
+              </view>
+
+              <view class="topic-copy">
+                <text class="topic-content">{{item.content}}</text>
+              </view>
+
+              <view wx:if="{{item.images.length}}" class="image-grid {{item.imageGridClass}}">
+                <block wx:for="{{item.images}}" wx:for-item="image" wx:key="*this">
+                  <image class="topic-image" src="{{image}}" mode="aspectFill" data-id="{{item.id}}" data-src="{{image}}" catchtap="previewTopicImage"></image>
+                </block>
+              </view>
+
+              <view class="topic-actions">
+                <view class="action-button {{item.isLiked ? 'action-button--active' : ''}}" data-id="{{item.id}}" catchtap="toggleTopicLike">
+                  <image class="action-icon" src="/assets/icons/点赞.svg" mode="aspectFit"></image>
+                  <text>{{item.likeCount}}</text>
+                </view>
+                <view class="action-button {{item.isFavorited ? 'action-button--active' : ''}}" data-id="{{item.id}}" catchtap="toggleTopicFavorite">
+                  <image class="action-icon" src="/assets/icons/收藏.svg" mode="aspectFit"></image>
+                  <text>{{item.favoriteCount}}</text>
+                </view>
+                <view class="action-button" data-id="{{item.id}}" catchtap="shareTopic">
+                  <image class="action-icon" src="/assets/icons/分 享.svg" mode="aspectFit"></image>
+                  <text>{{item.shareCount}}</text>
+                </view>
+                <view class="action-button action-button--comment" data-id="{{item.id}}" catchtap="openComments">
+                  <image class="action-icon" src="/assets/icons/评论.svg" mode="aspectFit"></image>
+                  <text>{{item.comments.length}}</text>
+                </view>
+              </view>
+
+              <view wx:if="{{item.previewComments.length}}" class="comment-panel">
+                <view class="comment-title-row">
+                  <text class="comment-title">最新评论</text>
+                  <text class="comment-more">最多显示 3 条</text>
+                </view>
+                <block wx:for="{{item.previewComments}}" wx:for-item="comment" wx:key="id">
+                  <view class="comment-item">
+                    <view class="comment-avatar comment-avatar--{{comment.avatarTone}}">{{comment.avatarText}}</view>
+                    <view class="comment-body">
+                      <view class="comment-meta">
+                        <text class="comment-name">{{comment.nickname}}</text>
+                        <text class="comment-time">{{comment.time}}</text>
+                      </view>
+                      <text class="comment-content">{{comment.content}}</text>
+                      <view class="comment-actions">
+                        <view class="comment-action {{comment.isLiked ? 'comment-action--active' : ''}}" data-topic-id="{{item.id}}" data-comment-id="{{comment.id}}" catchtap="toggleCommentLike">
+                          <image class="comment-action-icon" src="/assets/icons/点赞.svg" mode="aspectFit"></image>
+                          <text>{{comment.likeCount}}</text>
+                        </view>
+                        <view class="comment-action {{comment.isFavorited ? 'comment-action--active' : ''}}" data-topic-id="{{item.id}}" data-comment-id="{{comment.id}}" catchtap="toggleCommentFavorite">
+                          <image class="comment-action-icon" src="/assets/icons/收藏.svg" mode="aspectFit"></image>
+                          <text>{{comment.favoriteCount}}</text>
+                        </view>
+                      </view>
+                    </view>
+                  </view>
+                </block>
+              </view>
+            </view>
+          </block>
+
+          <view wx:if="{{loading}}" class="feed-state">正在加载...</view>
+          <view wx:elif="{{!hasMore && list.length}}" class="feed-state">没有更多内容了</view>
+        </view>
+      </block>
+
+      <block wx:else>
+        <view class="feihualing-panel">
+          <view wx:if="{{featuredRoom}}" class="featured-room">
+            <view class="featured-copy">
+              <text class="featured-label">推荐诗令</text>
+              <text class="featured-title">{{featuredRoom.title}}</text>
+              <text class="featured-meta">令字「{{featuredRoom.keyword}}」 · {{featuredRoom.playerCount}}/{{featuredRoom.maxPlayers}} 人 · {{featuredRoom.statusText}}</text>
+            </view>
+            <button class="featured-button" data-id="{{featuredRoom.id}}" bindtap="enterRoom">入局</button>
+          </view>
+
+          <view class="lobby-summary">
+            <view class="summary-item">
+              <text class="summary-value">{{roomCount}}</text>
+              <text class="summary-label">场对局</text>
+            </view>
+            <view class="summary-item">
+              <text class="summary-value">{{watchableCount}}</text>
+              <text class="summary-label">可观战</text>
+            </view>
+            <view class="summary-item">
+              <text class="summary-value">{{recruitingCount}}</text>
+              <text class="summary-label">可入局</text>
+            </view>
+            <view class="summary-item">
+              <text class="summary-value">{{onlineCount}}</text>
+              <text class="summary-label">在线诗友</text>
+            </view>
+          </view>
+
+          <view class="room-filter-row">
+            <button class="room-filter {{roomStatus === 'all' ? 'room-filter--active' : ''}}" data-status="all" bindtap="chooseRoomStatus">全部</button>
+            <button class="room-filter {{roomStatus === 'recruiting' ? 'room-filter--active' : ''}}" data-status="recruiting" bindtap="chooseRoomStatus">可入局</button>
+            <button class="room-filter {{roomStatus === 'watchable' ? 'room-filter--active' : ''}}" data-status="watchable" bindtap="chooseRoomStatus">可观战</button>
+            <button class="room-filter {{roomStatus === 'active' ? 'room-filter--active' : ''}}" data-status="active" bindtap="chooseRoomStatus">进行中</button>
+          </view>
+
+          <scroll-view class="keyword-scroller" scroll-x enhanced show-scrollbar="{{false}}">
+            <view class="keyword-track">
+              <button class="keyword-chip {{roomKeyword === '' ? 'keyword-chip--active' : ''}}" data-keyword="" bindtap="chooseRoomKeyword">全部</button>
+              <block wx:for="{{keywordOptions}}" wx:key="*this">
+                <button class="keyword-chip {{roomKeyword === item ? 'keyword-chip--active' : ''}}" data-keyword="{{item}}" bindtap="chooseRoomKeyword">{{item}}</button>
+              </block>
+            </view>
+          </scroll-view>
+
+          <view class="room-section-head">
+            <text class="room-section-title">诗令房间</text>
+            <text class="room-section-note">{{filteredRooms.length}} 个匹配</text>
+          </view>
+
+          <view class="room-list">
+            <block wx:for="{{filteredRooms}}" wx:key="id">
+              <view class="room-card">
+                <view class="room-main">
+                  <view class="room-keyword">
+                    <text class="room-keyword-label">关键字</text>
+                    <text class="room-keyword-text">{{item.keyword}}</text>
+                  </view>
+
+                  <view class="room-info">
+                    <view class="room-title-row">
+                      <text class="room-title">{{item.title}}</text>
+                      <text class="watch-tag {{item.canWatch ? 'watch-tag--on' : 'watch-tag--off'}}">
+                        {{item.statusText}}
+                      </text>
+                    </view>
+
+                    <view class="creator-row">
+                      <view class="room-avatar room-avatar--{{item.creator.avatarTone}}">{{item.creator.avatarText}}</view>
+                      <view class="creator-copy">
+                        <text class="creator-name">{{item.creator.nickname}}</text>
+                        <text class="creator-level">Lv.{{item.creator.level}} · {{item.creator.title}}</text>
+                      </view>
+                    </view>
+
+                    <view class="room-meta">
+                      <text>{{item.playerCount}}/{{item.maxPlayers}} 人</text>
+                      <text>{{item.roundText}}</text>
+                      <text>{{item.canWatch ? '可观战' : '不可观战'}}</text>
+                    </view>
+                    <view class="room-progress">
+                      <view class="room-progress-bar" style="width: {{item.progress}}%;"></view>
+                    </view>
+                  </view>
+                </view>
+
+                <button class="enter-button" data-id="{{item.id}}" bindtap="enterRoom">进入对局</button>
+              </view>
+            </block>
+          </view>
+
+          <view wx:if="{{roomLoading}}" class="feed-state">正在加载诗令...</view>
+          <view wx:elif="{{!roomLoading && !filteredRooms.length}}" class="empty-room">
+            <text class="empty-room-title">暂无匹配对局</text>
+            <text class="empty-room-note">换个令字或清空筛选后再试。</text>
+            <button class="empty-room-button" bindtap="resetRoomFilters">清空筛选</button>
+          </view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

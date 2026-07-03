@@ -1,0 +1,46 @@
+<view class="home-page">
+  <view class="home-nav" style="height: {{navHeight}}px;">
+  </view>
+
+  <view class="home-hero">
+    <view class="wash wash--left"></view>
+    <view class="wash wash--right"></view>
+    <view class="mountain mountain--left"></view>
+    <view class="mountain mountain--center"></view>
+    <view class="mountain mountain--right"></view>
+    <view class="lake-glow"></view>
+    <view class="water-lines">
+      <view class="water-line water-line--one"></view>
+      <view class="water-line water-line--two"></view>
+      <view class="water-line water-line--three"></view>
+      <view class="water-line water-line--four"></view>
+    </view>
+
+    <view class="poem-heading">
+      <text class="poem-label">今日 · 推荐</text>
+      <text class="poem-title">{{currentPoem.title}}</text>
+      <text class="poem-author">{{currentPoem.author}} · {{currentPoem.dynasty}}</text>
+    </view>
+
+    <view class="poem-panel" bindtap="goPoemDetail">
+      <block wx:for="{{poemLines}}" wx:key="*this">
+        <text class="poem-line">{{item}}</text>
+      </block>
+    </view>
+
+    <view class="poem-tools">
+      <button class="tool-button {{isLiked ? 'tool-button--active' : ''}}" bindtap="toggleLike" aria-label="点赞">
+        <image class="tool-icon" src="/assets/icons/点赞.svg" mode="aspectFit"></image>
+        <text class="tool-count">{{likeCount}}</text>
+      </button>
+      <button class="tool-button {{isFavorite ? 'tool-button--active' : ''}}" bindtap="toggleFavorite" aria-label="收藏">
+        <image class="tool-icon" src="/assets/icons/收藏.svg" mode="aspectFit"></image>
+        <text class="tool-count">{{favoriteCount}}</text>
+      </button>
+      <button class="tool-button" open-type="share" bindtap="handleShareTap" aria-label="分享">
+        <image class="tool-icon" src="/assets/icons/分 享.svg" mode="aspectFit"></image>
+        <text class="tool-count">{{shareCount}}</text>
+      </button>
+    </view>
+  </view>
+</view>

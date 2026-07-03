@@ -1,0 +1,60 @@
+<view class="profile-page">
+  <view class="top-nav">
+    <button class="menu-button" bindtap="openMenu">
+      <view></view>
+      <view></view>
+      <view></view>
+    </button>
+    <text class="brand">山水诗境</text>
+    <button class="search-icon" bindtap="openSearch"></button>
+  </view>
+
+  <scroll-view class="profile-scroll" scroll-y enhanced>
+    <view class="mountain-banner">
+      <view class="ridge ridge--one"></view>
+      <view class="ridge ridge--two"></view>
+      <view class="ridge ridge--three"></view>
+      <view class="mist"></view>
+    </view>
+
+    <view class="user-card">
+      <view class="avatar-wrap">
+        <view class="avatar-face">苏</view>
+        <text class="online-badge">在线</text>
+      </view>
+      <text class="user-name">苏东坡</text>
+      <view class="level-row">
+        <text class="identity">翰林学士</text>
+        <text class="level">Lv.12</text>
+      </view>
+    </view>
+
+    <view class="stats-row">
+      <block wx:for="{{stats}}" wx:key="label">
+        <view class="stat-card">
+          <text class="stat-label">{{item.label}}</text>
+          <text class="stat-value">{{item.value}}</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="menu-section">
+      <text class="section-title">个人藏经阁</text>
+      <block wx:for="{{menus}}" wx:key="title">
+        <button class="menu-card" bindtap="openMenuItem" data-title="{{item.title}}">
+          <view class="menu-icon menu-icon--{{item.type}}"></view>
+          <view class="menu-copy">
+            <text class="menu-title">{{item.title}}</text>
+            <text class="menu-subtitle">{{item.subtitle}}</text>
+          </view>
+          <text class="arrow">›</text>
+        </button>
+      </block>
+    </view>
+
+    <view class="vertical-quote">
+      <text>人生如逆旅</text>
+      <text>我亦是行人</text>
+    </view>
+  </scroll-view>
+</view>

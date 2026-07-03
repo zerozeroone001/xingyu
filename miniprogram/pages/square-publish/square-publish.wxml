@@ -1,0 +1,53 @@
+<view class="publish-page">
+  <scroll-view class="publish-scroll" scroll-y enhanced>
+    <view class="publish-content">
+      <view class="form-section form-section--first">
+        <view class="field-row">
+          <text class="field-label">配文</text>
+          <text class="field-hint">{{content.length}}/300</text>
+        </view>
+        <textarea class="content-input" value="{{content}}" maxlength="300" auto-height placeholder="写下诗句、见闻或读后感" bindinput="handleContentInput"></textarea>
+      </view>
+
+      <view class="form-section">
+        <view class="field-row">
+          <text class="field-label">标签</text>
+          <text class="field-hint">可多选</text>
+        </view>
+        <view class="tag-list">
+          <block wx:for="{{tagOptions}}" wx:key="name">
+            <view class="tag-chip {{item.selected ? 'tag-chip--active' : ''}}" data-tag="{{item.name}}" bindtap="toggleTag">{{item.name}}</view>
+          </block>
+        </view>
+        <view class="custom-tag-row">
+          <input class="custom-tag-input" value="{{customTag}}" maxlength="8" placeholder="添加自定义标签" bindinput="handleCustomTagInput" confirm-type="done" bindconfirm="addCustomTag" />
+          <button class="add-tag-button" bindtap="addCustomTag">添加</button>
+        </view>
+      </view>
+
+      <view class="form-section">
+        <view class="field-row">
+          <text class="field-label">图片</text>
+          <text class="field-hint">{{images.length}}/9</text>
+        </view>
+        <view class="image-picker image-picker--count-{{images.length}}">
+          <block wx:for="{{images}}" wx:key="*this">
+            <view class="picked-image-wrap">
+              <image class="picked-image" src="{{item}}" mode="aspectFill" data-src="{{item}}" bindtap="previewImage"></image>
+              <view class="remove-image" data-index="{{index}}" catchtap="removeImage">×</view>
+            </view>
+          </block>
+          <button wx:if="{{images.length < maxImages}}" class="add-image" bindtap="chooseImages">
+            <text class="add-mark">+</text>
+            <text>添加</text>
+          </button>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="submit-bar">
+    <button class="cancel-button" bindtap="goBack">取消</button>
+    <button class="submit-button {{submitting ? 'submit-button--loading' : ''}}" loading="{{submitting}}" bindtap="submitTopic">发布</button>
+  </view>
+</view>

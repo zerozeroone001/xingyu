@@ -1,0 +1,20 @@
+{
+  "description": "微信小程序项目配置，使用微信开发者工具打开项目根目录即可导入。",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "latest",
+  "appid": "touristappid",
+  "projectname": "xingyu",
+  "miniprogramRoot": "miniprogram/",
+  "condition": {}
+}

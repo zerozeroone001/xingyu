@@ -1,0 +1,58 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/category/category",
+    "pages/category-poems/category-poems",
+    "pages/square/square",
+    "pages/square-publish/square-publish",
+    "pages/square-detail/square-detail",
+    "pages/profile/profile",
+    "pages/feihualing/feihualing",
+    "pages/poem-detail/poem-detail",
+    "pages/login/login"
+  ],
+  "window": {
+    "navigationBarTitleText": "星语诗词",
+    "navigationBarBackgroundColor": "#f7efe2",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7efe2",
+    "backgroundTextStyle": "dark"
+  },
+  "usingComponents": {
+    "safe-nav": "/components/safe-nav/safe-nav"
+  },
+  "tabBar": {
+    "color": "#6f747b",
+    "selectedColor": "#2f704d",
+    "backgroundColor": "#fbfaf5",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/category/category",
+        "text": "分类",
+        "iconPath": "assets/tabbar/category.png",
+        "selectedIconPath": "assets/tabbar/category-active.png"
+      },
+      {
+        "pagePath": "pages/square/square",
+        "text": "广场",
+        "iconPath": "assets/tabbar/square.png",
+        "selectedIconPath": "assets/tabbar/square-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/tabbar/profile.png",
+        "selectedIconPath": "assets/tabbar/profile-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,22 @@
+.empty-state {
+  min-height: 320rpx;
+  padding: 72rpx 40rpx;
+  color: #887766;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.empty-state__title {
+  color: #574638;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.empty-state__desc {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+}

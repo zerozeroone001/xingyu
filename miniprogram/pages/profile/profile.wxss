@@ -1,0 +1,308 @@
+.profile-page {
+  min-height: 100vh;
+  background: #f8f6f0;
+  color: #102236;
+}
+
+.top-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 20;
+  height: 84rpx;
+  padding: 0 30rpx;
+  background: rgba(251, 250, 245, 0.96);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.menu-button {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7rpx;
+}
+
+.menu-button view {
+  width: 28rpx;
+  height: 4rpx;
+  border-radius: 4rpx;
+  background: #102236;
+}
+
+.search-icon {
+  position: relative;
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.search-icon::before {
+  content: "";
+  position: absolute;
+  left: 8rpx;
+  top: 7rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border: 4rpx solid #102236;
+  border-radius: 50%;
+}
+
+.search-icon::after {
+  content: "";
+  position: absolute;
+  right: 7rpx;
+  bottom: 10rpx;
+  width: 18rpx;
+  height: 4rpx;
+  border-radius: 4rpx;
+  background: #102236;
+  transform: rotate(45deg);
+}
+
+.profile-scroll {
+  height: 100vh;
+}
+
+.mountain-banner {
+  position: relative;
+  height: 340rpx;
+  margin-top: 84rpx;
+  overflow: hidden;
+  background: linear-gradient(180deg, #eef4f1, #a9bab6 72%, #223031);
+}
+
+.ridge {
+  position: absolute;
+  bottom: -80rpx;
+  background: linear-gradient(145deg, rgba(20, 35, 38, 0.95), rgba(203, 218, 214, 0.35));
+  transform: rotate(45deg);
+}
+
+.ridge--one {
+  left: -80rpx;
+  width: 310rpx;
+  height: 310rpx;
+}
+
+.ridge--two {
+  left: 170rpx;
+  width: 420rpx;
+  height: 420rpx;
+  opacity: 0.85;
+}
+
+.ridge--three {
+  right: -90rpx;
+  width: 360rpx;
+  height: 360rpx;
+}
+
+.mist {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 60rpx;
+  height: 72rpx;
+  background: rgba(255, 255, 255, 0.55);
+  filter: blur(18rpx);
+}
+
+.user-card {
+  position: relative;
+  margin-top: -80rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-wrap {
+  position: relative;
+  width: 132rpx;
+  height: 132rpx;
+  padding: 8rpx;
+  border-radius: 18rpx;
+  background: #fff;
+  box-shadow: 0 12rpx 28rpx rgba(20, 35, 38, 0.16);
+}
+
+.avatar-face {
+  width: 100%;
+  height: 100%;
+  border-radius: 14rpx;
+  background: radial-gradient(circle at 40% 24%, #d7c0a4, #5d5b56 46%, #233235 100%);
+  color: #fff;
+  font-size: 46rpx;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.online-badge {
+  position: absolute;
+  right: 4rpx;
+  bottom: 8rpx;
+  min-width: 54rpx;
+  height: 30rpx;
+  border-radius: 16rpx;
+  background: #2f704d;
+  color: #fff;
+  font-size: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name {
+  margin-top: 28rpx;
+  font-size: 38rpx;
+  font-weight: 800;
+}
+
+.level-row {
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.identity {
+  padding: 8rpx 22rpx;
+  border: 2rpx solid rgba(47, 112, 77, 0.2);
+  border-radius: 22rpx;
+  background: #eaf8eb;
+  color: #2f704d;
+  font-size: 22rpx;
+}
+
+.level {
+  color: #5c646d;
+  font-size: 22rpx;
+}
+
+.stats-row {
+  margin: 46rpx 26rpx 0;
+  display: flex;
+  gap: 18rpx;
+}
+
+.stat-card {
+  flex: 1;
+  height: 104rpx;
+  border-radius: 8rpx;
+  background: rgba(255, 255, 255, 0.72);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-label {
+  color: #8a8f96;
+  font-size: 20rpx;
+}
+
+.stat-value {
+  margin-top: 12rpx;
+  color: #102236;
+  font-size: 28rpx;
+}
+
+.menu-section {
+  margin: 54rpx 28rpx 0;
+}
+
+.section-title {
+  color: #687079;
+  font-size: 28rpx;
+}
+
+.menu-card {
+  height: 96rpx;
+  margin-top: 14rpx;
+  padding: 0 22rpx;
+  border-radius: 4rpx;
+  background: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon {
+  position: relative;
+  width: 52rpx;
+  height: 52rpx;
+  border: 2rpx solid rgba(214, 52, 52, 0.2);
+  border-radius: 4rpx;
+  background: #fff5f5;
+}
+
+.menu-icon::after {
+  position: absolute;
+  inset: 0;
+  color: #d71818;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-icon--heart::after {
+  content: "♡";
+}
+
+.menu-icon--bookmark::after {
+  content: "▱";
+}
+
+.menu-icon--users::after {
+  content: "♟";
+}
+
+.menu-icon--edit::after {
+  content: "□";
+}
+
+.menu-copy {
+  flex: 1;
+  margin-left: 22rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.menu-title {
+  color: #102236;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.menu-subtitle {
+  margin-top: 6rpx;
+  color: #8a8f96;
+  font-size: 18rpx;
+}
+
+.arrow {
+  color: #606872;
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.vertical-quote {
+  margin: 116rpx auto 200rpx;
+  color: #b6bbc1;
+  font-size: 26rpx;
+  line-height: 1.45;
+  writing-mode: vertical-rl;
+  display: flex;
+  gap: 24rpx;
+}

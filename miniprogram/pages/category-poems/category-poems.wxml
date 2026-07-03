@@ -1,0 +1,36 @@
+<view class="category-poems-page">
+  <scroll-view class="category-poems-scroll" scroll-y enhanced>
+    <view class="category-poems-content">
+      <view class="search-box">
+        <view class="search-icon"></view>
+        <input value="{{keyword}}" placeholder="搜索诗词、诗人或意象" bindinput="handleInput" />
+        <button wx:if="{{keyword}}" class="clear-button" bindtap="clearSearch" aria-label="清空搜索">×</button>
+      </view>
+
+      <view wx:if="{{filteredPoems.length}}" class="poem-list">
+        <block wx:for="{{filteredPoems}}" wx:key="id">
+          <view class="poem-item" data-id="{{item.id}}" bindtap="openPoem">
+            <view class="poem-main">
+              <text class="poem-title">{{item.title}}</text>
+              <text class="poem-meta">{{item.dynasty}} · {{item.author}}</text>
+              <text class="poem-recommend">{{item.recommendLine}}</text>
+              <view class="poem-tags" wx:if="{{item.tags && item.tags.length}}">
+                <block wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">
+                  <text>{{tag}}</text>
+                </block>
+              </view>
+              <view class="poem-stats">
+                <text>点赞 {{item.likeCount}}</text>
+                <text>收藏 {{item.favoriteCount}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+
+      <view wx:else class="empty-panel">
+        <text class="empty-title">暂无匹配诗词</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

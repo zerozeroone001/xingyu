@@ -1,0 +1,65 @@
+<view class="feihualing-page">
+  <scroll-view class="feihualing-scroll" scroll-y enhanced>
+    <view class="feihualing-content">
+      <view class="lobby-head">
+        <view>
+          <text class="page-title">飞花令对局</text>
+          <text class="page-subtitle">选择一场正在进行的诗令，入局或观战。</text>
+        </view>
+        <button class="create-button" bindtap="createRoom">发起</button>
+      </view>
+
+      <view class="summary-row">
+        <view class="summary-item">
+          <text class="summary-value">{{roomCount}}</text>
+          <text class="summary-label">场对局</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-value">{{watchableCount}}</text>
+          <text class="summary-label">可观战</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-value">{{onlineCount}}</text>
+          <text class="summary-label">在线诗友</text>
+        </view>
+      </view>
+
+      <view class="room-list">
+        <block wx:for="{{rooms}}" wx:key="id">
+          <view class="room-card">
+            <view class="room-main">
+              <view class="keyword-badge">
+                <text class="keyword-label">关键字</text>
+                <text class="keyword-text">{{item.keyword}}</text>
+              </view>
+
+              <view class="room-info">
+                <view class="room-title-row">
+                  <text class="room-title">{{item.title}}</text>
+                  <text class="watch-tag {{item.canWatch ? 'watch-tag--on' : 'watch-tag--off'}}">
+                    {{item.canWatch ? '可观战' : '不可观战'}}
+                  </text>
+                </view>
+
+                <view class="creator-row">
+                  <view class="avatar avatar--{{item.creator.avatarTone}}">{{item.creator.avatarText}}</view>
+                  <view class="creator-copy">
+                    <text class="creator-name">{{item.creator.nickname}}</text>
+                    <text class="creator-level">Lv.{{item.creator.level}} · {{item.creator.title}}</text>
+                  </view>
+                </view>
+
+                <view class="room-meta">
+                  <text>{{item.playerCount}}/{{item.maxPlayers}} 人</text>
+                  <text>{{item.roundText}}</text>
+                </view>
+              </view>
+            </view>
+
+            <button class="enter-button" data-id="{{item.id}}" bindtap="enterRoom">进入对局</button>
+          </view>
+        </block>
+      </view>
+    </view>
+  </scroll-view>
+</view>

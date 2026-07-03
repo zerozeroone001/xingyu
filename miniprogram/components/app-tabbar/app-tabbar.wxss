@@ -1,0 +1,138 @@
+.app-tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  height: 154rpx;
+  padding: 16rpx 56rpx calc(env(safe-area-inset-bottom) + 10rpx);
+  border-radius: 20rpx 20rpx 0 0;
+  background: rgba(250, 248, 244, 0.98);
+  box-shadow: 0 -12rpx 34rpx rgba(30, 40, 50, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tab-item {
+  width: 126rpx;
+  height: 102rpx;
+  border-radius: 24rpx;
+  color: #343840;
+  font-size: 22rpx;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.tab-item--active {
+  background: #e4f6e4;
+  color: #2f704d;
+}
+
+.tab-icon {
+  position: relative;
+  width: 40rpx;
+  height: 40rpx;
+  color: currentColor;
+}
+
+.home-roof {
+  position: absolute;
+  left: 6rpx;
+  top: 4rpx;
+  width: 28rpx;
+  height: 18rpx;
+  border: 5rpx solid currentColor;
+  border-bottom: 0;
+  border-radius: 20rpx 20rpx 0 0;
+}
+
+.home-body {
+  position: absolute;
+  left: 7rpx;
+  top: 16rpx;
+  width: 27rpx;
+  height: 19rpx;
+  border: 5rpx solid currentColor;
+  border-top: 0;
+}
+
+.tab-icon--grid view {
+  position: absolute;
+  border: 5rpx solid currentColor;
+  border-radius: 3rpx;
+}
+
+.tab-icon--grid view:nth-child(1) {
+  left: 4rpx;
+  top: 4rpx;
+  width: 12rpx;
+  height: 28rpx;
+}
+
+.tab-icon--grid view:nth-child(2) {
+  right: 4rpx;
+  top: 4rpx;
+  width: 12rpx;
+  height: 12rpx;
+}
+
+.tab-icon--grid view:nth-child(3) {
+  right: 4rpx;
+  bottom: 4rpx;
+  width: 12rpx;
+  height: 12rpx;
+}
+
+.tab-icon--swirl view {
+  position: absolute;
+  left: 5rpx;
+  top: 5rpx;
+  width: 28rpx;
+  height: 28rpx;
+  border: 5rpx solid currentColor;
+  border-left-color: transparent;
+  border-radius: 50%;
+}
+
+.tab-icon--swirl::after {
+  content: "";
+  position: absolute;
+  right: 4rpx;
+  bottom: 3rpx;
+  width: 11rpx;
+  height: 11rpx;
+  border: 5rpx solid currentColor;
+  border-radius: 50%;
+}
+
+.tab-icon--profile {
+  border: 5rpx solid currentColor;
+  border-radius: 4rpx;
+}
+
+.profile-head {
+  position: absolute;
+  left: 50%;
+  top: 6rpx;
+  width: 12rpx;
+  height: 12rpx;
+  border: 4rpx solid currentColor;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.profile-body {
+  position: absolute;
+  left: 8rpx;
+  right: 8rpx;
+  bottom: 5rpx;
+  height: 11rpx;
+  border: 4rpx solid currentColor;
+  border-bottom: 0;
+  border-radius: 12rpx 12rpx 0 0;
+}

@@ -1,0 +1,25 @@
+.poem-card {
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid rgba(83, 65, 46, 0.12);
+}
+
+.poem-card__title {
+  color: #35291f;
+  font-size: 34rpx;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.poem-card__meta {
+  margin-top: 10rpx;
+  color: #8a7864;
+  font-size: 24rpx;
+  line-height: 1.4;
+}
+
+.poem-card__content {
+  margin-top: 18rpx;
+  color: #574638;
+  font-size: 28rpx;
+  line-height: 1.7;
+}

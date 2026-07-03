@@ -1,0 +1,479 @@
+.poem-detail-page {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(231, 240, 232, 0.9) 0%, rgba(250, 247, 238, 0.96) 330rpx, #fbf8f0 100%);
+  color: #16283a;
+  overflow: hidden;
+}
+
+.back-button {
+  position: relative;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+}
+
+.back-button::before {
+  content: "";
+  position: absolute;
+  left: 24rpx;
+  top: 21rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-left: 5rpx solid #16283a;
+  border-bottom: 5rpx solid #16283a;
+  transform: rotate(45deg);
+}
+
+.layout-button {
+  width: 48rpx;
+  height: 64rpx;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #16283a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-button--active {
+  color: #2f704d;
+}
+
+.poem-layout-button {
+  position: absolute;
+  right: 8rpx;
+  bottom: 10rpx;
+  z-index: 4;
+  width: 48rpx;
+  height: 56rpx;
+}
+
+.layout-image {
+  width: 34rpx;
+  height: 34rpx;
+  opacity: 0.7;
+}
+
+.layout-button--active .layout-image {
+  opacity: 1;
+}
+
+.detail-scroll {
+  height: 100vh;
+}
+
+.detail-content {
+  padding-right: 34rpx;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 150rpx);
+  padding-left: 34rpx;
+}
+
+.poem-hero {
+  position: relative;
+  min-height: 330rpx;
+  margin: 0 -34rpx;
+  padding: 78rpx 34rpx 46rpx;
+  overflow: hidden;
+}
+
+.hero-wash {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.58);
+  filter: blur(12rpx);
+}
+
+.hero-wash--left {
+  left: 24rpx;
+  top: 34rpx;
+  width: 210rpx;
+  height: 84rpx;
+}
+
+.hero-wash--right {
+  right: -40rpx;
+  top: 160rpx;
+  width: 260rpx;
+  height: 108rpx;
+}
+
+.hero-mountain {
+  position: absolute;
+  z-index: 0;
+  bottom: -120rpx;
+  background: linear-gradient(140deg, rgba(67, 122, 99, 0.42), rgba(232, 240, 229, 0.12));
+  transform: rotate(45deg);
+}
+
+.hero-mountain--one {
+  left: -80rpx;
+  width: 300rpx;
+  height: 300rpx;
+  border-radius: 54rpx 160rpx 64rpx 160rpx;
+}
+
+.hero-mountain--two {
+  right: -120rpx;
+  width: 390rpx;
+  height: 390rpx;
+  border-radius: 78rpx 206rpx 84rpx 206rpx;
+}
+
+.hero-water {
+  position: absolute;
+  left: 78rpx;
+  right: 78rpx;
+  bottom: 34rpx;
+  height: 3rpx;
+  border-radius: 999rpx;
+  background: rgba(75, 121, 114, 0.16);
+}
+
+.poem-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.poem-kicker {
+  min-width: 132rpx;
+  height: 44rpx;
+  padding: 0 20rpx;
+  border-radius: 8rpx;
+  background: rgba(226, 239, 222, 0.74);
+  color: rgba(47, 112, 77, 0.86);
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 44rpx;
+  text-align: center;
+}
+
+.poem-title {
+  margin-top: 44rpx;
+  color: #102236;
+  font-size: 56rpx;
+  font-weight: 800;
+  line-height: 1.12;
+  text-align: center;
+  letter-spacing: 0;
+}
+
+.poem-author {
+  margin-top: 26rpx;
+  color: rgba(42, 52, 62, 0.62);
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.poem-reading {
+  position: relative;
+}
+
+.poem-text {
+  position: relative;
+  margin: 36rpx auto 0;
+  padding: 30rpx 38rpx 86rpx;
+  color: #1f2c38;
+  font-size: 34rpx;
+  line-height: 2.28;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.poem-text::before,
+.poem-text::after {
+  content: "";
+  position: absolute;
+  left: 34rpx;
+  right: 34rpx;
+  height: 1rpx;
+  background: linear-gradient(90deg, rgba(22, 40, 58, 0), rgba(22, 40, 58, 0.12), rgba(22, 40, 58, 0));
+}
+
+.poem-text::before {
+  top: 0;
+}
+
+.poem-text::after {
+  bottom: 0;
+}
+
+.poem-line {
+  display: block;
+  text-align: center;
+}
+
+.poem-text--vertical {
+  height: 560rpx;
+  max-width: 610rpx;
+  padding: 44rpx 30rpx 92rpx;
+  writing-mode: vertical-rl;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 2.18;
+  overflow-x: auto;
+}
+
+.action-bar {
+  margin-top: 44rpx;
+  min-height: 88rpx;
+  border-top: 1rpx solid rgba(22, 40, 58, 0.06);
+  border-bottom: 1rpx solid rgba(22, 40, 58, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.action-button {
+  min-width: 92rpx;
+  height: 72rpx;
+  color: rgba(70, 80, 88, 0.76);
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.action-button--active {
+  color: #2f704d;
+}
+
+.action-icon {
+  width: 36rpx;
+  height: 36rpx;
+  opacity: 0.72;
+}
+
+.action-button--active .action-icon {
+  opacity: 1;
+}
+
+.note-button {
+  margin-left: auto;
+  min-width: 0;
+  width: 64rpx;
+  height: 62rpx;
+  padding: 0;
+  border-radius: 18rpx;
+  background: rgba(236, 248, 237, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.note-image {
+  width: 36rpx;
+  height: 36rpx;
+  opacity: 0.9;
+}
+
+.poem-tags {
+  margin-top: 34rpx;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.poem-tags text {
+  min-height: 48rpx;
+  padding: 0 20rpx;
+  border-radius: 999rpx;
+  background: rgba(227, 218, 198, 0.38);
+  color: rgba(96, 75, 51, 0.78);
+  font-size: 22rpx;
+  line-height: 48rpx;
+}
+
+.comments {
+  margin-top: 76rpx;
+}
+
+.comment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comment-title {
+  color: #102236;
+  font-size: 34rpx;
+  font-weight: 800;
+}
+
+.comment-tabs {
+  display: flex;
+  gap: 30rpx;
+  color: #1d2631;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.active-filter {
+  color: #2f704d;
+}
+
+.comment-item {
+  margin-top: 34rpx;
+  display: flex;
+  gap: 22rpx;
+}
+
+.comment-avatar {
+  flex: 0 0 auto;
+  width: 62rpx;
+  height: 62rpx;
+  border: 1rpx solid rgba(16, 34, 54, 0.08);
+  border-radius: 18rpx;
+  background: rgba(237, 237, 229, 0.82);
+  color: #2f704d;
+  font-size: 24rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comment-body {
+  flex: 1;
+}
+
+.comment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.comment-name {
+  color: #172331;
+  font-size: 28rpx;
+  font-weight: 800;
+}
+
+.comment-time {
+  color: #777d84;
+  font-size: 20rpx;
+  white-space: nowrap;
+}
+
+.comment-text {
+  display: block;
+  margin-top: 12rpx;
+  color: #333941;
+  font-size: 28rpx;
+  line-height: 1.75;
+}
+
+.ink-landscape {
+  position: relative;
+  height: 330rpx;
+  margin-top: 78rpx;
+  overflow: hidden;
+  border-radius: 8rpx;
+  background:
+    radial-gradient(ellipse at 48% 38%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 34%),
+    linear-gradient(180deg, #e7e9e3 0%, #c7cbc4 55%, #9fa69f 100%);
+  box-shadow: 0 18rpx 38rpx rgba(41, 48, 50, 0.12);
+}
+
+.ink-sun {
+  position: absolute;
+  left: 50%;
+  top: 66rpx;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translateX(-50%);
+}
+
+.ink-mountain {
+  position: absolute;
+  bottom: -86rpx;
+  background: linear-gradient(145deg, rgba(26, 32, 36, 0.92), rgba(205, 210, 205, 0.38));
+  transform: rotate(45deg);
+}
+
+.ink-mountain--one {
+  left: -58rpx;
+  width: 260rpx;
+  height: 260rpx;
+  border-radius: 36rpx 120rpx 42rpx 120rpx;
+}
+
+.ink-mountain--two {
+  left: 180rpx;
+  width: 330rpx;
+  height: 330rpx;
+  opacity: 0.42;
+  border-radius: 48rpx 160rpx 54rpx 160rpx;
+}
+
+.ink-mountain--three {
+  right: -70rpx;
+  width: 330rpx;
+  height: 330rpx;
+  opacity: 0.8;
+  border-radius: 54rpx 170rpx 60rpx 170rpx;
+}
+
+.ink-boat {
+  position: absolute;
+  left: 50%;
+  bottom: 54rpx;
+  width: 58rpx;
+  height: 18rpx;
+  border-radius: 0 0 40rpx 40rpx;
+  background: rgba(29, 35, 38, 0.78);
+  transform: translateX(-50%);
+}
+
+.ink-boat::before {
+  content: "";
+  position: absolute;
+  left: 27rpx;
+  bottom: 14rpx;
+  height: 54rpx;
+  border-left: 4rpx solid rgba(29, 35, 38, 0.76);
+  transform: rotate(-10deg);
+}
+
+.ink-water {
+  position: absolute;
+  left: 50rpx;
+  right: 50rpx;
+  bottom: 38rpx;
+  height: 3rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow:
+    0 -34rpx 0 rgba(255, 255, 255, 0.28),
+    0 -78rpx 0 rgba(255, 255, 255, 0.18);
+}
+
+.spark-button {
+  position: fixed;
+  right: 24rpx;
+  bottom: calc(env(safe-area-inset-bottom) + 24rpx);
+  z-index: 30;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 22rpx;
+  background: rgba(236, 248, 237, 0.96);
+  box-shadow: 0 16rpx 34rpx rgba(47, 112, 77, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spark-icon {
+  width: 42rpx;
+  height: 42rpx;
+}

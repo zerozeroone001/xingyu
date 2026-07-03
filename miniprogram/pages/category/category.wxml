@@ -1,0 +1,45 @@
+<view class="category-page">
+  <scroll-view class="category-scroll" scroll-y enhanced>
+    <view class="category-content">
+      <view class="page-head">
+        <text class="page-title">诗词分类</text>
+        <text class="page-note">选择分类后查看对应诗词列表</text>
+      </view>
+
+      <scroll-view class="tab-scroll" scroll-x enhanced>
+        <view class="tab-row">
+          <block wx:for="{{typeTabs}}" wx:key="type">
+            <button class="category-tab {{activeType === item.type ? 'category-tab--active' : ''}}" data-type="{{item.type}}" bindtap="changeType">
+              <text>{{item.name}}</text>
+              <text class="tab-count">{{item.count}}</text>
+            </button>
+          </block>
+        </view>
+      </scroll-view>
+
+      <view class="section-block">
+        <view class="section-head">
+          <view>
+            <text class="section-title">分类入口</text>
+            <text class="section-note">当前展示 {{activeType}} 分类</text>
+          </view>
+        </view>
+
+        <view wx:if="{{categoryItems.length}}" class="category-grid">
+          <block wx:for="{{categoryItems}}" wx:key="id">
+            <button class="category-card" data-id="{{item.id}}" data-name="{{item.name}}" data-type="{{item.type}}" bindtap="openCategory">
+              <text class="category-index">{{item.type}}</text>
+              <text class="category-name">{{item.name}}</text>
+              <text class="category-desc">查看 {{item.name}} 相关诗词</text>
+            </button>
+          </block>
+        </view>
+
+        <view wx:else class="empty-panel">
+          <text class="empty-title">暂无分类</text>
+          <text class="empty-desc">下拉刷新后再试</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,5 @@
+<view class="poem-card" bindtap="handleTap">
+  <view class="poem-card__title">{{poem.title || '未命名诗词'}}</view>
+  <view class="poem-card__meta">{{poem.dynasty || '朝代'}} · {{poem.author || '佚名'}}</view>
+  <view class="poem-card__content">{{poem.content || '暂无正文'}}</view>
+</view>

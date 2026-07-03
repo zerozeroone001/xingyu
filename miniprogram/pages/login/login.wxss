@@ -1,0 +1,197 @@
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #eef4ee;
+  color: #102236;
+}
+
+.mountain-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f8f8ed 0%, #d8e8df 45%, #f4f4ed 100%);
+}
+
+.peak {
+  position: absolute;
+  background: linear-gradient(145deg, rgba(47, 92, 89, 0.62), rgba(222, 235, 225, 0.28));
+  transform: rotate(45deg);
+}
+
+.peak--main {
+  left: 210rpx;
+  top: 46rpx;
+  width: 440rpx;
+  height: 620rpx;
+  border-radius: 120rpx 260rpx 110rpx 260rpx;
+}
+
+.peak--left {
+  left: -130rpx;
+  top: 250rpx;
+  width: 330rpx;
+  height: 430rpx;
+  opacity: 0.52;
+}
+
+.peak--right {
+  right: -150rpx;
+  top: 200rpx;
+  width: 330rpx;
+  height: 470rpx;
+  opacity: 0.48;
+}
+
+.lake {
+  position: absolute;
+  left: 50%;
+  bottom: 128rpx;
+  width: 520rpx;
+  height: 220rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.42);
+  transform: translateX(-50%);
+}
+
+.login-title {
+  position: relative;
+  z-index: 1;
+  padding-top: 260rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand {
+  font-size: 60rpx;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 24rpx;
+  color: rgba(16, 34, 54, 0.64);
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.title-line {
+  width: 88rpx;
+  height: 2rpx;
+  margin-top: 38rpx;
+  background: rgba(16, 34, 54, 0.18);
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  margin: 150rpx 36rpx 0;
+  padding: 48rpx;
+  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 20rpx 54rpx rgba(33, 52, 46, 0.14);
+}
+
+.form-row {
+  margin-bottom: 38rpx;
+}
+
+.label {
+  color: #636b73;
+  font-size: 28rpx;
+  font-weight: 800;
+}
+
+.input-line {
+  height: 72rpx;
+  margin-top: 18rpx;
+  border-bottom: 1rpx solid rgba(16, 34, 54, 0.12);
+  display: flex;
+  align-items: center;
+}
+
+.prefix {
+  margin-right: 28rpx;
+  color: #102236;
+  font-size: 30rpx;
+}
+
+.input-line input {
+  flex: 1;
+  color: #102236;
+  font-size: 32rpx;
+}
+
+.code-button {
+  min-width: 164rpx;
+  height: 52rpx;
+  border: 2rpx solid rgba(47, 112, 77, 0.25);
+  border-radius: 28rpx;
+  color: #2f704d;
+  font-size: 26rpx;
+}
+
+.login-button {
+  height: 88rpx;
+  margin-top: 28rpx;
+  border-radius: 12rpx;
+  background: #347348;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 700;
+  box-shadow: 0 16rpx 28rpx rgba(52, 115, 72, 0.22);
+}
+
+.divider {
+  margin: 92rpx 0 44rpx;
+  color: #6e747c;
+  font-size: 24rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+}
+
+.divider view {
+  flex: 1;
+  height: 1rpx;
+  background: rgba(16, 34, 54, 0.09);
+}
+
+.wechat-button {
+  height: 86rpx;
+  border: 1rpx solid rgba(16, 34, 54, 0.1);
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.5);
+  color: #102236;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26rpx;
+}
+
+.wechat-dot {
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd6d6, #fff);
+}
+
+.agreement {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 88rpx;
+  z-index: 1;
+  color: #6e747c;
+  font-size: 24rpx;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  gap: 10rpx;
+}
+
+.link {
+  color: #2f704d;
+  text-decoration: underline;
+}
