@@ -6,9 +6,20 @@ const {
   toggleSquareCommentLike,
   toggleSquareCommentFavorite
 } = require('../../services/square')
-const { getKeywords, getRooms } = require('../../services/feihualing')
+const { getKeywords, getRooms, createRoom: createFeihualingRoom } = require('../../services/feihualing')
 const { showToast } = require('../../utils/toast')
 const { navigateTo } = require('../../utils/route')
+
+const DEFAULT_CREATE_FORM = {
+  title: '',
+  keyword: '',
+  maxPlayers: 4,
+  canWatch: true
+}
+
+function getCreateFormValid(form) {
+  return Boolean(String(form.title || '').trim() && String(form.keyword || '').trim())
+}
 
 function normalizeComment(comment) {
   return {
@@ -74,6 +85,12 @@ function normalizeRoom(room) {
   const isFull = maxPlayers > 0 && playerCount >= maxPlayers
   const roundText = room.roundText || room.round_text || ''
   const progress = maxPlayers > 0 ? Math.min(100, Math.round((playerCount / maxPlayers) * 100)) : 0
+  const phase = getRoomPhase(room, roundText, isFull)
+  const canJoin = phase === 'waiting' && !isFull
+  const canReplay = phase === 'ended' && canWatch
+  const canEnter = phase === 'ended' ? canWatch : !isFull || canWatch
+  const primaryRole = canWatch && (phase === 'ended' || isFull) ? 'spectator' : 'player'
+  const primaryActionText = phase === 'waiting' ? '入局等待' : phase === 'ended' ? canWatch ? '查看回顾' : '已结束' : isFull ? canWatch ? '观战' : '已满员' : '进入对局'
 
   return {
     ...room,
@@ -82,8 +99,14 @@ function normalizeRoom(room) {
     roundText,
     canWatch,
     isFull,
+    phase,
+    canJoin,
+    canReplay,
+    canEnter,
+    primaryActionText,
+    primaryRole,
     progress,
-    statusText: isFull ? '已满员' : roundText.indexOf('等待') >= 0 || roundText.indexOf('招募') >= 0 ? '招募中' : '进行中',
+    statusText: phase === 'ended' ? '已结束' : isFull ? '已满员' : phase === 'waiting' ? '招募中' : '进行中',
     creator: {
       avatarText: creator.avatarText || creator.avatar_text || '诗',
       avatarTone: creator.avatarTone || creator.avatar_tone || 'sage',
@@ -92,6 +115,20 @@ function normalizeRoom(room) {
       title: creator.title || room.creator_title || '飞花令玩家'
     }
   }
+}
+
+function getRoomPhase(room, roundText, isFull) {
+  const rawPhase = String(room.phase || room.status || room.room_status || '').toLowerCase()
+
+  if (rawPhase === 'ended' || rawPhase === 'finished' || roundText.indexOf('结束') >= 0) {
+    return 'ended'
+  }
+
+  if (rawPhase === 'waiting' || rawPhase === 'recruiting' || roundText.indexOf('等待') >= 0 || roundText.indexOf('招募') >= 0) {
+    return 'waiting'
+  }
+
+  return isFull && roundText ? 'playing' : 'playing'
 }
 
 Page({
@@ -112,7 +149,14 @@ Page({
     roomCount: 0,
     watchableCount: 0,
     recruitingCount: 0,
-    onlineCount: 0
+    onlineCount: 0,
+    createDialogVisible: false,
+    createSubmitting: false,
+    createForm: DEFAULT_CREATE_FORM,
+    createFormValid: false,
+    maxPlayerOptions: [4, 6, 8],
+    enteringRoomId: '',
+    enteringRole: ''
   },
 
   onLoad() {
@@ -186,7 +230,7 @@ Page({
           featuredRoom: rooms[0] || null,
           roomCount: rooms.length,
           watchableCount: rooms.filter((item) => item.canWatch).length,
-          recruitingCount: rooms.filter((item) => !item.isFull).length,
+          recruitingCount: rooms.filter((item) => item.phase === 'waiting' && !item.isFull).length,
           onlineCount: roomData.online_count || 0
         })
 
@@ -233,7 +277,7 @@ Page({
     }
 
     if (this.data.roomStatus === 'recruiting') {
-      return !room.isFull
+      return room.phase === 'waiting' && !room.isFull
     }
 
     if (this.data.roomStatus === 'active') {
@@ -271,7 +315,147 @@ Page({
       return
     }
 
-    showToast('发起对局开发中')
+    this.openCreateDialog()
+  },
+
+  openCreateDialog() {
+    const keyword = this.data.roomKeyword || this.data.keywordOptions[0] || '月'
+    const title = keyword ? `${keyword}字雅集` : ''
+    const createForm = Object.assign({}, DEFAULT_CREATE_FORM, {
+      keyword,
+      title
+    })
+
+    this.setData({
+      createDialogVisible: true,
+      createForm,
+      createFormValid: getCreateFormValid(createForm)
+    })
+  },
+
+  closeCreateDialog() {
+    if (this.data.createSubmitting) {
+      return
+    }
+
+    this.setData({ createDialogVisible: false })
+  },
+
+  preventDialogClose() {},
+
+  updateCreateForm(patch) {
+    const createForm = Object.assign({}, this.data.createForm, patch)
+
+    this.setData({
+      createForm,
+      createFormValid: getCreateFormValid(createForm)
+    })
+  },
+
+  handleCreateTitleInput(event) {
+    this.updateCreateForm({
+      title: event.detail.value
+    })
+  },
+
+  handleCreateKeywordInput(event) {
+    const previousKeyword = this.data.createForm.keyword
+    const keyword = String(event.detail.value || '').trim().slice(0, 2)
+    const currentTitle = String(this.data.createForm.title || '').trim()
+    const shouldUpdateTitle = !currentTitle || currentTitle === `${previousKeyword}字雅集`
+
+    this.updateCreateForm({
+      keyword,
+      title: shouldUpdateTitle && keyword ? `${keyword}字雅集` : currentTitle
+    })
+  },
+
+  chooseCreateKeyword(event) {
+    const keyword = event.currentTarget.dataset.keyword || ''
+
+    if (!keyword) {
+      return
+    }
+
+    this.updateCreateForm({
+      keyword,
+      title: `${keyword}字雅集`
+    })
+  },
+
+  chooseCreateMaxPlayers(event) {
+    this.updateCreateForm({
+      maxPlayers: Number(event.currentTarget.dataset.value || 4)
+    })
+  },
+
+  toggleCreateWatch(event) {
+    this.updateCreateForm({
+      canWatch: event.detail.value
+    })
+  },
+
+  submitCreateRoom() {
+    if (this.data.createSubmitting) {
+      return
+    }
+
+    const createForm = {
+      title: String(this.data.createForm.title || '').trim(),
+      keyword: String(this.data.createForm.keyword || '').trim(),
+      maxPlayers: Number(this.data.createForm.maxPlayers || 4),
+      canWatch: Boolean(this.data.createForm.canWatch)
+    }
+
+    if (!createForm.keyword) {
+      showToast('请填写令字')
+      return
+    }
+
+    if (!createForm.title) {
+      showToast('请填写对局名')
+      return
+    }
+
+    this.setData({ createSubmitting: true })
+
+    createFeihualingRoom({
+      title: createForm.title,
+      keyword: createForm.keyword,
+      max_players: createForm.maxPlayers,
+      can_watch: createForm.canWatch
+    })
+      .then((room) => {
+        const createdRoom = normalizeRoom(room || createForm)
+        const rooms = [createdRoom].concat(this.data.rooms)
+        const keywordOptions = this.buildKeywordOptions(rooms, this.data.keywordOptions)
+
+        this.setData({
+          rooms,
+          keywordOptions,
+          featuredRoom: createdRoom,
+          roomCount: rooms.length,
+          watchableCount: rooms.filter((item) => item.canWatch).length,
+          recruitingCount: rooms.filter((item) => item.phase === 'waiting' && !item.isFull).length,
+          roomKeyword: createdRoom.keyword,
+          roomStatus: 'all',
+          createDialogVisible: false,
+          createForm: DEFAULT_CREATE_FORM,
+          createFormValid: false
+        })
+
+        this.applyRoomFilters()
+        showToast('已发起对局', 'success')
+        wx.navigateTo({
+          url: `/pages/feihualing/feihualing?roomId=${createdRoom.id}&role=host&from=create`
+        })
+      })
+      .catch(() => {
+        showToast('发起失败')
+      })
+      .finally(() => {
+        this.setData({ createSubmitting: false })
+      })
   },
 
   handleRoomSearchInput(event) {
@@ -424,9 +608,46 @@ Page({
 
   enterRoom(event) {
     const roomId = event.currentTarget.dataset.id
+    const role = event.currentTarget.dataset.role || 'player'
     const room = this.data.rooms.find((item) => String(item.id) === String(roomId))
 
-    showToast(room ? `进入「${room.title}」` : '进入对局')
+    if (!room) {
+      showToast('对局不存在')
+      return
+    }
+
+    if (!room.canEnter) {
+      showToast('该对局暂不可进入')
+      return
+    }
+
+    if (this.data.enteringRoomId) {
+      return
+    }
+
+    this.setData({
+      enteringRoomId: room.id,
+      enteringRole: role
+    })
+
+    wx.showLoading({
+      title: role === 'spectator' ? '进入观战' : '进入对局',
+      mask: true
+    })
+
+    wx.navigateTo({
+      url: `/pages/feihualing/feihualing?roomId=${room.id}&role=${role}`,
+      complete: () => {
+        wx.hideLoading()
+        this.setData({
+          enteringRoomId: '',
+          enteringRole: ''
+        })
+      },
+      fail: () => {
+        showToast('进入对局失败')
+      }
+    })
   },
 
   onShareAppMessage(options) {

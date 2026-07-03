@@ -1,0 +1,38 @@
+<view class="profile-list-page">
+  <scroll-view class="profile-list-scroll" scroll-y enhanced>
+    <view class="profile-list-content">
+      <view class="page-head">
+        <text class="page-title">{{title}}</text>
+        <text class="page-intro">{{intro}}</text>
+      </view>
+
+      <view wx:if="{{items.length}}" class="item-list">
+        <block wx:for="{{items}}" wx:key="id">
+          <view class="list-item" bindtap="openItem" data-url="{{item.targetUrl}}">
+            <view wx:if="{{item.kind === 'user'}}" class="avatar">{{item.avatarText}}</view>
+            <view class="item-main">
+              <view class="item-title-row">
+                <text class="item-title">{{item.title}}</text>
+                <text class="item-badge">{{item.badge}}</text>
+              </view>
+              <text class="item-subtitle">{{item.subtitle}}</text>
+              <text class="item-content">{{item.content}}</text>
+              <view class="item-foot">
+                <text>{{item.meta}}</text>
+                <view wx:if="{{item.kind !== 'user'}}" class="item-stats">
+                  <text>赞 {{item.likeCount}}</text>
+                  <text>藏 {{item.favoriteCount}}</text>
+                </view>
+              </view>
+            </view>
+            <text wx:if="{{item.targetUrl}}" class="arrow">›</text>
+          </view>
+        </block>
+      </view>
+
+      <view wx:else class="empty-panel">
+        <text>{{emptyText}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

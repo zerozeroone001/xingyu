@@ -7,6 +7,10 @@
     "pages/square-publish/square-publish",
     "pages/square-detail/square-detail",
     "pages/profile/profile",
+    "pages/profile-list/profile-list",
+    "pages/profile-info/profile-info",
+    "pages/profile-feihualing/profile-feihualing",
+    "pages/feedback/feedback",
     "pages/feihualing/feihualing",
     "pages/poem-detail/poem-detail",
     "pages/login/login"

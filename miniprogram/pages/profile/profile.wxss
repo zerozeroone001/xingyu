@@ -192,11 +192,12 @@
 .stats-row {
   margin: 46rpx 26rpx 0;
   display: flex;
-  gap: 18rpx;
+  gap: 12rpx;
 }
 
 .stat-card {
   flex: 1;
+  min-width: 0;
   height: 104rpx;
   border-radius: 8rpx;
   background: rgba(255, 255, 255, 0.72);
@@ -207,8 +208,10 @@
 }
 
 .stat-label {
+  max-width: 100%;
   color: #8a8f96;
-  font-size: 20rpx;
+  font-size: 19rpx;
+  line-height: 1.2;
 }
 
 .stat-value {
@@ -255,20 +258,20 @@
   justify-content: center;
 }
 
-.menu-icon--heart::after {
-  content: "♡";
+.menu-icon--info::after {
+  content: "人";
 }
 
-.menu-icon--bookmark::after {
-  content: "▱";
+.menu-icon--game::after {
+  content: "令";
 }
 
-.menu-icon--users::after {
-  content: "♟";
+.menu-icon--feedback::after {
+  content: "言";
 }
 
-.menu-icon--edit::after {
-  content: "□";
+.menu-icon--logout::after {
+  content: "出";
 }
 
 .menu-copy {

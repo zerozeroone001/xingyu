@@ -1,0 +1,35 @@
+<view class="profile-feihualing-page">
+  <scroll-view class="profile-feihualing-scroll" scroll-y enhanced>
+    <view class="profile-feihualing-content">
+      <view class="page-head">
+        <text class="page-title">飞花令对局</text>
+        <text class="page-intro">参加的飞花令对局，继续接令或回看最近诗句</text>
+      </view>
+
+      <view wx:if="{{rooms.length}}" class="room-list">
+        <block wx:for="{{rooms}}" wx:key="id">
+          <view class="room-item" data-id="{{item.id}}" bindtap="openRoom">
+            <view class="keyword-mark">{{item.keyword}}</view>
+            <view class="room-main">
+              <view class="room-title-row">
+                <text class="room-title">{{item.title}}</text>
+                <text class="room-state">{{item.resultText}}</text>
+              </view>
+              <text class="room-line">{{item.latestLine}}</text>
+              <view class="room-meta">
+                <text>{{item.statusText}}</text>
+                <text>{{item.playerCount}}/{{item.maxPlayers}} 人</text>
+                <text>{{item.joinedAt}}</text>
+              </view>
+            </view>
+            <text class="arrow">›</text>
+          </view>
+        </block>
+      </view>
+
+      <view wx:else class="empty-panel">
+        <text>还没有参加飞花令对局</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

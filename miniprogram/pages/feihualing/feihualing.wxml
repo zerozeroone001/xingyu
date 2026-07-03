@@ -1,12 +1,12 @@
 <view class="feihualing-page">
-  <scroll-view class="feihualing-scroll" scroll-y enhanced>
+  <scroll-view wx:if="{{mode === 'lobby'}}" class="feihualing-scroll" scroll-y enhanced>
     <view class="feihualing-content">
       <view class="lobby-head">
         <view>
           <text class="page-title">飞花令对局</text>
           <text class="page-subtitle">选择一场正在进行的诗令，入局或观战。</text>
         </view>
-        <button class="create-button" bindtap="createRoom">发起</button>
+        <view class="create-button" bindtap="createRoom">发起</view>
       </view>
 
       <view class="summary-row">
@@ -56,10 +56,111 @@
               </view>
             </view>
 
-            <button class="enter-button" data-id="{{item.id}}" bindtap="enterRoom">进入对局</button>
+            <view class="room-actions {{item.canWatch && item.primaryRole !== 'spectator' ? 'room-actions--split' : ''}}">
+              <view class="enter-button {{!item.canEnter ? 'enter-button--disabled' : ''}}" data-id="{{item.id}}" data-role="{{item.primaryRole}}" bindtap="enterRoom">{{item.primaryActionText}}</view>
+              <view wx:if="{{item.canWatch && item.primaryRole !== 'spectator'}}" class="watch-button" data-id="{{item.id}}" data-role="spectator" bindtap="enterRoom">观战</view>
+            </view>
           </view>
         </block>
       </view>
     </view>
   </scroll-view>
+
+  <view wx:elif="{{mode === 'entering'}}" class="entry-page">
+    <view class="entry-card">
+      <view class="entry-spinner"></view>
+      <text class="entry-title">{{entryFrom === 'create' ? '正在进入等待区' : '正在进入对局'}}</text>
+      <text class="entry-note">{{entryRole === 'spectator' ? '正在连接观战席' : '正在同步房间状态'}}</text>
+    </view>
+  </view>
+
+  <view wx:else class="room-page">
+    <view class="room-header">
+      <view class="room-back" bindtap="returnLobby">返回</view>
+      <view class="room-heading">
+        <text class="room-heading-title">{{activeRoom.title}}</text>
+        <text class="room-heading-meta">{{viewerRole === 'host' ? '令主' : viewerRole === 'spectator' ? '观战' : '入局'}} · {{activeRoom.playerCount}}/{{activeRoom.maxPlayers}} 人 · {{activeRoom.roundText}}</text>
+      </view>
+      <view wx:if="{{roomPhase === 'playing' && viewerRole !== 'spectator'}}" class="room-end" bindtap="endRoom">结束</view>
+      <view class="room-keyword-pill">
+        <text class="room-keyword-label">令字</text>
+        <text class="room-keyword-value">{{keyword}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{roomPhase === 'waiting'}}" class="waiting-stage">
+      <view class="waiting-card">
+        <view class="waiting-keyword">{{keyword}}</view>
+        <text class="waiting-title">{{waitTitle}}</text>
+        <text class="waiting-hint">{{waitHint}}</text>
+        <view class="waiting-players">
+          <view class="waiting-player waiting-player--ready">
+            <text class="waiting-player-avatar">{{viewerRole === 'host' ? '我' : '令'}}</text>
+            <text>{{viewerRole === 'host' ? '我已建房' : '令主在房'}}</text>
+          </view>
+          <view class="waiting-player {{activeRoom.playerCount > 1 || readyState ? 'waiting-player--ready' : ''}}">
+            <text class="waiting-player-avatar">{{activeRoom.playerCount > 1 || readyState ? '友' : '?'}}</text>
+            <text>{{activeRoom.playerCount > 1 || readyState ? '诗友已就绪' : '等待诗友'}}</text>
+          </view>
+        </view>
+        <view class="waiting-action {{viewerRole === 'spectator' ? 'waiting-action--ghost' : ''}}" bindtap="handleWaitingAction">{{waitActionText}}</view>
+      </view>
+    </view>
+
+    <scroll-view wx:else class="dialog-window" scroll-y enhanced scroll-into-view="{{messageAnchor}}">
+      <view class="dialog-list">
+        <view wx:if="{{roomPhase === 'ended'}}" class="result-card">
+          <text class="result-title">{{resultTitle}}</text>
+          <text class="result-summary">{{resultSummary}}</text>
+          <view class="result-stats">
+            <block wx:for="{{resultStats}}" wx:key="label">
+              <view class="result-stat">
+                <text class="result-stat-value">{{item.value}}</text>
+                <text class="result-stat-label">{{item.label}}</text>
+              </view>
+            </block>
+          </view>
+        </view>
+        <block wx:for="{{messages}}" wx:key="id">
+          <view id="{{item.id}}" class="dialog-row dialog-row--{{item.role}}">
+            <view class="dialog-bubble dialog-bubble--{{item.role}} {{item.role === 'user' && item.isCorrect ? 'dialog-bubble--correct' : ''}} {{item.role === 'user' && !item.isCorrect ? 'dialog-bubble--wrong' : ''}}">
+              <text wx:if="{{item.playerName}}" class="dialog-player">{{item.playerName}}</text>
+              <text class="dialog-content">{{item.content}}</text>
+              <view wx:if="{{item.sourceText}}" class="dialog-source">
+                <text wx:if="{{item.statusText}}" class="dialog-status">{{item.statusText}}</text>
+                <text class="dialog-source-text">{{item.sourceText}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+        <view wx:if="{{opponentThinking}}" id="message-thinking" class="dialog-row dialog-row--opponent">
+          <view class="dialog-bubble dialog-bubble--opponent dialog-bubble--thinking">
+            <text class="dialog-player">对手</text>
+            <text class="dialog-content">正在接令...</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view wx:if="{{roomPhase === 'playing' && viewerRole !== 'spectator'}}" class="answer-bar">
+      <input
+        class="answer-input"
+        value="{{answerInput}}"
+        placeholder="写一句含“{{keyword}}”的诗句"
+        confirm-type="send"
+        adjust-position="{{true}}"
+        bindinput="handleAnswerInput"
+        bindconfirm="submitAnswer"
+      />
+      <view class="answer-submit {{checking || opponentThinking ? 'answer-submit--disabled' : ''}}" bindtap="submitAnswer">{{checking ? '校验中' : opponentThinking ? '等待' : '发送'}}</view>
+    </view>
+    <view wx:elif="{{roomPhase === 'playing' && viewerRole === 'spectator'}}" class="spectator-bar">
+      <text>观战中，当前不可发令</text>
+      <view class="spectator-action" bindtap="returnLobby">返回大厅</view>
+    </view>
+    <view wx:elif="{{roomPhase === 'ended'}}" class="end-bar">
+      <view class="end-action end-action--ghost" bindtap="returnLobby">返回大厅</view>
+      <view wx:if="{{viewerRole !== 'spectator'}}" class="end-action" bindtap="replayRoom">再开一局</view>
+    </view>
+  </view>
 </view>

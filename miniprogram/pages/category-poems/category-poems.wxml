@@ -4,7 +4,7 @@
       <view class="search-box">
         <view class="search-icon"></view>
         <input value="{{keyword}}" placeholder="搜索诗词、诗人或意象" bindinput="handleInput" />
-        <button wx:if="{{keyword}}" class="clear-button" bindtap="clearSearch" aria-label="清空搜索">×</button>
+        <view wx:if="{{keyword}}" class="clear-button" bindtap="clearSearch" aria-label="清空搜索">×</view>
       </view>
 
       <view wx:if="{{filteredPoems.length}}" class="poem-list">

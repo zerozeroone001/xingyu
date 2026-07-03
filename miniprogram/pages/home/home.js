@@ -8,6 +8,7 @@ const fallbackPoem = {
   dynasty: '唐',
   author: '李白',
   content: '众鸟高飞尽，孤云独去闲。相看两不厌，只有敬亭山。',
+  recommend_sentence: '相看两不厌，只有敬亭山。',
   is_favorite: false,
   is_liked: false,
   like_count: 128,
@@ -19,8 +20,10 @@ Page({
   data: {
     loading: false,
     homeData: null,
+    poemList: [fallbackPoem],
+    currentPoemIndex: 0,
     currentPoem: fallbackPoem,
-    poemLines: ['众鸟高飞尽，', '孤云独去闲。', '相看两不厌，', '只有敬亭山。'],
+    recommendSentence: fallbackPoem.recommend_sentence,
     isLiked: false,
     isFavorite: false,
     likeCount: fallbackPoem.like_count,
@@ -30,7 +33,13 @@ Page({
     navHeight: 88,
     navTop: 24,
     navBarHeight: 32,
-    navRightInset: 110
+    navRightInset: 110,
+    hasMultiplePoems: false,
+    touchStartX: 0,
+    touchStartY: 0,
+    ignoreNextPoemTap: false,
+    isSwitchingPoem: false,
+    poemTransitionClass: ''
   },
 
   onLoad() {
@@ -51,6 +60,11 @@ Page({
     })
   },
 
+  onUnload() {
+    clearTimeout(this.poemSwitchTimer)
+    clearTimeout(this.poemEnterTimer)
+  },
+
   /**
    * 加载首页聚合数据。
    * 当前页面先显示模板复刻基线，接口接入后再把数据映射到真实组件。
@@ -61,16 +75,16 @@ Page({
     return getHomeData()
       .then((data) => {
         const poem = data.today_poem || fallbackPoem
+        const poemList = this.normalizePoemList(data, poem)
+        const currentPoemIndex = Math.max(0, poemList.findIndex((item) => String(item.id) === String(poem.id)))
+        const currentPoem = poemList[currentPoemIndex] || poem
         this.setData({
           homeData: data,
-          currentPoem: poem,
-          poemLines: this.splitPoemLines(poem.content),
-          isLiked: Boolean(poem.is_liked),
-          isFavorite: Boolean(poem.is_favorite),
-          likeCount: this.normalizeCount(poem.like_count, fallbackPoem.like_count),
-          favoriteCount: this.normalizeCount(poem.favorite_count, fallbackPoem.favorite_count),
-          shareCount: this.normalizeCount(poem.share_count, fallbackPoem.share_count)
+          poemList,
+          currentPoemIndex,
+          hasMultiplePoems: poemList.length > 1
         })
+        this.applyCurrentPoem(currentPoem)
       })
       .catch(() => {
         // 初始化阶段后端未启动属于正常情况，页面继续保留模板图展示。
@@ -110,17 +124,143 @@ Page({
     })
   },
 
-  /**
-   * 将诗词正文按标点拆成四行，页面层只负责展示，不直接写死诗句内容。
-   */
-  splitPoemLines(content) {
-    const matched = String(content || fallbackPoem.content).match(/[^，。！？]+[，。！？]/g)
-    return matched || ['众鸟高飞尽，', '孤云独去闲。', '相看两不厌，', '只有敬亭山。']
+  getRecommendSentence(poem) {
+    const sentence = String(poem && poem.recommend_sentence ? poem.recommend_sentence : '').trim()
+
+    if (sentence) {
+      return sentence
+    }
+
+    const matched = String((poem && poem.content) || fallbackPoem.content).match(/[^。！？]+[。！？]/)
+    return matched ? matched[0] : fallbackPoem.recommend_sentence
   },
 
   normalizeCount(value, fallbackValue) {
     const count = Number(value)
     return Number.isFinite(count) && count >= 0 ? count : fallbackValue
+  },
+
+  normalizePoemList(data, currentPoem) {
+    const source = []
+
+    if (currentPoem) {
+      source.push(currentPoem)
+    }
+
+    if (Array.isArray(data.recommend_poems)) {
+      source.push(...data.recommend_poems)
+    }
+
+    const seen = {}
+    const list = source.filter((poem) => {
+      if (!poem || poem.id === undefined || poem.id === null) {
+        return false
+      }
+
+      const key = String(poem.id)
+      if (seen[key]) {
+        return false
+      }
+
+      seen[key] = true
+      return true
+    })
+
+    return list.length ? list : [fallbackPoem]
+  },
+
+  applyCurrentPoem(poem) {
+    const currentPoem = poem || fallbackPoem
+    this.setData({
+      currentPoem,
+      recommendSentence: this.getRecommendSentence(currentPoem),
+      isLiked: Boolean(currentPoem.is_liked),
+      isFavorite: Boolean(currentPoem.is_favorite),
+      likeCount: this.normalizeCount(currentPoem.like_count, fallbackPoem.like_count),
+      favoriteCount: this.normalizeCount(currentPoem.favorite_count, fallbackPoem.favorite_count),
+      shareCount: this.normalizeCount(currentPoem.share_count, fallbackPoem.share_count)
+    })
+  },
+
+  updateCurrentPoem(patch) {
+    const poemList = this.data.poemList.slice()
+    const currentPoemIndex = this.data.currentPoemIndex
+    const currentPoem = Object.assign({}, poemList[currentPoemIndex] || this.data.currentPoem, patch)
+
+    poemList[currentPoemIndex] = currentPoem
+    this.setData({
+      poemList,
+      currentPoem
+    })
+  },
+
+  switchPoem(offset) {
+    const poemList = this.data.poemList
+
+    if (!Array.isArray(poemList) || poemList.length <= 1 || this.data.isSwitchingPoem) {
+      return false
+    }
+
+    const nextIndex = (this.data.currentPoemIndex + offset + poemList.length) % poemList.length
+    const exitClass = offset > 0 ? 'poem-content--exit-left' : 'poem-content--exit-right'
+    const enterClass = offset > 0 ? 'poem-content--enter-right' : 'poem-content--enter-left'
+
+    clearTimeout(this.poemSwitchTimer)
+    clearTimeout(this.poemEnterTimer)
+
+    this.setData({
+      isSwitchingPoem: true,
+      poemTransitionClass: exitClass
+    })
+
+    this.poemSwitchTimer = setTimeout(() => {
+      this.setData({
+        currentPoemIndex: nextIndex,
+        poemTransitionClass: enterClass
+      })
+      this.applyCurrentPoem(poemList[nextIndex])
+
+      this.poemEnterTimer = setTimeout(() => {
+        this.setData({
+          isSwitchingPoem: false,
+          poemTransitionClass: ''
+        })
+      }, 40)
+    }, 170)
+
+    return true
+  },
+
+  handlePoemTouchStart(event) {
+    const touch = event.touches && event.touches[0]
+
+    if (!touch) {
+      return
+    }
+
+    this.setData({
+      touchStartX: touch.clientX,
+      touchStartY: touch.clientY
+    })
+  },
+
+  handlePoemTouchEnd(event) {
+    const touch = event.changedTouches && event.changedTouches[0]
+
+    if (!touch) {
+      return
+    }
+
+    const deltaX = touch.clientX - this.data.touchStartX
+    const deltaY = touch.clientY - this.data.touchStartY
+
+    if (Math.abs(deltaX) < 48 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+      return
+    }
+
+    if (this.switchPoem(deltaX > 0 ? -1 : 1)) {
+      this.setData({ ignoreNextPoemTap: true })
+    }
   },
 
   openMenu() {
@@ -129,28 +269,47 @@ Page({
 
   toggleLike() {
     const nextLiked = !this.data.isLiked
+    const likeCount = Math.max(0, this.data.likeCount + (nextLiked ? 1 : -1))
     this.setData({
       isLiked: nextLiked,
-      likeCount: Math.max(0, this.data.likeCount + (nextLiked ? 1 : -1))
+      likeCount
+    })
+    this.updateCurrentPoem({
+      is_liked: nextLiked,
+      like_count: likeCount
     })
   },
 
   toggleFavorite() {
     const nextFavorite = !this.data.isFavorite
+    const favoriteCount = Math.max(0, this.data.favoriteCount + (nextFavorite ? 1 : -1))
     this.setData({
       isFavorite: nextFavorite,
-      favoriteCount: Math.max(0, this.data.favoriteCount + (nextFavorite ? 1 : -1))
+      favoriteCount
+    })
+    this.updateCurrentPoem({
+      is_favorite: nextFavorite,
+      favorite_count: favoriteCount
     })
     showToast(this.data.isFavorite ? '已收藏' : '已取消', 'success')
   },
 
   handleShareTap() {
+    const shareCount = this.data.shareCount + 1
     this.setData({
-      shareCount: this.data.shareCount + 1
+      shareCount
+    })
+    this.updateCurrentPoem({
+      share_count: shareCount
     })
   },
 
   goPoemDetail() {
+    if (this.data.ignoreNextPoemTap) {
+      this.setData({ ignoreNextPoemTap: false })
+      return
+    }
+
     navigateTo(`/pages/poem-detail/poem-detail?id=${this.data.currentPoem.id}`)
   }
 })

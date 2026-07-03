@@ -1,0 +1,113 @@
+.profile-info-page {
+  min-height: 100vh;
+  background: #fbfaf5;
+  color: #102236;
+}
+
+.profile-info-scroll {
+  height: 100vh;
+}
+
+.profile-info-content {
+  padding: 34rpx 30rpx 120rpx;
+}
+
+.profile-head {
+  padding: 22rpx 0 34rpx;
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+}
+
+.avatar {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 16rpx;
+  background: radial-gradient(circle at 40% 24%, #d7c0a4, #5d5b56 46%, #233235 100%);
+  color: #fff;
+  font-size: 38rpx;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-head-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.profile-title {
+  font-size: 42rpx;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.profile-subtitle {
+  color: #687079;
+  font-size: 23rpx;
+  line-height: 1.45;
+}
+
+.form-section {
+  border-radius: 8rpx;
+  background: #fff;
+  box-shadow: 0 8rpx 22rpx rgba(30, 44, 54, 0.06);
+}
+
+.form-row {
+  min-height: 100rpx;
+  padding: 0 26rpx;
+  border-bottom: 1rpx solid rgba(16, 34, 54, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.form-row:last-child {
+  border-bottom: 0;
+}
+
+.form-row--textarea {
+  min-height: 210rpx;
+  padding-top: 26rpx;
+  align-items: flex-start;
+}
+
+.field-label {
+  width: 92rpx;
+  flex-shrink: 0;
+  color: #687079;
+  font-size: 25rpx;
+}
+
+.form-row input,
+.form-row textarea {
+  flex: 1;
+  min-width: 0;
+  color: #102236;
+  font-size: 28rpx;
+}
+
+.form-row input {
+  height: 96rpx;
+}
+
+.form-row textarea {
+  height: 160rpx;
+  line-height: 1.55;
+}
+
+.save-button {
+  height: 88rpx;
+  margin-top: 34rpx;
+  border-radius: 8rpx;
+  background: #2f704d;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 800;
+  line-height: 88rpx;
+}

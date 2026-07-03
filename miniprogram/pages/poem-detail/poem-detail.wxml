@@ -1,6 +1,6 @@
 <view class="poem-detail-page">
   <safe-nav background="rgba(251, 248, 240, 0.9)" offset-top="8" side-gap="18" bindlayoutready="handleNavReady">
-    <button slot="left" class="back-button" bindtap="goBack" aria-label="返回"></button>
+    <view slot="left" class="back-button" bindtap="goBack" aria-label="返回"></view>
   </safe-nav>
 
   <scroll-view class="detail-scroll" scroll-y enhanced>
@@ -21,31 +21,29 @@
 
       <view class="poem-reading">
         <view class="poem-text {{isVertical ? 'poem-text--vertical' : ''}}">
-          <block wx:for="{{poemLines}}" wx:key="*this">
-            <text class="poem-line">{{item}}</text>
-          </block>
+          <text class="poem-content-text">{{poemContent}}</text>
         </view>
-        <button class="layout-button poem-layout-button {{isVertical ? 'layout-button--active' : ''}}" bindtap="toggleLayout" aria-label="{{isVertical ? '切换横排' : '切换竖排'}}">
+        <view class="layout-button poem-layout-button {{isVertical ? 'layout-button--active' : ''}}" bindtap="toggleLayout" aria-label="{{isVertical ? '切换横排' : '切换竖排'}}">
           <image class="layout-image" src="/assets/icons/排版.svg" mode="aspectFit"></image>
-        </button>
+        </view>
       </view>
 
       <view class="action-bar">
-        <button class="action-button {{isLiked ? 'action-button--active' : ''}}" bindtap="toggleLike">
+        <view class="action-button {{isLiked ? 'action-button--active' : ''}}" bindtap="toggleLike">
           <image class="action-icon" src="/assets/icons/点赞.svg" mode="aspectFit"></image>
           <text>{{likeCount}}</text>
-        </button>
-        <button class="action-button {{isFavorite ? 'action-button--active' : ''}}" bindtap="toggleFavorite">
+        </view>
+        <view class="action-button {{isFavorite ? 'action-button--active' : ''}}" bindtap="toggleFavorite">
           <image class="action-icon" src="/assets/icons/收藏.svg" mode="aspectFit"></image>
           <text>{{favoriteCount}}</text>
-        </button>
-        <button class="action-button" open-type="share">
+        </view>
+        <view class="action-button" bindtap="handleShareTap">
           <image class="action-icon" src="/assets/icons/分 享.svg" mode="aspectFit"></image>
           <text>{{shareCount}}</text>
-        </button>
-        <button class="note-button" bindtap="writeNote" aria-label="写笔记">
+        </view>
+        <view class="note-button" bindtap="writeNote" aria-label="写笔记">
           <image class="note-image" src="/assets/icons/笔记.svg" mode="aspectFit"></image>
-        </button>
+        </view>
       </view>
 
       <view class="poem-tags" wx:if="{{poem.tags && poem.tags.length}}">
@@ -88,7 +86,7 @@
     </view>
   </scroll-view>
 
-  <button class="spark-button" bindtap="writeNote" aria-label="写笔记">
+  <view class="spark-button" bindtap="writeNote" aria-label="写笔记">
     <image class="spark-icon" src="/assets/icons/笔记.svg" mode="aspectFit"></image>
-  </button>
+  </view>
 </view>

@@ -1,30 +1,30 @@
 <view class="app-tabbar">
-  <button class="tab-item {{active === 'home' ? 'tab-item--active' : ''}}" data-url="/pages/home/home" bindtap="goPage">
+  <view class="tab-item {{active === 'home' ? 'tab-item--active' : ''}}" data-url="/pages/home/home" bindtap="goPage">
     <view class="tab-icon tab-icon--home">
       <view class="home-roof"></view>
       <view class="home-body"></view>
     </view>
     <text>首页</text>
-  </button>
-  <button class="tab-item {{active === 'square' ? 'tab-item--active' : ''}}" data-url="/pages/square/square" bindtap="goPage">
+  </view>
+  <view class="tab-item {{active === 'square' ? 'tab-item--active' : ''}}" data-url="/pages/square/square" bindtap="goPage">
     <view class="tab-icon tab-icon--grid">
       <view></view>
       <view></view>
       <view></view>
     </view>
     <text>广场</text>
-  </button>
-  <button class="tab-item {{active === 'feihualing' ? 'tab-item--active' : ''}}" data-url="/pages/feihualing/feihualing" bindtap="goPage">
+  </view>
+  <view class="tab-item {{active === 'feihualing' ? 'tab-item--active' : ''}}" data-url="/pages/feihualing/feihualing" bindtap="goPage">
     <view class="tab-icon tab-icon--swirl">
       <view></view>
     </view>
     <text>飞花令</text>
-  </button>
-  <button class="tab-item {{active === 'profile' ? 'tab-item--active' : ''}}" data-url="/pages/profile/profile" bindtap="goPage">
+  </view>
+  <view class="tab-item {{active === 'profile' ? 'tab-item--active' : ''}}" data-url="/pages/profile/profile" bindtap="goPage">
     <view class="tab-icon tab-icon--profile">
       <view class="profile-head"></view>
       <view class="profile-body"></view>
     </view>
     <text>我的</text>
-  </button>
+  </view>
 </view>

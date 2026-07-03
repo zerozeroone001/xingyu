@@ -9,10 +9,10 @@
       <scroll-view class="tab-scroll" scroll-x enhanced>
         <view class="tab-row">
           <block wx:for="{{typeTabs}}" wx:key="type">
-            <button class="category-tab {{activeType === item.type ? 'category-tab--active' : ''}}" data-type="{{item.type}}" bindtap="changeType">
+            <view class="category-tab {{activeType === item.type ? 'category-tab--active' : ''}}" data-type="{{item.type}}" bindtap="changeType">
               <text>{{item.name}}</text>
               <text class="tab-count">{{item.count}}</text>
-            </button>
+            </view>
           </block>
         </view>
       </scroll-view>
@@ -27,11 +27,11 @@
 
         <view wx:if="{{categoryItems.length}}" class="category-grid">
           <block wx:for="{{categoryItems}}" wx:key="id">
-            <button class="category-card" data-id="{{item.id}}" data-name="{{item.name}}" data-type="{{item.type}}" bindtap="openCategory">
+            <view class="category-card" data-id="{{item.id}}" data-name="{{item.name}}" data-type="{{item.type}}" bindtap="openCategory">
               <text class="category-index">{{item.type}}</text>
               <text class="category-name">{{item.name}}</text>
               <text class="category-desc">查看 {{item.name}} 相关诗词</text>
-            </button>
+            </view>
           </block>
         </view>
 

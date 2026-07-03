@@ -171,52 +171,69 @@
 
 .poem-reading {
   position: relative;
+  margin-top: 34rpx;
 }
 
 .poem-text {
   position: relative;
-  margin: 36rpx auto 0;
-  padding: 30rpx 38rpx 86rpx;
-  color: #1f2c38;
-  font-size: 34rpx;
-  line-height: 2.28;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin: 0 auto;
+  padding: 56rpx 48rpx 104rpx;
+  border: 1rpx solid rgba(135, 111, 78, 0.12);
+  border-radius: 8rpx;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 246, 0.88), rgba(246, 241, 228, 0.78)),
+    repeating-linear-gradient(0deg, rgba(126, 98, 62, 0.035) 0 1rpx, rgba(255, 255, 255, 0) 1rpx 56rpx);
+  box-shadow:
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.72),
+    0 18rpx 48rpx rgba(63, 52, 36, 0.08);
+  color: #1d2b35;
+  font-size: 36rpx;
+  line-height: 2.18;
+  text-align: left;
 }
 
 .poem-text::before,
 .poem-text::after {
   content: "";
   position: absolute;
-  left: 34rpx;
-  right: 34rpx;
+  left: 48rpx;
+  right: 48rpx;
   height: 1rpx;
-  background: linear-gradient(90deg, rgba(22, 40, 58, 0), rgba(22, 40, 58, 0.12), rgba(22, 40, 58, 0));
+  background: linear-gradient(90deg, rgba(119, 92, 56, 0), rgba(119, 92, 56, 0.18), rgba(119, 92, 56, 0));
 }
 
 .poem-text::before {
-  top: 0;
+  top: 28rpx;
 }
 
 .poem-text::after {
-  bottom: 0;
+  bottom: 76rpx;
 }
 
-.poem-line {
+.poem-content-text {
   display: block;
-  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  word-break: normal;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .poem-text--vertical {
-  height: 560rpx;
-  max-width: 610rpx;
-  padding: 44rpx 30rpx 92rpx;
+  width: 610rpx;
+  height: 660rpx;
+  max-width: 100%;
+  padding: 56rpx 38rpx 104rpx;
   writing-mode: vertical-rl;
-  align-items: flex-start;
-  justify-content: center;
-  line-height: 2.18;
+  line-height: 2.05;
   overflow-x: auto;
+  text-align: start;
+}
+
+.poem-text--vertical .poem-content-text {
+  width: auto;
+  height: 100%;
+  text-align: start;
 }
 
 .action-bar {

@@ -21,7 +21,7 @@ Page({
   data: {
     poemId: '',
     poem: fallbackPoem,
-    poemLines: [],
+    poemContent: fallbackPoem.content,
     isFavorite: false,
     isLiked: false,
     isVertical: false,
@@ -75,7 +75,7 @@ Page({
   setPoemState(poem, extra = {}) {
     this.setData(Object.assign({
       poem,
-      poemLines: this.splitPoemLines(poem.content),
+      poemContent: this.normalizePoemContent(poem.content),
       isFavorite: Boolean(poem.is_favorite),
       isLiked: Boolean(poem.is_liked),
       likeCount: poem.like_count || 0,
@@ -111,11 +111,14 @@ Page({
       })
   },
 
-  /**
-   * 按句号、问号、叹号拆分诗句，保持一行一句的阅读节奏。
-   */
-  splitPoemLines(content) {
-    return String(content || '').match(/[^。！？]+[。！？]/g) || []
+  handleShareTap() {
+    this.setData({
+      shareCount: this.data.shareCount + 1
+    })
+  },
+
+  normalizePoemContent(content) {
+    return String(content || '').replace(/\s+/g, '').trim()
   },
 
   goBack() {

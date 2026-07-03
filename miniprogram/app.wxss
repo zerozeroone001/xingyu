@@ -9,22 +9,9 @@ page {
 
 view,
 text,
-button,
 input,
 textarea {
   box-sizing: border-box;
-}
-
-button {
-  margin: 0;
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
-  line-height: normal;
-}
-
-button::after {
-  border: 0;
 }
 
 .page-safe {

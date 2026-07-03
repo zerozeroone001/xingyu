@@ -111,6 +111,10 @@ Page({
   },
 
   submitTopic() {
+    if (this.data.submitting) {
+      return
+    }
+
     const content = this.data.content.trim()
     const tags = this.data.selectedTags.slice()
 

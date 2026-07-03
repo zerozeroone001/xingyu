@@ -2,25 +2,25 @@
   <scroll-view class="square-scroll" scroll-y enhanced lower-threshold="120" bindscrolltolower="onScrollToLower">
     <view class="square-content">
       <view class="search-row">
-        <button wx:if="{{activeChannel === 'square'}}" class="search-bar" aria-label="搜索" bindtap="openSearch">
+        <view wx:if="{{activeChannel === 'square'}}" class="search-bar" aria-label="搜索" bindtap="openSearch">
           <view class="search-icon"></view>
           <text class="search-placeholder">搜索诗句、诗人或话题</text>
-        </button>
+        </view>
         <view wx:else class="search-bar room-search">
           <view class="search-icon"></view>
           <input class="room-search-input" value="{{roomSearchValue}}" placeholder="搜索令字、对局或诗友" bindinput="handleRoomSearchInput" />
-          <button wx:if="{{roomSearchValue}}" class="search-clear" bindtap="clearRoomSearch">清</button>
+          <view wx:if="{{roomSearchValue}}" class="search-clear" bindtap="clearRoomSearch">清</view>
         </view>
-        <button class="publish-button" aria-label="发布" bindtap="composePost">{{activeChannel === 'square' ? '发布' : '发起'}}</button>
+        <view class="publish-button" aria-label="发布" bindtap="composePost">{{activeChannel === 'square' ? '发布' : '发起'}}</view>
       </view>
 
       <view class="channel-tabs">
-        <button class="channel-tab {{activeChannel === 'square' ? 'channel-tab--active' : ''}}" data-channel="square" bindtap="switchChannel">
+        <view class="channel-tab {{activeChannel === 'square' ? 'channel-tab--active' : ''}}" data-channel="square" bindtap="switchChannel">
           广场
-        </button>
-        <button class="channel-tab {{activeChannel === 'feihualing' ? 'channel-tab--active' : ''}}" data-channel="feihualing" bindtap="switchChannel">
+        </view>
+        <view class="channel-tab {{activeChannel === 'feihualing' ? 'channel-tab--active' : ''}}" data-channel="feihualing" bindtap="switchChannel">
           飞花令
-        </button>
+        </view>
       </view>
 
       <block wx:if="{{activeChannel === 'square'}}">
@@ -116,7 +116,14 @@
               <text class="featured-title">{{featuredRoom.title}}</text>
               <text class="featured-meta">令字「{{featuredRoom.keyword}}」 · {{featuredRoom.playerCount}}/{{featuredRoom.maxPlayers}} 人 · {{featuredRoom.statusText}}</text>
             </view>
-            <button class="featured-button" data-id="{{featuredRoom.id}}" bindtap="enterRoom">入局</button>
+            <view
+              class="featured-button {{enteringRoomId === featuredRoom.id ? 'featured-button--loading' : ''}} {{!featuredRoom.canEnter ? 'featured-button--disabled' : ''}}"
+              data-id="{{featuredRoom.id}}"
+              data-role="{{featuredRoom.primaryRole}}"
+              bindtap="enterRoom"
+            >
+              {{enteringRoomId === featuredRoom.id ? '进入中' : featuredRoom.primaryActionText}}
+            </view>
           </view>
 
           <view class="lobby-summary">
@@ -139,17 +146,17 @@
           </view>
 
           <view class="room-filter-row">
-            <button class="room-filter {{roomStatus === 'all' ? 'room-filter--active' : ''}}" data-status="all" bindtap="chooseRoomStatus">全部</button>
-            <button class="room-filter {{roomStatus === 'recruiting' ? 'room-filter--active' : ''}}" data-status="recruiting" bindtap="chooseRoomStatus">可入局</button>
-            <button class="room-filter {{roomStatus === 'watchable' ? 'room-filter--active' : ''}}" data-status="watchable" bindtap="chooseRoomStatus">可观战</button>
-            <button class="room-filter {{roomStatus === 'active' ? 'room-filter--active' : ''}}" data-status="active" bindtap="chooseRoomStatus">进行中</button>
+            <view class="room-filter {{roomStatus === 'all' ? 'room-filter--active' : ''}}" data-status="all" bindtap="chooseRoomStatus">全部</view>
+            <view class="room-filter {{roomStatus === 'recruiting' ? 'room-filter--active' : ''}}" data-status="recruiting" bindtap="chooseRoomStatus">可入局</view>
+            <view class="room-filter {{roomStatus === 'watchable' ? 'room-filter--active' : ''}}" data-status="watchable" bindtap="chooseRoomStatus">可观战</view>
+            <view class="room-filter {{roomStatus === 'active' ? 'room-filter--active' : ''}}" data-status="active" bindtap="chooseRoomStatus">进行中</view>
           </view>
 
           <scroll-view class="keyword-scroller" scroll-x enhanced show-scrollbar="{{false}}">
             <view class="keyword-track">
-              <button class="keyword-chip {{roomKeyword === '' ? 'keyword-chip--active' : ''}}" data-keyword="" bindtap="chooseRoomKeyword">全部</button>
+              <view class="keyword-chip {{roomKeyword === '' ? 'keyword-chip--active' : ''}}" data-keyword="" bindtap="chooseRoomKeyword">全部</view>
               <block wx:for="{{keywordOptions}}" wx:key="*this">
-                <button class="keyword-chip {{roomKeyword === item ? 'keyword-chip--active' : ''}}" data-keyword="{{item}}" bindtap="chooseRoomKeyword">{{item}}</button>
+                <view class="keyword-chip {{roomKeyword === item ? 'keyword-chip--active' : ''}}" data-keyword="{{item}}" bindtap="chooseRoomKeyword">{{item}}</view>
               </block>
             </view>
           </scroll-view>
@@ -195,7 +202,25 @@
                   </view>
                 </view>
 
-                <button class="enter-button" data-id="{{item.id}}" bindtap="enterRoom">进入对局</button>
+                <view class="room-actions {{item.canWatch && item.primaryRole !== 'spectator' ? 'room-actions--split' : ''}}">
+                  <view
+                    class="enter-button {{enteringRoomId === item.id && enteringRole !== 'spectator' ? 'enter-button--loading' : ''}} {{!item.canEnter ? 'enter-button--disabled' : ''}}"
+                    data-id="{{item.id}}"
+                    data-role="{{item.primaryRole}}"
+                    bindtap="enterRoom"
+                  >
+                    {{enteringRoomId === item.id && enteringRole !== 'spectator' ? '进入中' : item.primaryActionText}}
+                  </view>
+                  <view
+                    wx:if="{{item.canWatch && item.primaryRole !== 'spectator'}}"
+                    class="watch-button {{enteringRoomId === item.id && enteringRole === 'spectator' ? 'watch-button--loading' : ''}}"
+                    data-id="{{item.id}}"
+                    data-role="spectator"
+                    bindtap="enterRoom"
+                  >
+                    {{enteringRoomId === item.id && enteringRole === 'spectator' ? '进入中' : '观战'}}
+                  </view>
+                </view>
               </view>
             </block>
           </view>
@@ -204,10 +229,63 @@
           <view wx:elif="{{!roomLoading && !filteredRooms.length}}" class="empty-room">
             <text class="empty-room-title">暂无匹配对局</text>
             <text class="empty-room-note">换个令字或清空筛选后再试。</text>
-            <button class="empty-room-button" bindtap="resetRoomFilters">清空筛选</button>
+            <view class="empty-room-button" bindtap="resetRoomFilters">清空筛选</view>
           </view>
         </view>
       </block>
     </view>
   </scroll-view>
+
+  <view wx:if="{{createDialogVisible}}" class="create-mask" bindtap="closeCreateDialog">
+    <view class="create-sheet" catchtap="preventDialogClose">
+      <view class="create-sheet-head">
+        <view>
+          <text class="create-title">发起飞花令</text>
+          <text class="create-subtitle">设置令字与房间规则，诗友即可入局。</text>
+        </view>
+        <view class="create-close" aria-label="关闭" bindtap="closeCreateDialog">×</view>
+      </view>
+
+      <view class="create-field">
+        <text class="create-label">令字</text>
+        <scroll-view class="create-keyword-scroller" scroll-x enhanced show-scrollbar="{{false}}">
+          <view class="create-keyword-track">
+            <block wx:for="{{keywordOptions}}" wx:key="*this">
+              <view class="create-keyword {{createForm.keyword === item ? 'create-keyword--active' : ''}}" data-keyword="{{item}}" bindtap="chooseCreateKeyword">{{item}}</view>
+            </block>
+          </view>
+        </scroll-view>
+        <input class="create-input create-input--keyword" maxlength="2" value="{{createForm.keyword}}" placeholder="自定义令字" bindinput="handleCreateKeywordInput" />
+      </view>
+
+      <view class="create-field">
+        <text class="create-label">对局名</text>
+        <input class="create-input" maxlength="16" value="{{createForm.title}}" placeholder="如：月字雅集" bindinput="handleCreateTitleInput" />
+      </view>
+
+      <view class="create-field">
+        <text class="create-label">人数</text>
+        <view class="create-option-row">
+          <block wx:for="{{maxPlayerOptions}}" wx:key="*this">
+            <view class="create-option {{createForm.maxPlayers === item ? 'create-option--active' : ''}}" data-value="{{item}}" bindtap="chooseCreateMaxPlayers">{{item}} 人</view>
+          </block>
+        </view>
+      </view>
+
+      <view class="create-switch-row">
+        <view>
+          <text class="create-label">允许观战</text>
+          <text class="create-help">开启后未入局诗友可旁观对局。</text>
+        </view>
+        <switch checked="{{createForm.canWatch}}" color="#2f704d" bindchange="toggleCreateWatch" />
+      </view>
+
+      <view
+        class="create-submit {{createFormValid && !createSubmitting ? '' : 'create-submit--disabled'}}"
+        bindtap="submitCreateRoom"
+      >
+        {{createSubmitting ? '发起中' : '发起对局'}}
+      </view>
+    </view>
+  </view>
 </view>

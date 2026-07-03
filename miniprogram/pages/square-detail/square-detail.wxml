@@ -82,6 +82,6 @@
 
   <view wx:if="{{topic}}" class="comment-bar">
     <input class="comment-input" value="{{commentValue}}" maxlength="120" placeholder="写评论..." confirm-type="send" bindinput="handleCommentInput" bindconfirm="submitComment" />
-    <button class="send-button {{sendingComment ? 'send-button--loading' : ''}}" loading="{{sendingComment}}" bindtap="submitComment">发送</button>
+    <view class="send-button {{sendingComment ? 'send-button--loading' : ''}}" bindtap="submitComment">{{sendingComment ? '发送中' : '发送'}}</view>
   </view>
 </view>

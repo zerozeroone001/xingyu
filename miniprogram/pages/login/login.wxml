@@ -25,11 +25,11 @@
       <text class="label">验证码</text>
       <view class="input-line">
         <input value="{{code}}" placeholder="六位验证码" type="number" bindinput="handleCodeInput" />
-        <button class="code-button" bindtap="getCode">获取验证码</button>
+        <view class="code-button" bindtap="getCode">获取验证码</view>
       </view>
     </view>
 
-    <button class="login-button" bindtap="handleGuestEnter">立即登录</button>
+    <view class="login-button" bindtap="handleGuestEnter">立即登录</view>
 
     <view class="divider">
       <view></view>
@@ -37,10 +37,10 @@
       <view></view>
     </view>
 
-    <button class="wechat-button" bindtap="handleWxLogin">
+    <view class="wechat-button" bindtap="handleWxLogin">
       <view class="wechat-dot"></view>
       <text>微信一键登录</text>
-    </button>
+    </view>
   </view>
 
   <view class="agreement">

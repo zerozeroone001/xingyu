@@ -21,7 +21,7 @@
         </view>
         <view class="custom-tag-row">
           <input class="custom-tag-input" value="{{customTag}}" maxlength="8" placeholder="添加自定义标签" bindinput="handleCustomTagInput" confirm-type="done" bindconfirm="addCustomTag" />
-          <button class="add-tag-button" bindtap="addCustomTag">添加</button>
+          <view class="add-tag-button" bindtap="addCustomTag">添加</view>
         </view>
       </view>
 
@@ -37,17 +37,17 @@
               <view class="remove-image" data-index="{{index}}" catchtap="removeImage">×</view>
             </view>
           </block>
-          <button wx:if="{{images.length < maxImages}}" class="add-image" bindtap="chooseImages">
+          <view wx:if="{{images.length < maxImages}}" class="add-image" bindtap="chooseImages">
             <text class="add-mark">+</text>
             <text>添加</text>
-          </button>
+          </view>
         </view>
       </view>
     </view>
   </scroll-view>
 
   <view class="submit-bar">
-    <button class="cancel-button" bindtap="goBack">取消</button>
-    <button class="submit-button {{submitting ? 'submit-button--loading' : ''}}" loading="{{submitting}}" bindtap="submitTopic">发布</button>
+    <view class="cancel-button" bindtap="goBack">取消</view>
+    <view class="submit-button {{submitting ? 'submit-button--loading' : ''}}" bindtap="submitTopic">{{submitting ? '发布中' : '发布'}}</view>
   </view>
 </view>

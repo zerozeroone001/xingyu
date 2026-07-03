@@ -175,6 +175,10 @@ Page({
   },
 
   submitComment() {
+    if (this.data.sendingComment) {
+      return
+    }
+
     const content = this.data.commentValue.trim()
 
     if (!content) {

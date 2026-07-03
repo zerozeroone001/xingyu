@@ -1,0 +1,31 @@
+<view class="feedback-page">
+  <scroll-view class="feedback-scroll" scroll-y enhanced>
+    <view class="feedback-content">
+      <view class="page-head">
+        <text class="page-title">意见反馈</text>
+        <text class="page-intro">告诉我们遇到的问题或想要的改进</text>
+      </view>
+
+      <view class="category-row">
+        <block wx:for="{{categories}}" wx:key="*this">
+          <view class="category-chip {{activeCategory === item ? 'category-chip--active' : ''}}" data-category="{{item}}" bindtap="chooseCategory">
+            <text>{{item}}</text>
+          </view>
+        </block>
+      </view>
+
+      <view class="form-panel">
+        <textarea class="content-input" value="{{content}}" data-field="content" maxlength="300" placeholder="请描述你的建议、问题或诗词内容纠错信息" bindinput="handleInput"></textarea>
+        <view class="count-row">
+          <text>{{content.length}}/300</text>
+        </view>
+        <view class="contact-row">
+          <text>联系方式</text>
+          <input value="{{contact}}" data-field="contact" placeholder="选填，便于我们回复" bindinput="handleInput" />
+        </view>
+      </view>
+
+      <button class="submit-button" loading="{{submitting}}" bindtap="submit">提交反馈</button>
+    </view>
+  </scroll-view>
+</view>
