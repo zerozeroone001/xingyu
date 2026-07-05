@@ -15,8 +15,8 @@ App({
     this.globalData.token = getStorage('token', '')
     this.globalData.userInfo = getStorage('userInfo', null)
 
-    // mock 模式默认跳过微信登录，直接写入游客身份，便于前端页面独立开发。
-    if (config.useMock && !this.globalData.token) {
+    // 开发联调阶段允许自动换取游客 token，避免直接进入个人中心等页面时触发 401。
+    if ((config.useMock || config.autoGuestLogin) && !this.globalData.token) {
       mockGuestLogin().then((data) => {
         this.globalData.token = data.token
         this.globalData.userInfo = data.user

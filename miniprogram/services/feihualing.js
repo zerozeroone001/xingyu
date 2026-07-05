@@ -3,6 +3,10 @@ const config = require('../utils/config')
 const { mockPoems, pageResult } = require('./mock')
 
 const ROOM_STORAGE_KEY = 'feihualing:created_rooms'
+const KNOWN_LINE_CORRECTIONS = {
+  床前看月光: '床前明月光',
+  举头望山月: '举头望明月'
+}
 
 const mockBattleData = {
   月: {
@@ -65,7 +69,7 @@ const mockBattleData = {
     replies: [
       {
         playerName: '苏东坡',
-        content: '春江水暖鸭先知。',
+        content: '竹外桃花三两枝，春江水暖鸭先知。',
         source: {
           title: '惠崇春江晚景',
           dynasty: '宋',
@@ -150,11 +154,9 @@ function getStoredRooms() {
 }
 
 function saveStoredRooms(rooms) {
-  if (!canUseStorage()) {
-    return
+  if (canUseStorage()) {
+    wx.setStorageSync(ROOM_STORAGE_KEY, rooms)
   }
-
-  wx.setStorageSync(ROOM_STORAGE_KEY, rooms)
 }
 
 function getMockRooms() {
@@ -237,7 +239,7 @@ function getMockRooms() {
 function getKeywords() {
   if (config.useMock) {
     return Promise.resolve({
-      items: ['花', '月', '山', '水', '春', '秋']
+      items: ['花', '月', '山', '水', '春', '秋', '风', '雪', '人', '江']
     })
   }
 
@@ -290,7 +292,7 @@ function getMyRooms(params = {}) {
   }
 
   return request({
-    url: '/feihualing/records',
+    url: '/feihualing/rooms',
     data: params
   })
 }
@@ -298,7 +300,7 @@ function getMyRooms(params = {}) {
 function createRoom(data) {
   if (config.useMock) {
     const storedRooms = getStoredRooms()
-    const keyword = String(data.keyword || '').trim().slice(0, 2)
+    const keyword = String(data.keyword || '').trim().slice(0, 2) || '月'
     const title = String(data.title || '').trim() || `${keyword}字雅集`
     const room = {
       id: `local-room-${Date.now()}`,
@@ -308,6 +310,7 @@ function createRoom(data) {
       playerCount: 1,
       maxPlayers: Number(data.maxPlayers || data.max_players || 4),
       roundText: '招募中',
+      phase: 'waiting',
       battleMessages: [],
       replyPool: getMockBattle(keyword).replies,
       creator: {
@@ -331,26 +334,153 @@ function createRoom(data) {
   })
 }
 
+function normalizeSentence(value) {
+  return String(value || '')
+    .replace(/[\s，。！？、；：“”‘’《》（）,.!?;:'"()[\]{}-]/g, '')
+    .trim()
+}
+
+function applyKnownCorrections(value) {
+  return Object.keys(KNOWN_LINE_CORRECTIONS).reduce((text, wrong) => {
+    return text.replace(new RegExp(wrong, 'g'), KNOWN_LINE_CORRECTIONS[wrong])
+  }, String(value || ''))
+}
+
+function normalizeWithIndex(value) {
+  const chars = []
+  const indexMap = []
+  const source = String(value || '')
+  const punctuationPattern = /[\s，。！？、；：“”‘’《》（）,.!?;:'"()[\]{}-]/
+
+  Array.from(source).forEach((char, index) => {
+    if (punctuationPattern.test(char)) {
+      return
+    }
+
+    chars.push(char)
+    indexMap.push(index)
+  })
+
+  return {
+    text: chars.join(''),
+    indexMap
+  }
+}
+
+function getAllowedTypos(length) {
+  if (length <= 4) {
+    return 1
+  }
+
+  if (length <= 14) {
+    return 2
+  }
+
+  return 3
+}
+
+function getTypoCorrections(answer, candidate, indexMap) {
+  if (answer.length !== candidate.length) {
+    return []
+  }
+
+  const corrections = []
+  Array.from(answer).forEach((char, index) => {
+    if (char !== candidate[index]) {
+      corrections.push({
+        index: indexMap[index],
+        original: char,
+        corrected: candidate[index]
+      })
+    }
+  })
+  return corrections
+}
+
+function getPoemSource(poem) {
+  return poem
+    ? {
+        id: poem.id,
+        title: poem.title,
+        author: poem.author,
+        dynasty: poem.dynasty,
+        content: applyKnownCorrections(poem.content)
+      }
+    : null
+}
+
+function findBestFuzzyMatch(normalizedAnswer, indexMap) {
+  if (normalizedAnswer.length < 4) {
+    return null
+  }
+
+  const allowedTypos = getAllowedTypos(normalizedAnswer.length)
+  let best = null
+
+  mockPoems.some((poem) => {
+    const text = normalizeSentence(applyKnownCorrections([poem.content, poem.recommend_sentence].filter(Boolean).join('')))
+
+    for (let start = 0; start <= text.length - normalizedAnswer.length; start += 1) {
+      const candidate = text.slice(start, start + normalizedAnswer.length)
+      let typoCount = 0
+
+      for (let index = 0; index < normalizedAnswer.length; index += 1) {
+        if (normalizedAnswer[index] !== candidate[index]) {
+          typoCount += 1
+        }
+      }
+
+      if (typoCount === 0 || typoCount > allowedTypos) {
+        continue
+      }
+
+      if (!best || typoCount < best.typo_count) {
+        const corrections = getTypoCorrections(normalizedAnswer, candidate, indexMap)
+        best = {
+          poem,
+          corrected_answer: candidate,
+          typo_count: typoCount,
+          wrong_indices: corrections.map((item) => item.index),
+          corrections
+        }
+      }
+
+      if (typoCount === 1) {
+        return true
+      }
+    }
+
+    return false
+  })
+
+  return best
+}
+
 function checkAnswer(data) {
   if (config.useMock) {
-    const isCorrect = data.answer.indexOf(data.keyword) >= 0
+    const answer = String(data.answer || '').trim()
+    const normalized = normalizeWithIndex(answer)
+    const normalizedAnswer = normalized.text
+    const isCorrect = Boolean(data.keyword && answer.indexOf(data.keyword) >= 0)
     const poem = mockPoems.find((item) => {
-      const sourceText = [item.content, item.recommend_sentence].filter(Boolean).join('')
-      return sourceText.indexOf(data.answer) >= 0 || data.answer.indexOf(item.title) >= 0
+      const sourceText = applyKnownCorrections([item.content, item.recommend_sentence].filter(Boolean).join(''))
+      return normalizeSentence(sourceText).indexOf(normalizedAnswer) >= 0
     })
+    const fuzzyMatch = poem ? null : findBestFuzzyMatch(normalizedAnswer, normalized.indexMap)
+    const sourcePoem = poem || (fuzzyMatch ? fuzzyMatch.poem : null)
 
     return Promise.resolve({
       keyword: data.keyword,
-      answer: data.answer,
-      is_correct: isCorrect,
-      score: isCorrect ? 10 : 0,
-      source: poem
-        ? {
-            title: poem.title,
-            author: poem.author,
-            dynasty: poem.dynasty
-          }
-        : null
+      answer,
+      is_correct: Boolean(isCorrect && poem),
+      score: isCorrect && (poem || fuzzyMatch) ? 10 : 0,
+      source: getPoemSource(sourcePoem),
+      recognized: Boolean(poem || fuzzyMatch),
+      recognition_status: poem && isCorrect ? 'exact' : (fuzzyMatch ? 'typo' : 'not_found'),
+      corrected_answer: fuzzyMatch ? fuzzyMatch.corrected_answer : answer,
+      typo_count: fuzzyMatch ? fuzzyMatch.typo_count : 0,
+      wrong_indices: fuzzyMatch ? fuzzyMatch.wrong_indices : [],
+      corrections: fuzzyMatch ? fuzzyMatch.corrections : []
     })
   }
 

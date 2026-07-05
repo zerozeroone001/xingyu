@@ -2,11 +2,12 @@ const { logout } = require('../../services/auth')
 const { getProfileOverview } = require('../../services/user')
 const { clearProjectStorage } = require('../../utils/cache')
 const { navigateTo } = require('../../utils/route')
-const { showToast } = require('../../utils/toast')
+const { showLoading, hideLoading, showToast } = require('../../utils/toast')
 
 Page({
   data: {
     loading: false,
+    loggingOut: false,
     user: {
       nickname: '诗词访客',
       avatarText: '诗',
@@ -32,21 +33,28 @@ Page({
   },
 
   onShow() {
-    this.loadOverview()
+    if (!this.data.loggingOut) {
+      this.loadOverview()
+    }
   },
 
   loadOverview() {
+    if (this.data.loggingOut) {
+      return Promise.resolve()
+    }
+
     this.setData({ loading: true })
 
     return getProfileOverview()
       .then((data) => {
         const user = data.user || {}
         const stats = data.stats || {}
+        const nickname = user.nickname || '诗词访客'
 
         this.setData({
           user: {
-            nickname: user.nickname || '诗词访客',
-            avatarText: user.avatarText || (user.nickname || '诗').slice(0, 1),
+            nickname,
+            avatarText: user.avatarText || user.avatar_text || nickname.slice(0, 1),
             title: user.title || '新晋诗友',
             level: user.level || 1
           },
@@ -78,14 +86,6 @@ Page({
     }
 
     return count
-  },
-
-  openMenu() {
-    showToast('菜单开发中')
-  },
-
-  openSearch() {
-    showToast('搜索开发中')
   },
 
   openStat(event) {
@@ -126,7 +126,38 @@ Page({
   },
 
   handleLogout() {
-    logout()
-    showToast('已退出登录', 'success')
+    if (this.data.loggingOut) {
+      return
+    }
+
+    wx.showModal({
+      title: '退出登录',
+      content: '确定退出当前账号吗？',
+      confirmText: '退出',
+      confirmColor: '#d71818',
+      success: (res) => {
+        if (!res.confirm) {
+          return
+        }
+
+        this.setData({ loggingOut: true })
+        showLoading('退出中')
+
+        logout()
+          .then(() => {
+            showToast('已退出登录', 'success')
+            wx.reLaunch({
+              url: '/pages/login/login'
+            })
+          })
+          .catch(() => {
+            showToast('退出失败，请稍后重试')
+          })
+          .finally(() => {
+            hideLoading()
+            this.setData({ loggingOut: false })
+          })
+      }
+    })
   }
 })

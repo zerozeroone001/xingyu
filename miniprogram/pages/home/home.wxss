@@ -241,13 +241,21 @@
   justify-content: center;
 }
 
+.poem-lines {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28rpx;
+}
+
 .poem-line {
   display: block;
   max-width: 100%;
   color: rgba(54, 75, 72, 0.62);
-  font-size: 46rpx;
+  font-size: 40rpx;
   font-weight: 500;
-  line-height: 1.7;
+  line-height: 1.35;
   text-align: center;
   word-break: break-all;
   overflow-wrap: break-word;
@@ -285,6 +293,7 @@
 
 .tool-button--active .tool-icon {
   opacity: 1;
+  filter: brightness(0) saturate(100%) invert(28%) sepia(94%) saturate(2686%) hue-rotate(344deg) brightness(92%) contrast(91%);
 }
 
 .tool-count {

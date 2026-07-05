@@ -1,5 +1,27 @@
-const { getRooms, getRoom, checkAnswer } = require('../../services/feihualing')
+const {
+  getKeywords,
+  getRooms,
+  getRoom,
+  createRoom: createRoomApi,
+  checkAnswer,
+  saveRecord
+} = require('../../services/feihualing')
 const { showToast } = require('../../utils/toast')
+
+function getRoomPhase(room, roundText) {
+  const rawPhase = String(room.phase || room.status || room.room_status || '').toLowerCase()
+  const text = String(roundText || room.roundText || room.round_text || '')
+
+  if (rawPhase === 'ended' || rawPhase === 'finished' || text.indexOf('结束') >= 0) {
+    return 'ended'
+  }
+
+  if (rawPhase === 'waiting' || rawPhase === 'recruiting' || text.indexOf('等待') >= 0 || text.indexOf('招募') >= 0) {
+    return 'waiting'
+  }
+
+  return 'playing'
+}
 
 function normalizeRoom(room) {
   const creator = room.creator || {}
@@ -7,17 +29,24 @@ function normalizeRoom(room) {
   const maxPlayers = Number(room.maxPlayers || room.max_players || 4)
   const roundText = room.roundText || room.round_text || '招募中'
   const phase = getRoomPhase(room, roundText)
+  const canWatch = Boolean(room.canWatch || room.can_watch)
   const isFull = maxPlayers > 0 && playerCount >= maxPlayers
-  const canEnter = phase === 'ended' ? Boolean(room.canWatch || room.can_watch) : !isFull || Boolean(room.canWatch || room.can_watch)
-  const primaryRole = Boolean(room.canWatch || room.can_watch) && (phase === 'ended' || isFull) ? 'spectator' : 'player'
-  const primaryActionText = phase === 'waiting' ? '入局等待' : phase === 'ended' ? Boolean(room.canWatch || room.can_watch) ? '查看回顾' : '已结束' : isFull ? Boolean(room.canWatch || room.can_watch) ? '观战' : '已满员' : '进入对局'
+  const canEnter = phase === 'ended' ? canWatch : !isFull || canWatch
+  const primaryRole = canWatch && (phase === 'ended' || isFull) ? 'spectator' : 'player'
+  const primaryActionText = phase === 'waiting'
+    ? '入局等待'
+    : phase === 'ended'
+      ? (canWatch ? '查看回顾' : '已结束')
+      : isFull
+        ? (canWatch ? '观战' : '已满员')
+        : '进入对局'
 
   return {
     ...room,
     id: room.id,
     title: room.title || '飞花令对局',
     keyword: room.keyword || '月',
-    canWatch: Boolean(room.canWatch || room.can_watch),
+    canWatch,
     playerCount,
     maxPlayers,
     roundText,
@@ -36,20 +65,6 @@ function normalizeRoom(room) {
       title: creator.title || room.creator_title || '飞花令玩家'
     }
   }
-}
-
-function getRoomPhase(room, roundText) {
-  const rawPhase = String(room.phase || room.status || room.room_status || '').toLowerCase()
-
-  if (rawPhase === 'ended' || rawPhase === 'finished' || roundText.indexOf('结束') >= 0) {
-    return 'ended'
-  }
-
-  if (rawPhase === 'waiting' || rawPhase === 'recruiting' || roundText.indexOf('等待') >= 0 || roundText.indexOf('招募') >= 0) {
-    return 'waiting'
-  }
-
-  return 'playing'
 }
 
 function getRoleName(role) {
@@ -91,18 +106,140 @@ function getSourceText(result) {
   return result.is_correct || result.isCorrect ? '出处待补充' : '未匹配到出处'
 }
 
+function normalizeSource(result = {}) {
+  const source = result.source || result.poem || result.sourceInfo || {}
+
+  if (!source || typeof source === 'string') {
+    return null
+  }
+
+  const title = source.title || result.title || result.poem_title
+  const dynasty = source.dynasty || result.dynasty || result.poem_dynasty
+  const author = source.author || result.author || result.poem_author
+  const content = source.content || source.full_content || source.fullContent || result.poem_content || ''
+
+  if (!title && !author && !content) {
+    return null
+  }
+
+  return {
+    id: source.id || source.poem_id || result.poem_id || '',
+    title: title || '佚名篇目',
+    dynasty: dynasty || '',
+    author: author || '佚名',
+    content
+  }
+}
+
+function getSourceKey(source) {
+  if (!source) {
+    return ''
+  }
+
+  return [source.title, source.dynasty, source.author].filter(Boolean).join('|')
+}
+
 function normalizeBattleMessage(message, index) {
   const role = message.role || 'opponent'
+  const content = message.content || ''
+  const source = normalizeSource(message)
 
   return {
     id: message.id || `message-history-${index}`,
     role,
     playerName: message.playerName || message.player_name || (role === 'opponent' ? '对手' : ''),
-    content: message.content || '',
+    content,
+    contentParts: message.contentParts || message.content_parts || buildContentParts(content, message),
     isCorrect: message.isCorrect !== undefined ? message.isCorrect : message.is_correct !== undefined ? message.is_correct : true,
     statusText: message.statusText || message.status_text || (role === 'user' ? '通过' : ''),
+    source,
+    sourceKey: getSourceKey(source),
     sourceText: message.sourceText || message.source_text || getSourceText(message)
   }
+}
+
+function getWrongIndices(result) {
+  return result.wrong_indices || result.wrongIndices || []
+}
+
+function getTypoCorrections(result) {
+  return result.corrections || result.typo_corrections || result.typoCorrections || []
+}
+
+function normalizeContentWithIndex(content) {
+  const chars = []
+  const indexMap = []
+  const punctuationPattern = /[\s，。！？、；：“”‘’《》（）,.!?;:'"()[\]{}-]/
+
+  Array.from(String(content || '')).forEach((char, index) => {
+    if (punctuationPattern.test(char)) {
+      return
+    }
+
+    chars.push(char)
+    indexMap.push(index)
+  })
+
+  return {
+    chars,
+    indexMap
+  }
+}
+
+function buildContentParts(content, result = {}) {
+  const source = Array.from(String(content || ''))
+  const normalized = normalizeContentWithIndex(content)
+  const correctedAnswer = Array.from(String(result.corrected_answer || result.correctedAnswer || ''))
+  const correctionMap = {}
+
+  getTypoCorrections(result).forEach((item) => {
+    const index = Number(item.index)
+    if (!Number.isNaN(index)) {
+      correctionMap[index] = {
+        corrected: item.corrected,
+        original: item.original
+      }
+    }
+  })
+
+  getWrongIndices(result).forEach((index) => {
+    const sourceIndex = Number(index)
+    const normalizedIndex = normalized.indexMap.indexOf(sourceIndex)
+    if (Number.isNaN(sourceIndex) || correctionMap[sourceIndex]) {
+      return
+    }
+
+    correctionMap[sourceIndex] = {
+      corrected: correctedAnswer[normalizedIndex],
+      original: source[sourceIndex]
+    }
+  })
+
+  return source.reduce((parts, text, index) => {
+    const correction = correctionMap[index]
+
+    if (!correction) {
+      parts.push({ text, wrong: false })
+      return parts
+    }
+
+    parts.push({ text: correction.corrected || text, wrong: false })
+    parts.push({ text: `(${correction.original || text})`, wrong: true })
+    return parts
+  }, [])
+}
+
+function getAnswerStatusText(result, isCorrect) {
+  if (isCorrect) {
+    return '通过'
+  }
+
+  const typoCount = Number(result.typo_count || result.typoCount || 0)
+  if (typoCount > 0) {
+    return '有错字'
+  }
+
+  return '未通过'
 }
 
 Page({
@@ -111,6 +248,8 @@ Page({
     loading: false,
     entering: false,
     checking: false,
+    creating: false,
+    keywords: ['月', '春', '秋', '雪'],
     rooms: [],
     roomCount: 0,
     watchableCount: 0,
@@ -131,7 +270,9 @@ Page({
     waitActionText: '',
     resultTitle: '',
     resultSummary: '',
-    resultStats: []
+    resultStats: [],
+    sourcePopupVisible: false,
+    activeSource: null
   },
 
   onLoad(options = {}) {
@@ -142,12 +283,15 @@ Page({
       entryRole: this.entryRole,
       entryFrom: this.entryFrom
     })
+
     if (this.pendingRoomId) {
       this.setData({
         mode: 'entering',
         entering: true
       })
     }
+
+    this.loadKeywords()
     this.loadRooms().then(() => {
       if (this.pendingRoomId) {
         this.enterRoomById(this.pendingRoomId)
@@ -157,8 +301,10 @@ Page({
   },
 
   onPullDownRefresh() {
-    if (this.data.mode === 'room') {
-      wx.stopPullDownRefresh()
+    if (this.data.mode === 'room' && this.data.activeRoom) {
+      this.refreshActiveRoom().finally(() => {
+        wx.stopPullDownRefresh()
+      })
       return
     }
 
@@ -172,6 +318,18 @@ Page({
       clearTimeout(this.replyTimer)
       this.replyTimer = null
     }
+  },
+
+  loadKeywords() {
+    return getKeywords()
+      .then((data) => {
+        const keywords = data.items || []
+
+        if (keywords.length) {
+          this.setData({ keywords })
+        }
+      })
+      .catch(() => {})
   },
 
   loadRooms() {
@@ -196,8 +354,63 @@ Page({
       })
   },
 
+  refreshActiveRoom() {
+    const roomId = this.data.activeRoom.id
+
+    return getRoom(roomId)
+      .then((room) => {
+        if (room) {
+          this.openRoom(normalizeRoom(room), { keepRole: true })
+        }
+      })
+      .catch(() => {
+        showToast('房间状态刷新失败')
+      })
+  },
+
   createRoom() {
-    showToast('发起对局开发中')
+    if (this.data.creating) {
+      return
+    }
+
+    const keyword = this.pickKeyword()
+
+    this.entryRole = 'host'
+    this.setData({
+      creating: true,
+      entryRole: 'host',
+      entryFrom: 'create',
+      mode: 'entering',
+      entering: true
+    })
+
+    createRoomApi({
+      keyword,
+      title: `${keyword}字雅集`,
+      canWatch: true,
+      maxPlayers: 4
+    })
+      .then((room) => {
+        this.openRoom(normalizeRoom(room), { role: 'host' })
+        return this.loadRooms()
+      })
+      .catch(() => {
+        this.setData({ mode: 'lobby' })
+        showToast('发起对局失败')
+      })
+      .finally(() => {
+        this.setData({
+          creating: false,
+          entering: false
+        })
+      })
+  },
+
+  pickKeyword() {
+    const keywords = this.data.keywords.length ? this.data.keywords : ['月']
+    const index = Math.floor(Math.random() * keywords.length)
+
+    return keywords[index] || '月'
   },
 
   enterRoom(event) {
@@ -254,9 +467,9 @@ Page({
       })
   },
 
-  openRoom(room) {
+  openRoom(room, options = {}) {
     const normalizedRoom = normalizeRoom(room)
-    const viewerRole = this.resolveViewerRole(normalizedRoom)
+    const viewerRole = options.role || (options.keepRole ? this.data.viewerRole : this.resolveViewerRole(normalizedRoom))
     const roomPhase = normalizedRoom.phase
     const welcomeMessage = {
       id: 'message-welcome',
@@ -327,7 +540,7 @@ Page({
       },
       spectator: {
         waitTitle: '正在观战等待区',
-        waitHint: `令主还未开局，可先查看房间信息。`,
+        waitHint: '令主还未开局，可先查看房间信息。',
         waitActionText: '刷新状态'
       }
     }[viewerRole]
@@ -363,6 +576,8 @@ Page({
       resultSummary: '',
       resultStats: []
     })
+
+    this.loadRooms()
   },
 
   handleAnswerInput(event) {
@@ -390,7 +605,7 @@ Page({
     }
 
     if (this.hasUsedAnswer(answer)) {
-      showToast('这句已经发过了')
+      showToast('这句已经出现过')
       return
     }
 
@@ -404,27 +619,26 @@ Page({
       .then((result) => {
         const isCorrect = Boolean(result.is_correct || result.isCorrect)
 
+        if (this.hasUsedPoemSource(result)) {
+          showToast('同一首诗本局已出现过')
+          return
+        }
+
         if (!isCorrect) {
+          this.appendCheckedMessage(answer, result, false)
           showToast('诗句校验未通过')
           return
         }
 
-        const message = {
-          id: `message-${Date.now()}`,
-          role: 'user',
-          playerName: '我',
-          content: answer,
-          isCorrect,
-          statusText: '通过',
-          sourceText: getSourceText(result)
-        }
+        this.appendCheckedMessage(answer, result, true)
 
-        this.setData({
-          messages: this.data.messages.concat(message),
-          answerInput: '',
-          messageAnchor: 'message-thinking',
-          opponentThinking: true
-        })
+        saveRecord({
+          keyword,
+          answer,
+          is_correct: true,
+          score: result.score || 10,
+          source: result.source || null
+        }).catch(() => {})
 
         this.queueOpponentReply()
       })
@@ -435,6 +649,72 @@ Page({
         this.setData({ checking: false })
       })
   },
+
+  appendCheckedMessage(answer, result, isCorrect) {
+    const source = normalizeSource(result)
+    const message = {
+      id: `message-${Date.now()}`,
+      role: 'user',
+      playerName: '我',
+      content: answer,
+      contentParts: buildContentParts(answer, result),
+      isCorrect,
+      statusText: getAnswerStatusText(result, isCorrect),
+      source,
+      sourceKey: getSourceKey(source),
+      sourceText: getSourceText(Object.assign({}, result, { is_correct: isCorrect }))
+    }
+
+    this.setData({
+      messages: this.data.messages.concat(message),
+      answerInput: isCorrect ? '' : this.data.answerInput,
+      messageAnchor: message.id,
+      opponentThinking: isCorrect
+    })
+  },
+
+  hasUsedPoemSource(result) {
+    const sourceKey = getSourceKey(normalizeSource(result))
+
+    if (!sourceKey) {
+      return false
+    }
+
+    return this.data.messages.some((message) => {
+      if (!message.sourceKey || message.sourceKey !== sourceKey) {
+        return false
+      }
+
+      if (message.role === 'opponent') {
+        return true
+      }
+
+      return message.role === 'user' && message.isCorrect
+    })
+  },
+
+  handleSourceTap(event) {
+    const messageId = event.currentTarget.dataset.id
+    const message = this.data.messages.find((item) => String(item.id) === String(messageId))
+
+    if (!message || !message.source) {
+      return
+    }
+
+    this.setData({
+      activeSource: message.source,
+      sourcePopupVisible: true
+    })
+  },
+
+  closeSourcePopup() {
+    this.setData({
+      sourcePopupVisible: false,
+      activeSource: null
+    })
+  },
+
+  noop() {},
 
   hasUsedAnswer(answer) {
     const normalizedAnswer = normalizeAnswer(answer)
@@ -464,7 +744,7 @@ Page({
         const endMessage = {
           id: `message-system-${Date.now()}`,
           role: 'system',
-          content: '本轮暂无可接诗句，你已守住这一轮。'
+          content: '对手本轮未能接上，你守住了这轮诗令。'
         }
 
         this.setData({
@@ -484,8 +764,12 @@ Page({
         }),
         this.data.messages.length
       )
+      const activeRoom = Object.assign({}, this.data.activeRoom, {
+        roundText: `第 ${this.getBattleLineCount() + 1} 轮`
+      })
 
       this.setData({
+        activeRoom,
         messages: this.data.messages.concat(message),
         messageAnchor: message.id,
         opponentThinking: false
@@ -499,13 +783,17 @@ Page({
     return replyPool.find((reply) => !this.hasUsedAnswer(reply.content))
   },
 
+  getBattleLineCount() {
+    return this.data.messages.filter((message) => message.role === 'user' || message.role === 'opponent').length
+  },
+
   handleWaitingAction() {
     if (this.data.roomPhase !== 'waiting') {
       return
     }
 
     if (this.data.viewerRole === 'spectator') {
-      showToast('等待开局中')
+      this.refreshActiveRoom()
       return
     }
 
@@ -591,7 +879,6 @@ Page({
       role: 'system',
       content: `新一局令字「${activeRoom.keyword}」，等待诗友入局。`
     }
-
     const nextRole = this.data.viewerRole === 'spectator' ? 'player' : this.data.viewerRole
 
     this.setData({
@@ -612,7 +899,7 @@ Page({
 
   getResultStats(room, messages) {
     const battleMessages = (messages || []).filter((message) => message.role === 'user' || message.role === 'opponent')
-    const playerLines = battleMessages.filter((message) => message.role === 'user').length
+    const playerLines = battleMessages.filter((message) => message.role === 'user' && message.isCorrect).length
     const opponentLines = battleMessages.filter((message) => message.role === 'opponent').length
 
     return [

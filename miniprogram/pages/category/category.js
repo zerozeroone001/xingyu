@@ -55,8 +55,14 @@ Page({
         id: item.id,
         name: item.name,
         type: item.type || '其他',
-        sort_order: item.sort_order || 0
+        sort_order: item.sort_order || 0,
+        poemCount: this.normalizeCount(item.poemCount || item.poem_count)
       }))
+  },
+
+  normalizeCount(value) {
+    const count = Number(value)
+    return Number.isFinite(count) && count >= 0 ? count : 0
   },
 
   buildTypeTabs(categories) {

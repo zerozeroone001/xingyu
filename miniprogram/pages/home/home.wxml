@@ -24,7 +24,9 @@
 
     <view class="poem-switcher" bindtouchstart="handlePoemTouchStart" bindtouchend="handlePoemTouchEnd">
       <view class="poem-panel poem-content {{poemTransitionClass}}" bindtap="goPoemDetail">
-        <text class="poem-line">{{recommendSentence}}</text>
+        <view class="poem-lines">
+          <text wx:for="{{poemDisplayLines}}" wx:key="key" class="poem-line">{{item.text}}</text>
+        </view>
       </view>
     </view>
 

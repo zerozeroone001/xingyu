@@ -143,11 +143,33 @@
   box-shadow: inset 0 0 0 2rpx rgba(47, 112, 77, 0.22), 0 10rpx 24rpx rgba(47, 112, 77, 0.08);
 }
 
+.category-card-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
 .category-index {
   color: #9fbaa9;
   font-size: 20rpx;
   font-weight: 800;
   line-height: 1;
+}
+
+.category-total {
+  flex-shrink: 0;
+  min-width: 60rpx;
+  height: 34rpx;
+  padding: 0 12rpx;
+  border-radius: 17rpx;
+  background: rgba(47, 112, 77, 0.10);
+  color: #2f704d;
+  font-size: 20rpx;
+  font-weight: 800;
+  line-height: 34rpx;
+  text-align: center;
 }
 
 .category-name {

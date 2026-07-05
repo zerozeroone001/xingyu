@@ -28,9 +28,12 @@
         <view wx:if="{{categoryItems.length}}" class="category-grid">
           <block wx:for="{{categoryItems}}" wx:key="id">
             <view class="category-card" data-id="{{item.id}}" data-name="{{item.name}}" data-type="{{item.type}}" bindtap="openCategory">
-              <text class="category-index">{{item.type}}</text>
+              <view class="category-card-head">
+                <text class="category-index">{{item.type}}</text>
+                <text class="category-total">{{item.poemCount}} 篇</text>
+              </view>
               <text class="category-name">{{item.name}}</text>
-              <text class="category-desc">查看 {{item.name}} 相关诗词</text>
+              <text class="category-desc">查看 {{item.name}} 相关诗词，共 {{item.poemCount}} 篇</text>
             </view>
           </block>
         </view>

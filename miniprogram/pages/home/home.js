@@ -1,4 +1,5 @@
-const { getHomeData } = require('../../services/poem')
+const { getHomeData, likePoem, unlikePoem, sharePoem } = require('../../services/poem')
+const { addFavorite, removeFavorite } = require('../../services/user')
 const { navigateTo } = require('../../utils/route')
 const { showToast } = require('../../utils/toast')
 
@@ -16,6 +17,80 @@ const fallbackPoem = {
   share_count: 18
 }
 
+function toLineItems(lines) {
+  return lines.map((text, index) => ({
+    key: `${index}-${text}`,
+    text
+  }))
+}
+
+function getFallbackSentence(poem) {
+  const sentence = String(poem && poem.recommend_sentence ? poem.recommend_sentence : '').trim()
+
+  if (sentence) {
+    return sentence
+  }
+
+  const matched = String((poem && poem.content) || fallbackPoem.content).match(/[^。！？]+[。！？]/)
+  return matched ? matched[0] : fallbackPoem.recommend_sentence
+}
+
+function splitPoemSentences(source) {
+  const lines = []
+
+  source
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .split(/\n+/)
+    .forEach((paragraph) => {
+      const text = paragraph.replace(/\s+/g, '').trim()
+
+      if (!text) {
+        return
+      }
+
+      const matches = text.match(/[^，。！？；,.!?;]+[，。！？；,.!?;]?/g)
+      lines.push(...(matches || [text]).map((item) => item.trim()).filter(Boolean))
+    })
+
+  return lines
+}
+
+function isFixedLengthPoemLine(line) {
+  const text = line.replace(/[，。！？；,.!?;\s]/g, '')
+  return text.length === 5 || text.length === 7
+}
+
+function getPoemContentLines(poem) {
+  const source = String(
+    (poem && poem.content) ||
+    (poem && poem.recommend_sentence) ||
+    fallbackPoem.content
+  ).trim()
+
+  if (!source) {
+    return []
+  }
+
+  const sentenceLines = splitPoemSentences(source)
+
+  if (sentenceLines.length >= 4 && sentenceLines.every(isFixedLengthPoemLine)) {
+    return sentenceLines
+  }
+
+  return [source.replace(/\s+/g, '')]
+}
+
+function formatPoemLines(poem) {
+  const poemLines = getPoemContentLines(poem)
+
+  if (poemLines.length) {
+    return toLineItems(poemLines)
+  }
+
+  return toLineItems([getFallbackSentence(poem)])
+}
+
 Page({
   data: {
     loading: false,
@@ -24,6 +99,7 @@ Page({
     currentPoemIndex: 0,
     currentPoem: fallbackPoem,
     recommendSentence: fallbackPoem.recommend_sentence,
+    poemDisplayLines: formatPoemLines(fallbackPoem),
     isLiked: false,
     isFavorite: false,
     likeCount: fallbackPoem.like_count,
@@ -125,14 +201,7 @@ Page({
   },
 
   getRecommendSentence(poem) {
-    const sentence = String(poem && poem.recommend_sentence ? poem.recommend_sentence : '').trim()
-
-    if (sentence) {
-      return sentence
-    }
-
-    const matched = String((poem && poem.content) || fallbackPoem.content).match(/[^。！？]+[。！？]/)
-    return matched ? matched[0] : fallbackPoem.recommend_sentence
+    return getFallbackSentence(poem)
   },
 
   normalizeCount(value, fallbackValue) {
@@ -174,6 +243,7 @@ Page({
     this.setData({
       currentPoem,
       recommendSentence: this.getRecommendSentence(currentPoem),
+      poemDisplayLines: formatPoemLines(currentPoem),
       isLiked: Boolean(currentPoem.is_liked),
       isFavorite: Boolean(currentPoem.is_favorite),
       likeCount: this.normalizeCount(currentPoem.like_count, fallbackPoem.like_count),
@@ -191,6 +261,39 @@ Page({
     this.setData({
       poemList,
       currentPoem
+    })
+  },
+
+  applyPoemActionResult(result = {}, fallbackPatch = {}) {
+    const patch = Object.assign({}, fallbackPatch)
+
+    if (result.is_liked !== undefined) {
+      patch.is_liked = Boolean(result.is_liked)
+    }
+
+    if (result.is_favorite !== undefined) {
+      patch.is_favorite = Boolean(result.is_favorite)
+    }
+
+    if (result.like_count !== undefined) {
+      patch.like_count = this.normalizeCount(result.like_count, this.data.likeCount)
+    }
+
+    if (result.favorite_count !== undefined) {
+      patch.favorite_count = this.normalizeCount(result.favorite_count, this.data.favoriteCount)
+    }
+
+    if (result.share_count !== undefined) {
+      patch.share_count = this.normalizeCount(result.share_count, this.data.shareCount)
+    }
+
+    this.updateCurrentPoem(patch)
+    this.setData({
+      isLiked: Boolean(patch.is_liked !== undefined ? patch.is_liked : this.data.isLiked),
+      isFavorite: Boolean(patch.is_favorite !== undefined ? patch.is_favorite : this.data.isFavorite),
+      likeCount: this.normalizeCount(patch.like_count, this.data.likeCount),
+      favoriteCount: this.normalizeCount(patch.favorite_count, this.data.favoriteCount),
+      shareCount: this.normalizeCount(patch.share_count, this.data.shareCount)
     })
   },
 
@@ -270,6 +373,12 @@ Page({
   toggleLike() {
     const nextLiked = !this.data.isLiked
     const likeCount = Math.max(0, this.data.likeCount + (nextLiked ? 1 : -1))
+    const rollback = {
+      is_liked: this.data.isLiked,
+      like_count: this.data.likeCount
+    }
+    const action = nextLiked ? likePoem : unlikePoem
+
     this.setData({
       isLiked: nextLiked,
       likeCount
@@ -278,11 +387,25 @@ Page({
       is_liked: nextLiked,
       like_count: likeCount
     })
+
+    action(this.data.currentPoem.id)
+      .then((result) => {
+        this.applyPoemActionResult(result, {
+          is_liked: nextLiked,
+          like_count: likeCount
+        })
+      })
+      .catch(() => {
+        this.applyPoemActionResult({}, rollback)
+        showToast('点赞接口暂不可用')
+      })
   },
 
   toggleFavorite() {
     const nextFavorite = !this.data.isFavorite
     const favoriteCount = Math.max(0, this.data.favoriteCount + (nextFavorite ? 1 : -1))
+    const action = nextFavorite ? addFavorite : removeFavorite
+
     this.setData({
       isFavorite: nextFavorite,
       favoriteCount
@@ -291,17 +414,55 @@ Page({
       is_favorite: nextFavorite,
       favorite_count: favoriteCount
     })
-    showToast(this.data.isFavorite ? '已收藏' : '已取消', 'success')
+
+    action(this.data.currentPoem.id)
+      .then((result) => {
+        this.applyPoemActionResult(result, {
+          is_favorite: nextFavorite,
+          favorite_count: favoriteCount
+        })
+        showToast(nextFavorite ? '已收藏' : '已取消', 'success')
+      })
+      .catch(() => {
+        const rollbackFavorite = !nextFavorite
+        const rollbackCount = Math.max(0, favoriteCount + (rollbackFavorite ? 1 : -1))
+        this.setData({
+          isFavorite: rollbackFavorite,
+          favoriteCount: rollbackCount
+        })
+        this.updateCurrentPoem({
+          is_favorite: rollbackFavorite,
+          favorite_count: rollbackCount
+        })
+        showToast('收藏接口暂不可用')
+      })
   },
 
   handleShareTap() {
     const shareCount = this.data.shareCount + 1
+    const rollbackCount = this.data.shareCount
     this.setData({
       shareCount
     })
     this.updateCurrentPoem({
       share_count: shareCount
     })
+
+    sharePoem(this.data.currentPoem.id)
+      .then((result) => {
+        this.applyPoemActionResult(result, {
+          share_count: shareCount
+        })
+      })
+      .catch(() => {
+        this.setData({
+          shareCount: rollbackCount
+        })
+        this.updateCurrentPoem({
+          share_count: rollbackCount
+        })
+        showToast('分享计数暂不可用')
+      })
   },
 
   goPoemDetail() {

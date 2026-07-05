@@ -1,54 +1,63 @@
-const { wxLogin, mockGuestLogin } = require('../../services/auth')
+const { wxLogin, mockGuestLogin, getWxUserProfile } = require('../../services/auth')
 const { switchTab } = require('../../utils/route')
 const { showLoading, hideLoading, showToast } = require('../../utils/toast')
 
+function isAuthCancel(error) {
+  const message = error && error.errMsg ? error.errMsg : ''
+  return message.indexOf('auth deny') >= 0 || message.indexOf('cancel') >= 0
+}
+
 Page({
   data: {
-    phone: '',
-    code: ''
+    loading: false
   },
 
-  handlePhoneInput(event) {
-    this.setData({
-      phone: event.detail.value
-    })
-  },
-
-  handleCodeInput(event) {
-    this.setData({
-      code: event.detail.value
-    })
-  },
-
-  getCode() {
-    showToast('验证码已发送')
-  },
-
-  /**
-   * 微信登录入口。
-   * mock 模式下 service 会直接写入本地用户，真实环境再调用后端换 token。
-   */
   handleWxLogin() {
+    if (this.data.loading) {
+      return
+    }
+
+    this.setData({ loading: true })
     showLoading('登录中')
-    wxLogin()
+
+    getWxUserProfile()
+      .then((profile) => wxLogin(profile))
       .then(() => {
         showToast('登录成功', 'success')
         switchTab('/pages/home/home')
       })
-      .catch(() => {
-        showToast('登录接口暂不可用')
+      .catch((error) => {
+        if (isAuthCancel(error)) {
+          showToast('已取消授权')
+          return
+        }
+
+        showToast('登录失败，请稍后重试')
       })
       .finally(() => {
         hideLoading()
+        this.setData({ loading: false })
       })
   },
 
-  /**
-   * 当前阶段跳过真实登录，写入 mock 游客身份后进入首页。
-   */
   handleGuestEnter() {
-    mockGuestLogin().then(() => {
-      switchTab('/pages/home/home')
-    })
+    if (this.data.loading) {
+      return
+    }
+
+    this.setData({ loading: true })
+    showLoading('进入中')
+
+    mockGuestLogin()
+      .then(() => {
+        switchTab('/pages/home/home')
+      })
+      .catch(() => {
+        showToast('游客登录失败，请稍后重试')
+      })
+      .finally(() => {
+        hideLoading()
+        this.setData({ loading: false })
+      })
   }
 })

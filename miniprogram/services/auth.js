@@ -1,66 +1,183 @@
 const request = require('./request')
 const config = require('../utils/config')
 const { mockUser } = require('./mock')
-const { setStorage, removeStorage } = require('../utils/cache')
+const { getStorage, setStorage, removeStorage } = require('../utils/cache')
 
-/**
- * 调用微信登录并把 code 发送给后端换取业务 token。
- * 后端未接入前，调用方可以先使用游客模式进入首页。
- */
-function wxLogin(profile = {}) {
+function getAppInstance() {
+  return typeof getApp === 'function' ? getApp() : null
+}
+
+function syncGlobalAuth(token = '', user = null) {
+  const app = getAppInstance()
+
+  if (!app || !app.globalData) {
+    return
+  }
+
+  app.globalData.token = token
+  app.globalData.userInfo = user
+}
+
+function normalizeProfile(profile = {}) {
+  const nickname = profile.nickname || profile.nickName || '诗词访客'
+  const avatarUrl = profile.avatar_url || profile.avatarUrl || ''
+  const avatarText = profile.avatarText || nickname.slice(0, 2)
+
+  return Object.assign({}, profile, {
+    nickname,
+    nickName: nickname,
+    avatar_url: avatarUrl,
+    avatarUrl,
+    avatarText
+  })
+}
+
+function saveLoginData(data = {}) {
+  const token = data.token || ''
+  const user = data.user || null
+
+  if (token) {
+    setStorage('token', token)
+  } else {
+    removeStorage('token')
+  }
+
+  if (user) {
+    setStorage('userInfo', user)
+  } else {
+    removeStorage('userInfo')
+  }
+
+  syncGlobalAuth(token, user)
+  return Object.assign({}, data, { token, user })
+}
+
+function clearLoginData() {
+  removeStorage('token')
+  removeStorage('userInfo')
+  syncGlobalAuth('', null)
+}
+
+function getWxUserProfile() {
   if (config.useMock) {
-    const data = {
-      token: 'mock-token',
-      user: Object.assign({}, mockUser, profile)
-    }
-    setStorage('token', data.token)
-    setStorage('userInfo', data.user)
-    return Promise.resolve(data)
+    return Promise.resolve(normalizeProfile(mockUser))
+  }
+
+  if (wx.getUserProfile) {
+    return new Promise((resolve, reject) => {
+      wx.getUserProfile({
+        desc: '用于完善个人资料',
+        lang: 'zh_CN',
+        success(res) {
+          resolve(normalizeProfile(res.userInfo || {}))
+        },
+        fail: reject
+      })
+    })
   }
 
   return new Promise((resolve, reject) => {
-    wx.login({
-      success(loginRes) {
-        request({
-          url: '/auth/wx-login',
-          method: 'POST',
-          data: {
-            code: loginRes.code,
-            profile
-          }
-        })
-          .then((data) => {
-            setStorage('token', data.token || '')
-            setStorage('userInfo', data.user || null)
-            resolve(data)
-          })
-          .catch(reject)
+    wx.getUserInfo({
+      lang: 'zh_CN',
+      success(res) {
+        resolve(normalizeProfile(res.userInfo || {}))
       },
       fail: reject
     })
   })
 }
 
-function logout() {
-  removeStorage('token')
-  removeStorage('userInfo')
+function requestWxCode() {
+  return new Promise((resolve, reject) => {
+    wx.login({
+      success(loginRes) {
+        if (!loginRes.code) {
+          reject(new Error('微信登录凭证为空'))
+          return
+        }
+
+        resolve(loginRes.code)
+      },
+      fail: reject
+    })
+  })
 }
 
-/**
- * 写入游客登录态。
- * mock 开发阶段默认跳过真实微信登录，依然保留一个本地用户对象供个人中心等页面读取。
- */
-function mockGuestLogin() {
-  setStorage('token', 'mock-token')
-  setStorage('userInfo', mockUser)
-  return Promise.resolve({
-    token: 'mock-token',
-    user: mockUser
+function wxLogin(profile = {}) {
+  const normalizedProfile = normalizeProfile(profile)
+
+  if (config.useMock) {
+    return Promise.resolve(
+      saveLoginData({
+        token: 'mock-token',
+        user: Object.assign({}, mockUser, normalizedProfile)
+      })
+    )
+  }
+
+  return requestWxCode()
+    .then((code) => {
+      return request({
+        url: '/auth/wx-login',
+        method: 'POST',
+        data: {
+          code,
+          profile: normalizedProfile
+        }
+      })
+    })
+    .then(saveLoginData)
+}
+
+function logout() {
+  const token = getStorage('token', '')
+  const clearAndResolve = () => {
+    clearLoginData()
+    return { logged_out: true }
+  }
+
+  if (config.useMock || !token) {
+    return Promise.resolve(clearAndResolve())
+  }
+
+  return request({
+    url: '/auth/logout',
+    method: 'POST',
+    skipAuthRefresh: true,
+    suppressErrorToast: true
   })
+    .catch(() => null)
+    .then(clearAndResolve)
+}
+
+function mockGuestLogin() {
+  if (!config.useMock) {
+    return request({
+      url: '/auth/wx-login',
+      method: 'POST',
+      data: {
+        code: 'guest',
+        profile: normalizeProfile({
+          nickname: '诗词访客',
+          avatarText: '诗'
+        })
+      }
+    }).then(saveLoginData)
+  }
+
+  return Promise.resolve(
+    saveLoginData({
+      token: 'mock-token',
+      user: Object.assign({}, mockUser, normalizeProfile(mockUser))
+    })
+  )
 }
 
 module.exports = {
   wxLogin,
   logout,
-  mockGuestLogin
+  mockGuestLogin,
+  getWxUserProfile,
+  saveLoginData,
+  clearLoginData
 }

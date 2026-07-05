@@ -15,57 +15,12 @@
   background: rgba(251, 250, 245, 0.96);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .brand {
   font-size: 30rpx;
   font-weight: 800;
-}
-
-.menu-button {
-  width: 48rpx;
-  height: 48rpx;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 7rpx;
-}
-
-.menu-button view {
-  width: 28rpx;
-  height: 4rpx;
-  border-radius: 4rpx;
-  background: #102236;
-}
-
-.search-icon {
-  position: relative;
-  width: 48rpx;
-  height: 48rpx;
-}
-
-.search-icon::before {
-  content: "";
-  position: absolute;
-  left: 8rpx;
-  top: 7rpx;
-  width: 20rpx;
-  height: 20rpx;
-  border: 4rpx solid #102236;
-  border-radius: 50%;
-}
-
-.search-icon::after {
-  content: "";
-  position: absolute;
-  right: 7rpx;
-  bottom: 10rpx;
-  width: 18rpx;
-  height: 4rpx;
-  border-radius: 4rpx;
-  background: #102236;
-  transform: rotate(45deg);
 }
 
 .profile-scroll {

@@ -3,10 +3,10 @@
     <view class="feihualing-content">
       <view class="lobby-head">
         <view>
-          <text class="page-title">飞花令对局</text>
+          <text class="page-title">飞花令对战</text>
           <text class="page-subtitle">选择一场正在进行的诗令，入局或观战。</text>
         </view>
-        <view class="create-button" bindtap="createRoom">发起</view>
+        <view class="create-button {{creating ? 'create-button--disabled' : ''}}" bindtap="createRoom">{{creating ? '发起中' : '发起'}}</view>
       </view>
 
       <view class="summary-row">
@@ -24,12 +24,15 @@
         </view>
       </view>
 
-      <view class="room-list">
+      <view wx:if="{{loading}}" class="lobby-state">正在加载对局...</view>
+      <view wx:elif="{{rooms.length === 0}}" class="lobby-state">暂无对局，发起一场新的飞花令。</view>
+
+      <view wx:else class="room-list">
         <block wx:for="{{rooms}}" wx:key="id">
           <view class="room-card">
             <view class="room-main">
               <view class="keyword-badge">
-                <text class="keyword-label">关键字</text>
+                <text class="keyword-label">令字</text>
                 <text class="keyword-text">{{item.keyword}}</text>
               </view>
 
@@ -100,7 +103,7 @@
           </view>
           <view class="waiting-player {{activeRoom.playerCount > 1 || readyState ? 'waiting-player--ready' : ''}}">
             <text class="waiting-player-avatar">{{activeRoom.playerCount > 1 || readyState ? '友' : '?'}}</text>
-            <text>{{activeRoom.playerCount > 1 || readyState ? '诗友已就绪' : '等待诗友'}}</text>
+            <text>{{activeRoom.playerCount > 1 || readyState ? '诗友已就位' : '等待诗友'}}</text>
           </view>
         </view>
         <view class="waiting-action {{viewerRole === 'spectator' ? 'waiting-action--ghost' : ''}}" bindtap="handleWaitingAction">{{waitActionText}}</view>
@@ -125,8 +128,13 @@
           <view id="{{item.id}}" class="dialog-row dialog-row--{{item.role}}">
             <view class="dialog-bubble dialog-bubble--{{item.role}} {{item.role === 'user' && item.isCorrect ? 'dialog-bubble--correct' : ''}} {{item.role === 'user' && !item.isCorrect ? 'dialog-bubble--wrong' : ''}}">
               <text wx:if="{{item.playerName}}" class="dialog-player">{{item.playerName}}</text>
-              <text class="dialog-content">{{item.content}}</text>
-              <view wx:if="{{item.sourceText}}" class="dialog-source">
+              <view wx:if="{{item.contentParts && item.contentParts.length}}" class="dialog-content dialog-content--parts">
+                <block wx:for="{{item.contentParts}}" wx:for-item="part" wx:for-index="partIndex" wx:key="partIndex">
+                  <text class="{{part.wrong ? 'dialog-char--wrong' : ''}}">{{part.text}}</text>
+                </block>
+              </view>
+              <text wx:else class="dialog-content">{{item.content}}</text>
+              <view wx:if="{{item.sourceText}}" class="dialog-source {{item.source ? 'dialog-source--clickable' : ''}}" data-id="{{item.id}}" bindtap="handleSourceTap">
                 <text wx:if="{{item.statusText}}" class="dialog-status">{{item.statusText}}</text>
                 <text class="dialog-source-text">{{item.sourceText}}</text>
               </view>
@@ -146,7 +154,7 @@
       <input
         class="answer-input"
         value="{{answerInput}}"
-        placeholder="写一句含“{{keyword}}”的诗句"
+        placeholder="写一句含「{{keyword}}」的诗句"
         confirm-type="send"
         adjust-position="{{true}}"
         bindinput="handleAnswerInput"
@@ -161,6 +169,24 @@
     <view wx:elif="{{roomPhase === 'ended'}}" class="end-bar">
       <view class="end-action end-action--ghost" bindtap="returnLobby">返回大厅</view>
       <view wx:if="{{viewerRole !== 'spectator'}}" class="end-action" bindtap="replayRoom">再开一局</view>
+    </view>
+
+    <view wx:if="{{sourcePopupVisible}}" class="source-modal-mask" bindtap="closeSourcePopup">
+      <view class="source-modal" catchtap="noop">
+        <view class="source-modal-close" bindtap="closeSourcePopup">×</view>
+        <view class="source-modal-head">
+          <view class="source-modal-heading">
+            <text class="source-modal-kicker">诗词来源</text>
+            <text class="source-modal-title">{{activeSource.title}}</text>
+            <text class="source-modal-meta">{{activeSource.dynasty}} · {{activeSource.author}}</text>
+          </view>
+        </view>
+        <scroll-view class="source-modal-body" scroll-y>
+          <view class="source-poem-paper">
+            <text class="source-modal-content">{{activeSource.content || '暂无完整正文'}}</text>
+          </view>
+        </scroll-view>
+      </view>
     </view>
   </view>
 </view>

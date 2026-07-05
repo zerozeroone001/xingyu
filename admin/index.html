@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>星语诗词管理后台</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.14/lib/theme-chalk/index.css" />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <section v-if="!token" class="login-shell">
+        <div class="login-panel">
+          <div class="brand-mark">星语</div>
+          <h1>诗词内容管理后台</h1>
+          <p>管理诗词库、分类、社区内容、飞花令与用户反馈。</p>
+          <el-form :model="loginForm" @submit.native.prevent="login">
+            <el-form-item label="接口地址">
+              <el-input v-model="apiBase" placeholder="http://127.0.0.1:8000/api/v1"></el-input>
+            </el-form-item>
+            <el-form-item label="管理员账号">
+              <el-input v-model="loginForm.username" autocomplete="username"></el-input>
+            </el-form-item>
+            <el-form-item label="管理员密码">
+              <el-input v-model="loginForm.password" type="password" autocomplete="current-password" show-password></el-input>
+            </el-form-item>
+            <el-button type="primary" :loading="loading.login" native-type="submit">登录后台</el-button>
+          </el-form>
+        </div>
+      </section>
+
+      <el-container v-else class="admin-shell">
+        <el-aside width="236px" class="side">
+          <div class="side-brand">
+            <span>星语</span>
+            <small>Admin Console</small>
+          </div>
+          <el-menu :default-active="active" class="side-menu" @select="selectMenu">
+            <el-menu-item index="dashboard"><i class="el-icon-data-analysis"></i><span>运营仪表盘</span></el-menu-item>
+            <el-menu-item index="poems"><i class="el-icon-notebook-2"></i><span>诗词内容</span></el-menu-item>
+            <el-menu-item index="categories"><i class="el-icon-collection-tag"></i><span>分类管理</span></el-menu-item>
+            <el-menu-item index="users"><i class="el-icon-user"></i><span>用户管理</span></el-menu-item>
+            <el-menu-item index="topics"><i class="el-icon-chat-dot-square"></i><span>广场帖子</span></el-menu-item>
+            <el-menu-item index="comments"><i class="el-icon-chat-line-square"></i><span>评论审核</span></el-menu-item>
+            <el-menu-item index="feedback"><i class="el-icon-service"></i><span>反馈处理</span></el-menu-item>
+            <el-menu-item index="rooms"><i class="el-icon-trophy"></i><span>飞花令房间</span></el-menu-item>
+            <el-menu-item index="records"><i class="el-icon-finished"></i><span>答题记录</span></el-menu-item>
+            <el-menu-item index="system"><i class="el-icon-setting"></i><span>系统设置</span></el-menu-item>
+          </el-menu>
+        </el-aside>
+
+        <el-container>
+          <el-header class="topbar" height="64px">
+            <div>
+              <strong>{{ pageTitle }}</strong>
+              <span>{{ pageSubtitle }}</span>
+            </div>
+            <div class="top-actions">
+              <el-input v-model="apiBase" class="api-input" size="small" prefix-icon="el-icon-link"></el-input>
+              <el-button size="small" icon="el-icon-refresh" @click="refreshActive">刷新</el-button>
+              <el-button size="small" icon="el-icon-switch-button" @click="logout">退出</el-button>
+            </div>
+          </el-header>
+
+          <el-main class="main">
+            <section v-show="active === 'dashboard'" class="workspace">
+              <div class="metric-grid">
+                <div class="metric-tile" v-for="item in metrics" :key="item.key">
+                  <span>{{ item.label }}</span>
+                  <strong>{{ item.value }}</strong>
+                </div>
+              </div>
+              <div class="split-layout">
+                <section class="panel">
+                  <div class="panel-head"><h2>近 7 日新增</h2></div>
+                  <div class="trend-list">
+                    <div class="trend-row" v-for="item in dashboard.trend" :key="item.date">
+                      <span>{{ item.date }}</span>
+                      <div class="trend-bar"><i :style="{ width: trendWidth(item) + '%' }"></i></div>
+                      <em>用户 {{ item.users }} / 帖子 {{ item.topics }} / 反馈 {{ item.feedback }}</em>
+                    </div>
+                  </div>
+                </section>
+                <section class="panel">
+                  <div class="panel-head"><h2>反馈状态</h2></div>
+                  <el-tag v-for="(count, status) in dashboard.feedback_status" :key="status" class="status-tag" effect="plain">
+                    {{ status }}：{{ count }}
+                  </el-tag>
+                  <el-empty v-if="!Object.keys(dashboard.feedback_status || {}).length" description="暂无反馈"></el-empty>
+                </section>
+              </div>
+              <section class="panel">
+                <div class="panel-head"><h2>热门诗词</h2></div>
+                <el-table :data="dashboard.hot_poems" size="small" stripe>
+                  <el-table-column prop="title" label="标题" min-width="150"></el-table-column>
+                  <el-table-column prop="dynasty" label="朝代" width="90"></el-table-column>
+                  <el-table-column prop="author" label="作者" width="120"></el-table-column>
+                  <el-table-column prop="like_count" label="点赞" width="90"></el-table-column>
+                  <el-table-column prop="favorite_count" label="收藏" width="90"></el-table-column>
+                  <el-table-column prop="share_count" label="分享" width="90"></el-table-column>
+                </el-table>
+              </section>
+            </section>
+
+            <section v-show="active === 'poems'" class="workspace">
+              <div class="toolbar">
+                <el-input v-model="filters.poems.keyword" clearable placeholder="标题 / 正文 / 推荐句" prefix-icon="el-icon-search"></el-input>
+                <el-input v-model="filters.poems.dynasty" clearable placeholder="朝代"></el-input>
+                <el-input v-model="filters.poems.author" clearable placeholder="作者"></el-input>
+                <el-button type="primary" icon="el-icon-search" @click="fetchPoems">查询</el-button>
+                <el-button icon="el-icon-plus" @click="openPoem()">新增诗词</el-button>
+              </div>
+              <el-table :data="lists.poems.items" stripe>
+                <el-table-column prop="id" label="ID" width="72"></el-table-column>
+                <el-table-column label="诗词" min-width="230">
+                  <template slot-scope="{ row }"><strong>{{ row.title }}</strong><small class="muted-line">{{ row.dynasty }} · {{ row.author }}</small></template>
+                </el-table-column>
+                <el-table-column prop="recommend_sentence" label="推荐句" min-width="240" show-overflow-tooltip></el-table-column>
+                <el-table-column label="标签" min-width="180">
+                  <template slot-scope="{ row }"><el-tag v-for="tag in row.tags" :key="tag" size="mini" class="tag">{{ tag }}</el-tag></template>
+                </el-table-column>
+                <el-table-column prop="updated_at" label="更新时间" width="170"></el-table-column>
+                <el-table-column label="操作" width="180" fixed="right">
+                  <template slot-scope="{ row }">
+                    <el-button size="mini" icon="el-icon-edit" @click="openPoem(row)">编辑</el-button>
+                    <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeItem('poems', row.id)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <pager :state="lists.poems" @change="changePage('poems', $event)"></pager>
+            </section>
+
+            <section v-show="active === 'categories'" class="workspace">
+              <div class="toolbar">
+                <el-button type="primary" icon="el-icon-plus" @click="openCategory()">新增分类</el-button>
+              </div>
+              <el-table :data="categories" stripe>
+                <el-table-column prop="id" label="ID" width="72"></el-table-column>
+                <el-table-column prop="name" label="分类名称"></el-table-column>
+                <el-table-column prop="type" label="类型"></el-table-column>
+                <el-table-column prop="sort_order" label="排序"></el-table-column>
+                <el-table-column prop="poem_count" label="诗词数"></el-table-column>
+                <el-table-column label="操作" width="180">
+                  <template slot-scope="{ row }">
+                    <el-button size="mini" icon="el-icon-edit" @click="openCategory(row)">编辑</el-button>
+                    <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeItem('categories', row.id)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </section>
+
+            <section v-show="active === 'users'" class="workspace">
+              <div class="toolbar">
+                <el-input v-model="filters.users.keyword" clearable placeholder="昵称 / openid / 城市" prefix-icon="el-icon-search"></el-input>
+                <el-button type="primary" icon="el-icon-search" @click="fetchUsers">查询</el-button>
+              </div>
+              <el-table :data="lists.users.items" stripe>
+                <el-table-column prop="id" label="ID" width="72"></el-table-column>
+                <el-table-column prop="nickname" label="昵称" min-width="150"></el-table-column>
+                <el-table-column prop="openid" label="OpenID" min-width="220" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="level" label="等级" width="80"></el-table-column>
+                <el-table-column prop="city" label="城市" width="120"></el-table-column>
+                <el-table-column prop="favorite_count" label="收藏" width="90"></el-table-column>
+                <el-table-column prop="topic_count" label="帖子" width="90"></el-table-column>
+                <el-table-column label="操作" width="100">
+                  <template slot-scope="{ row }"><el-button size="mini" icon="el-icon-edit" @click="openUser(row)">编辑</el-button></template>
+                </el-table-column>
+              </el-table>
+              <pager :state="lists.users" @change="changePage('users', $event)"></pager>
+            </section>
+
+            <section v-show="active === 'topics'" class="workspace">
+              <div class="toolbar">
+                <el-input v-model="filters.topics.keyword" clearable placeholder="标题 / 正文 / 徽章" prefix-icon="el-icon-search"></el-input>
+                <el-input-number v-model="filters.topics.user_id" :min="0" placeholder="用户ID"></el-input-number>
+                <el-button type="primary" icon="el-icon-search" @click="fetchTopics">查询</el-button>
+              </div>
+              <el-table :data="lists.topics.items" stripe>
+                <el-table-column prop="id" label="ID" width="72"></el-table-column>
+                <el-table-column prop="title" label="标题" min-width="170"></el-table-column>
+                <el-table-column prop="author" label="作者" width="120"></el-table-column>
+                <el-table-column prop="content" label="正文" min-width="260" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="comment_count" label="评论" width="80"></el-table-column>
+                <el-table-column prop="created_at" label="发布时间" width="170"></el-table-column>
+                <el-table-column label="操作" width="180" fixed="right">
+                  <template slot-scope="{ row }">
+                    <el-button size="mini" icon="el-icon-edit" @click="openTopic(row)">编辑</el-button>
+                    <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeItem('topics', row.id)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <pager :state="lists.topics" @change="changePage('topics', $event)"></pager>
+            </section>
+
+            <section v-show="active === 'comments'" class="workspace">
+              <div class="toolbar">
+                <el-input v-model="filters.comments.keyword" clearable placeholder="评论内容" prefix-icon="el-icon-search"></el-input>
+                <el-input-number v-model="filters.comments.topic_id" :min="0" placeholder="帖子ID"></el-input-number>
+                <el-button type="primary" icon="el-icon-search" @click="fetchComments">查询</el-button>
+              </div>
+              <el-table :data="lists.comments.items" stripe>
+                <el-table-column prop="id" label="ID" width="72"></el-table-column>
+                <el-table-column prop="topic_id" label="帖子ID" width="90"></el-table-column>
+                <el-table-column prop="author" label="作者" width="140"></el-table-column>
+                <el-table-column prop="content" label="内容" min-width="300" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="created_at" label="时间" width="170"></el-table-column>
+                <el-table-column label="操作" width="100">
+                  <template slot-scope="{ row }"><el-button size="mini" type="danger" icon="el-icon-delete" @click="removeItem('comments', row.id)">删除</el-button></template>
+                </el-table-column>
+              </el-table>
+              <pager :state="lists.comments" @change="changePage('comments', $event)"></pager>
+            </section>
+
+            <section v-show="active === 'feedback'" class="workspace">
+              <div class="toolbar">
+                <el-select v-model="filters.feedback.status" clearable placeholder="处理状态">
+                  <el-option label="received" value="received"></el-option>
+                  <el-option label="processing" value="processing"></el-option>
+                  <el-option label="resolved" value="resolved"></el-option>
+                  <el-option label="closed" value="closed"></el-option>
+                </el-select>
+                <el-button type="primary" icon="el-icon-search" @click="fetchFeedback">查询</el-button>
+              </div>
+              <el-table :data="lists.feedback.items" stripe>
+                <el-table-column prop="id" label="ID" width="72"></el-table-column>
+                <el-table-column prop="content" label="反馈内容" min-width="300" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="contact" label="联系方式" min-width="160"></el-table-column>
+                <el-table-column prop="status" label="状态" width="140">
+                  <template slot-scope="{ row }"><el-tag>{{ row.status }}</el-tag></template>
+                </el-table-column>
+                <el-table-column prop="created_at" label="提交时间" width="170"></el-table-column>
+                <el-table-column label="操作" width="220">
+                  <template slot-scope="{ row }">
+                    <el-dropdown @command="updateFeedback(row.id, $event)">
+                      <el-button size="mini">流转<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="received">received</el-dropdown-item>
+                        <el-dropdown-item command="processing">processing</el-dropdown-item>
+                        <el-dropdown-item command="resolved">resolved</el-dropdown-item>
+                        <el-dropdown-item command="closed">closed</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                    <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeItem('feedback', row.id)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <pager :state="lists.feedback" @change="changePage('feedback', $event)"></pager>
+            </section>
+
+            <section v-show="active === 'rooms'" class="workspace">
+              <div class="toolbar">
+                <el-input v-model="filters.rooms.keyword" clearable placeholder="房间 / 关键字 / 状态" prefix-icon="el-icon-search"></el-input>
+                <el-button type="primary" icon="el-icon-search" @click="fetchRooms">查询</el-button>
+              </div>
+              <el-table :data="lists.rooms.items" stripe>
+                <el-table-column prop="id" label="ID" width="72"></el-table-column>
+                <el-table-column prop="title" label="房间" min-width="170"></el-table-column>
+                <el-table-column prop="keyword" label="关键字" width="100"></el-table-column>
+                <el-table-column label="人数" width="100"><template slot-scope="{ row }">{{ row.player_count }}/{{ row.max_players }}</template></el-table-column>
+                <el-table-column prop="round_text" label="状态" min-width="140"></el-table-column>
+                <el-table-column prop="created_at" label="创建时间" width="170"></el-table-column>
+                <el-table-column label="操作" width="180">
+                  <template slot-scope="{ row }">
+                    <el-button size="mini" icon="el-icon-edit" @click="openRoom(row)">编辑</el-button>
+                    <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeItem('rooms', row.id)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <pager :state="lists.rooms" @change="changePage('rooms', $event)"></pager>
+            </section>
+
+            <section v-show="active === 'records'" class="workspace">
+              <div class="toolbar">
+                <el-input v-model="filters.records.keyword" clearable placeholder="关键字 / 答案" prefix-icon="el-icon-search"></el-input>
+                <el-button type="primary" icon="el-icon-search" @click="fetchRecords">查询</el-button>
+              </div>
+              <el-table :data="lists.records.items" stripe>
+                <el-table-column prop="id" label="ID" width="72"></el-table-column>
+                <el-table-column prop="user_id" label="用户ID" width="90"></el-table-column>
+                <el-table-column prop="keyword" label="关键字" width="90"></el-table-column>
+                <el-table-column prop="answer" label="答案" min-width="280" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="is_correct" label="正确" width="90"><template slot-scope="{ row }"><el-tag :type="row.is_correct ? 'success' : 'info'">{{ row.is_correct ? '是' : '否' }}</el-tag></template></el-table-column>
+                <el-table-column prop="score" label="分数" width="80"></el-table-column>
+                <el-table-column prop="created_at" label="时间" width="170"></el-table-column>
+              </el-table>
+              <pager :state="lists.records" @change="changePage('records', $event)"></pager>
+            </section>
+
+            <section v-show="active === 'system'" class="workspace">
+              <section class="panel">
+                <div class="panel-head"><h2>系统连接</h2></div>
+                <el-form label-width="110px" class="settings-form">
+                  <el-form-item label="API Base">
+                    <el-input v-model="apiBase"></el-input>
+                  </el-form-item>
+                  <el-form-item label="当前账号">
+                    <el-input :value="currentUser" disabled></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" icon="el-icon-check" @click="saveApiBase">保存接口地址</el-button>
+                    <el-button icon="el-icon-cpu" @click="checkHealth">健康检查</el-button>
+                  </el-form-item>
+                </el-form>
+              </section>
+            </section>
+          </el-main>
+        </el-container>
+      </el-container>
+
+      <el-dialog :visible.sync="dialogs.poem" :title="forms.poem.id ? '编辑诗词' : '新增诗词'" width="760px">
+        <el-form :model="forms.poem" label-width="92px">
+          <el-row :gutter="12">
+            <el-col :span="12"><el-form-item label="标题"><el-input v-model="forms.poem.title"></el-input></el-form-item></el-col>
+            <el-col :span="6"><el-form-item label="朝代"><el-input v-model="forms.poem.dynasty"></el-input></el-form-item></el-col>
+            <el-col :span="6"><el-form-item label="作者"><el-input v-model="forms.poem.author"></el-input></el-form-item></el-col>
+          </el-row>
+          <el-form-item label="正文"><el-input v-model="forms.poem.content" type="textarea" :rows="7"></el-input></el-form-item>
+          <el-form-item label="推荐句"><el-input v-model="forms.poem.recommend_sentence"></el-input></el-form-item>
+          <el-form-item label="标签"><el-input v-model="forms.poem.tagsText" placeholder="用逗号分隔"></el-input></el-form-item>
+          <el-form-item label="分类"><el-select v-model="forms.poem.category_ids" multiple filterable placeholder="选择分类"><el-option v-for="item in categories" :key="item.id" :label="item.name" :value="item.id"></el-option></el-select></el-form-item>
+          <el-row :gutter="12">
+            <el-col :span="8"><el-form-item label="点赞"><el-input-number v-model="forms.poem.like_count" :min="0"></el-input-number></el-form-item></el-col>
+            <el-col :span="8"><el-form-item label="收藏"><el-input-number v-model="forms.poem.favorite_count" :min="0"></el-input-number></el-form-item></el-col>
+            <el-col :span="8"><el-form-item label="分享"><el-input-number v-model="forms.poem.share_count" :min="0"></el-input-number></el-form-item></el-col>
+          </el-row>
+        </el-form>
+        <span slot="footer"><el-button @click="dialogs.poem = false">取消</el-button><el-button type="primary" @click="savePoem">保存</el-button></span>
+      </el-dialog>
+
+      <el-dialog :visible.sync="dialogs.category" :title="forms.category.id ? '编辑分类' : '新增分类'" width="520px">
+        <el-form :model="forms.category" label-width="92px">
+          <el-form-item label="名称"><el-input v-model="forms.category.name"></el-input></el-form-item>
+          <el-form-item label="类型"><el-input v-model="forms.category.type"></el-input></el-form-item>
+          <el-form-item label="排序"><el-input-number v-model="forms.category.sort_order"></el-input-number></el-form-item>
+        </el-form>
+        <span slot="footer"><el-button @click="dialogs.category = false">取消</el-button><el-button type="primary" @click="saveCategory">保存</el-button></span>
+      </el-dialog>
+
+      <el-drawer :visible.sync="dialogs.user" title="编辑用户" size="420px">
+        <el-form :model="forms.user" label-width="88px" class="drawer-form">
+          <el-form-item label="昵称"><el-input v-model="forms.user.nickname"></el-input></el-form-item>
+          <el-form-item label="头像字"><el-input v-model="forms.user.avatar_text"></el-input></el-form-item>
+          <el-form-item label="称号"><el-input v-model="forms.user.title"></el-input></el-form-item>
+          <el-form-item label="等级"><el-input-number v-model="forms.user.level" :min="1"></el-input-number></el-form-item>
+          <el-form-item label="性别"><el-input v-model="forms.user.gender"></el-input></el-form-item>
+          <el-form-item label="城市"><el-input v-model="forms.user.city"></el-input></el-form-item>
+          <el-form-item label="简介"><el-input v-model="forms.user.bio" type="textarea" :rows="5"></el-input></el-form-item>
+          <el-form-item><el-button type="primary" @click="saveUser">保存</el-button></el-form-item>
+        </el-form>
+      </el-drawer>
+
+      <el-dialog :visible.sync="dialogs.topic" title="编辑帖子" width="680px">
+        <el-form :model="forms.topic" label-width="88px">
+          <el-form-item label="标题"><el-input v-model="forms.topic.title"></el-input></el-form-item>
+          <el-form-item label="徽章"><el-input v-model="forms.topic.badge"></el-input></el-form-item>
+          <el-form-item label="内容"><el-input v-model="forms.topic.content" type="textarea" :rows="7"></el-input></el-form-item>
+          <el-form-item label="标签"><el-input v-model="forms.topic.tagsText" placeholder="用逗号分隔"></el-input></el-form-item>
+          <el-form-item label="图片"><el-input v-model="forms.topic.imagesText" placeholder="用逗号分隔 URL"></el-input></el-form-item>
+        </el-form>
+        <span slot="footer"><el-button @click="dialogs.topic = false">取消</el-button><el-button type="primary" @click="saveTopic">保存</el-button></span>
+      </el-dialog>
+
+      <el-dialog :visible.sync="dialogs.room" title="编辑飞花令房间" width="560px">
+        <el-form :model="forms.room" label-width="98px">
+          <el-form-item label="房间名"><el-input v-model="forms.room.title"></el-input></el-form-item>
+          <el-form-item label="关键字"><el-input v-model="forms.room.keyword"></el-input></el-form-item>
+          <el-form-item label="允许观战"><el-switch v-model="forms.room.can_watch"></el-switch></el-form-item>
+          <el-form-item label="当前人数"><el-input-number v-model="forms.room.player_count" :min="0"></el-input-number></el-form-item>
+          <el-form-item label="最大人数"><el-input-number v-model="forms.room.max_players" :min="1"></el-input-number></el-form-item>
+          <el-form-item label="状态文案"><el-input v-model="forms.room.round_text"></el-input></el-form-item>
+        </el-form>
+        <span slot="footer"><el-button @click="dialogs.room = false">取消</el-button><el-button type="primary" @click="saveRoom">保存</el-button></span>
+      </el-dialog>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.14/lib/index.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>

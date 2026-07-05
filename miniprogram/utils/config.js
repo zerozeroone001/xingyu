@@ -3,8 +3,9 @@ const config = {
   apiBaseUrl: 'http://127.0.0.1:8000/api/v1',
   requestTimeout: 10000,
   storagePrefix: 'xingyu:',
+  autoGuestLogin: true,
   // 开发初始化阶段默认使用本地 mock 数据，避免依赖微信登录和后端服务。
-  useMock: true
+  useMock: false
 }
 
 module.exports = config

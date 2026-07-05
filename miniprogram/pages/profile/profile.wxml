@@ -1,12 +1,6 @@
 <view class="profile-page">
   <view class="top-nav">
-    <view class="menu-button" bindtap="openMenu">
-      <view></view>
-      <view></view>
-      <view></view>
-    </view>
     <text class="brand">山水诗境</text>
-    <view class="search-icon" bindtap="openSearch"></view>
   </view>
 
   <scroll-view class="profile-scroll" scroll-y enhanced>

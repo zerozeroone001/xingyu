@@ -176,9 +176,18 @@ function getFavorites(params = {}) {
 
 function addFavorite(poemId) {
   if (config.useMock) {
+    const poem = mockPoems.find((item) => String(item.id) === String(poemId))
+    if (poem && !poem.is_favorite) {
+      poem.is_favorite = true
+      poem.favorite_count = (poem.favorite_count || 0) + 1
+    }
+
     return Promise.resolve({
       poem_id: poemId,
-      is_favorite: true
+      is_favorite: true,
+      favorite_count: poem ? poem.favorite_count || 0 : 0,
+      like_count: poem ? poem.like_count || 0 : 0,
+      share_count: poem ? poem.share_count || 0 : 0
     })
   }
 
@@ -190,9 +199,18 @@ function addFavorite(poemId) {
 
 function removeFavorite(poemId) {
   if (config.useMock) {
+    const poem = mockPoems.find((item) => String(item.id) === String(poemId))
+    if (poem && poem.is_favorite) {
+      poem.is_favorite = false
+      poem.favorite_count = Math.max(0, (poem.favorite_count || 0) - 1)
+    }
+
     return Promise.resolve({
       poem_id: poemId,
-      is_favorite: false
+      is_favorite: false,
+      favorite_count: poem ? poem.favorite_count || 0 : 0,
+      like_count: poem ? poem.like_count || 0 : 0,
+      share_count: poem ? poem.share_count || 0 : 0
     })
   }
 
@@ -210,6 +228,20 @@ function getHistory(params = {}) {
   return request({
     url: '/history',
     data: params
+  })
+}
+
+function recordHistory(poemId) {
+  if (config.useMock) {
+    return Promise.resolve({
+      poem_id: poemId,
+      recorded: true
+    })
+  }
+
+  return request({
+    url: `/history/${poemId}`,
+    method: 'POST'
   })
 }
 
@@ -239,5 +271,6 @@ module.exports = {
   addFavorite,
   removeFavorite,
   getHistory,
+  recordHistory,
   submitFeedback
 }

@@ -1,0 +1,1 @@
+"""Xingyu backend application package."""

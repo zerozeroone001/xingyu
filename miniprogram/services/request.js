@@ -1,11 +1,97 @@
 const config = require('../utils/config')
-const { getStorage, removeStorage } = require('../utils/cache')
+const { getStorage, setStorage, removeStorage } = require('../utils/cache')
 const { showToast } = require('../utils/toast')
 
-/**
- * 小程序统一请求方法。
- * 所有业务接口都需要经过这里，便于统一处理 token、错误提示和响应格式。
- */
+let guestLoginTask = null
+
+function getAppInstance() {
+  return typeof getApp === 'function' ? getApp() : null
+}
+
+function syncGlobalAuth(token = '', user = null) {
+  const app = getAppInstance()
+
+  if (!app || !app.globalData) {
+    return
+  }
+
+  app.globalData.token = token
+  app.globalData.userInfo = user
+}
+
+function saveAuthData(data = {}) {
+  const token = data.token || ''
+  const user = data.user || null
+
+  if (token) {
+    setStorage('token', token)
+  } else {
+    removeStorage('token')
+  }
+
+  if (user) {
+    setStorage('userInfo', user)
+  } else {
+    removeStorage('userInfo')
+  }
+
+  syncGlobalAuth(token, user)
+  return data
+}
+
+function clearAuthData() {
+  removeStorage('token')
+  removeStorage('userInfo')
+  syncGlobalAuth('', null)
+}
+
+function requestGuestToken() {
+  if (guestLoginTask) {
+    return guestLoginTask
+  }
+
+  guestLoginTask = new Promise((resolve, reject) => {
+    wx.request({
+      url: `${config.apiBaseUrl}/auth/wx-login`,
+      method: 'POST',
+      data: {
+        code: 'guest',
+        profile: {
+          nickname: '诗词访客',
+          avatarText: '诗'
+        }
+      },
+      header: {
+        'content-type': 'application/json'
+      },
+      timeout: config.requestTimeout,
+      success(res) {
+        const response = res.data || {}
+
+        if (res.statusCode < 200 || res.statusCode >= 300 || (response.code !== undefined && response.code !== 0)) {
+          reject(response)
+          return
+        }
+
+        const data = response.data || response
+        saveAuthData(data)
+        resolve(data)
+      },
+      fail: reject
+    })
+  }).finally(() => {
+    guestLoginTask = null
+  })
+
+  return guestLoginTask
+}
+
+function showRequestToast(options, title, icon = 'none') {
+  if (!options.suppressErrorToast) {
+    showToast(title, icon)
+  }
+}
+
 function request(options) {
   const token = getStorage('token', '')
   const header = Object.assign(
@@ -29,23 +115,33 @@ function request(options) {
       success(res) {
         const response = res.data || {}
 
-        // HTTP 401 表示登录态失效，清理本地 token 后提示用户重新登录。
         if (res.statusCode === 401) {
-          removeStorage('token')
-          showToast('登录已失效，请重新登录')
+          clearAuthData()
+
+          if (config.autoGuestLogin && !options.skipAuthRefresh) {
+            requestGuestToken()
+              .then(() => request(Object.assign({}, options, { skipAuthRefresh: true })))
+              .then(resolve)
+              .catch((error) => {
+                showRequestToast(options, '登录已失效，请重新登录')
+                reject(error)
+              })
+            return
+          }
+
+          showRequestToast(options, '登录已失效，请重新登录')
           reject(response)
           return
         }
 
         if (res.statusCode < 200 || res.statusCode >= 300) {
-          showToast(response.message || '请求失败')
+          showRequestToast(options, response.message || '请求失败')
           reject(response)
           return
         }
 
-        // 后端约定 code 为 0 表示成功；如果后端暂未接入，也兼容直接返回数据。
         if (response.code !== undefined && response.code !== 0) {
-          showToast(response.message || '操作失败')
+          showRequestToast(options, response.message || '操作失败')
           reject(response)
           return
         }
@@ -53,7 +149,7 @@ function request(options) {
         resolve(response.data !== undefined ? response.data : response)
       },
       fail(error) {
-        showToast('网络异常，请稍后重试')
+        showRequestToast(options, '网络异常，请稍后重试')
         reject(error)
       }
     })

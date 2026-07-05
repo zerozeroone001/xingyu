@@ -59,9 +59,90 @@ function searchPoems(params = {}) {
   })
 }
 
+function setMockPoemCounts(poemId, patch = {}) {
+  const poem = mockPoems.find((item) => String(item.id) === String(poemId))
+
+  if (!poem) {
+    return null
+  }
+
+  Object.assign(poem, patch)
+  return {
+    poem_id: poem.id,
+    id: poem.id,
+    is_liked: Boolean(poem.is_liked),
+    is_favorite: Boolean(poem.is_favorite),
+    like_count: poem.like_count || 0,
+    favorite_count: poem.favorite_count || 0,
+    share_count: poem.share_count || 0
+  }
+}
+
+function likePoem(poemId) {
+  if (config.useMock) {
+    const poem = mockPoems.find((item) => String(item.id) === String(poemId))
+    if (!poem) {
+      return Promise.resolve(null)
+    }
+
+    if (!poem.is_liked) {
+      poem.is_liked = true
+      poem.like_count = (poem.like_count || 0) + 1
+    }
+
+    return Promise.resolve(setMockPoemCounts(poemId))
+  }
+
+  return request({
+    url: `/poems/${poemId}/like`,
+    method: 'POST'
+  })
+}
+
+function unlikePoem(poemId) {
+  if (config.useMock) {
+    const poem = mockPoems.find((item) => String(item.id) === String(poemId))
+    if (!poem) {
+      return Promise.resolve(null)
+    }
+
+    if (poem.is_liked) {
+      poem.is_liked = false
+      poem.like_count = Math.max(0, (poem.like_count || 0) - 1)
+    }
+
+    return Promise.resolve(setMockPoemCounts(poemId))
+  }
+
+  return request({
+    url: `/poems/${poemId}/like`,
+    method: 'DELETE'
+  })
+}
+
+function sharePoem(poemId) {
+  if (config.useMock) {
+    const poem = mockPoems.find((item) => String(item.id) === String(poemId))
+    if (!poem) {
+      return Promise.resolve(null)
+    }
+
+    poem.share_count = (poem.share_count || 0) + 1
+    return Promise.resolve(setMockPoemCounts(poemId))
+  }
+
+  return request({
+    url: `/poems/${poemId}/share`,
+    method: 'POST'
+  })
+}
+
 module.exports = {
   getHomeData,
   getPoemDetail,
   getPoems,
-  searchPoems
+  searchPoems,
+  likePoem,
+  unlikePoem,
+  sharePoem
 }

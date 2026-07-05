@@ -1,5 +1,5 @@
 const { getPoemDetail } = require('../../services/poem')
-const { addFavorite, removeFavorite } = require('../../services/user')
+const { addFavorite, removeFavorite, recordHistory } = require('../../services/user')
 const { showToast } = require('../../utils/toast')
 const { navigateBack } = require('../../utils/route')
 
@@ -66,6 +66,7 @@ Page({
     return getPoemDetail(poemId)
       .then((data) => {
         this.setPoemState(data || fallbackPoem)
+        recordHistory(poemId).catch(() => {})
       })
       .catch(() => {
         this.setPoemState(fallbackPoem)

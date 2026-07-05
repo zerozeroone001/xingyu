@@ -1,0 +1,10 @@
+{
+  "name": "xingyu-admin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Xingyu poetry admin console built with Vue and Element UI.",
+  "scripts": {
+    "dev": "node scripts/dev-server.js",
+    "start": "node scripts/dev-server.js"
+  }
+}

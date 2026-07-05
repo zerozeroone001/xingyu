@@ -1,3 +1,5 @@
+const mockAuthorExpansionPoems = require('./mock_author_expansions')
+
 const mockPoems = [
   {
     id: 1,
@@ -338,16 +340,315 @@ const mockPoems = [
     like_count: 214,
     favorite_count: 88,
     share_count: 32
+  },
+  {
+    id: 21,
+    title: '题西林壁',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '横看成岭侧成峰，远近高低各不同。不识庐山真面目，只缘身在此山中。',
+    translation: '从不同角度观看庐山，山势呈现出不同面貌。诗人由观山悟出身处局中便难见全貌的道理。',
+    annotation: '西林：庐山西林寺。缘：因为。',
+    appreciation: '全诗语言明白，却含有深刻哲理，把游山所见转化为观察事物的普遍启示。',
+    recommend_sentence: '不识庐山真面目，只缘身在此山中。',
+    tags: ['宋诗', '哲理', '山水', '苏轼'],
+    is_favorite: false,
+    is_liked: true,
+    like_count: 267,
+    favorite_count: 109,
+    share_count: 41
+  },
+  {
+    id: 22,
+    title: '饮湖上初晴后雨',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '水光潋滟晴方好，山色空蒙雨亦奇。欲把西湖比西子，淡妆浓抹总相宜。',
+    translation: '晴天的西湖水光明丽，雨中的湖山也空濛奇妙。诗人把西湖比作西施，写出晴雨皆美的神韵。',
+    annotation: '潋滟：水波荡漾的样子。空蒙：迷茫缥缈。西子：西施。',
+    appreciation: '以美人喻西湖，既贴切又灵动，使西湖晴雨之美成为千古定评。',
+    recommend_sentence: '欲把西湖比西子，淡妆浓抹总相宜。',
+    tags: ['宋诗', '西湖', '写景', '山水', '苏轼'],
+    is_favorite: true,
+    is_liked: true,
+    like_count: 338,
+    favorite_count: 158,
+    share_count: 57
+  },
+  {
+    id: 23,
+    title: '惠崇春江晚景',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '竹外桃花三两枝，春江水暖鸭先知。蒌蒿满地芦芽短，正是河豚欲上时。',
+    translation: '竹林外桃花初放，江水转暖，鸭子最先感知春意。满地蒌蒿、短短芦芽，暗示河豚将要上市。',
+    annotation: '惠崇：宋代僧人、画家。蒌蒿：水边草本植物。河豚：鱼名。',
+    appreciation: '诗从画面落笔，又写出画中没有的温度与时令，春意鲜活可感。',
+    recommend_sentence: '竹外桃花三两枝，春江水暖鸭先知。',
+    tags: ['宋诗', '春天', '写景', '苏轼'],
+    is_favorite: false,
+    is_liked: false,
+    like_count: 246,
+    favorite_count: 98,
+    share_count: 34
+  },
+  {
+    id: 24,
+    title: '浣溪沙·游蕲水清泉寺',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '山下兰芽短浸溪，松间沙路净无泥，萧萧暮雨子规啼。谁道人生无再少？门前流水尚能西！休将白发唱黄鸡。',
+    translation: '清泉寺旁溪水潺潺、沙路洁净，暮雨中传来子规声。词人由西流的溪水生发出不服老的旷达心境。',
+    annotation: '蕲水：今湖北浠水一带。子规：杜鹃鸟。黄鸡：感叹时光流逝的歌辞。',
+    appreciation: '上片写清新景物，下片转入人生感悟，明朗乐观，富有逆境中的生命力。',
+    recommend_sentence: '谁道人生无再少？门前流水尚能西！',
+    tags: ['宋词', '旷达', '春天', '苏轼'],
+    is_favorite: false,
+    is_liked: true,
+    like_count: 286,
+    favorite_count: 124,
+    share_count: 46
+  },
+  {
+    id: 25,
+    title: '蝶恋花·春景',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '花褪残红青杏小。燕子飞时，绿水人家绕。枝上柳绵吹又少，天涯何处无芳草。墙里秋千墙外道。墙外行人，墙里佳人笑。笑渐不闻声渐悄，多情却被无情恼。',
+    translation: '暮春花落、青杏初成，燕子飞过人家水边。墙内笑声渐远，墙外行人怅然若失，春景中含着微妙情思。',
+    annotation: '柳绵：柳絮。芳草：春草，也常寄托别情。恼：惆怅烦恼。',
+    appreciation: '词中春色明丽而情绪曲折，“天涯何处无芳草”开阔，“多情却被无情恼”含蓄有味。',
+    recommend_sentence: '枝上柳绵吹又少，天涯何处无芳草。',
+    tags: ['宋词', '春天', '婉约', '苏轼'],
+    is_favorite: false,
+    is_liked: false,
+    like_count: 274,
+    favorite_count: 117,
+    share_count: 43
+  },
+  {
+    id: 26,
+    title: '江城子·密州出猎',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '老夫聊发少年狂，左牵黄，右擎苍，锦帽貂裘，千骑卷平冈。为报倾城随太守，亲射虎，看孙郎。酒酣胸胆尚开张，鬓微霜，又何妨！持节云中，何日遣冯唐？会挽雕弓如满月，西北望，射天狼。',
+    translation: '词人写密州出猎的壮阔场面，以孙权、冯唐等典故寄托报国之志，表现豪迈昂扬的精神。',
+    annotation: '黄：黄犬。苍：苍鹰。孙郎：孙权。射天狼：借指抵御西北边患。',
+    appreciation: '全词声情激越，把出猎场景、英雄自许和报国愿望融成豪放气象。',
+    recommend_sentence: '会挽雕弓如满月，西北望，射天狼。',
+    tags: ['宋词', '豪放', '报国', '苏轼'],
+    is_favorite: true,
+    is_liked: true,
+    like_count: 349,
+    favorite_count: 166,
+    share_count: 62
+  },
+  {
+    id: 27,
+    title: '卜算子·黄州定慧院寓居作',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '缺月挂疏桐，漏断人初静。谁见幽人独往来，缥缈孤鸿影。惊起却回头，有恨无人省。拣尽寒枝不肯栖，寂寞沙洲冷。',
+    translation: '月残夜深，孤鸿掠过寒枝沙洲。词人以孤鸿自写，表现黄州贬居时清高孤寂的心境。',
+    annotation: '漏断：夜深。幽人：幽居之人。省：理解，知晓。',
+    appreciation: '全词景象清冷，孤鸿意象贯穿始终，把孤高、寂寞与不肯随俗写得含蓄深沉。',
+    recommend_sentence: '拣尽寒枝不肯栖，寂寞沙洲冷。',
+    tags: ['宋词', '孤独', '咏物', '苏轼'],
+    is_favorite: false,
+    is_liked: true,
+    like_count: 318,
+    favorite_count: 143,
+    share_count: 55
+  },
+  {
+    id: 28,
+    title: '六月二十七日望湖楼醉书',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '黑云翻墨未遮山，白雨跳珠乱入船。卷地风来忽吹散，望湖楼下水如天。',
+    translation: '乌云像翻墨一样涌来，还未遮住远山，骤雨如跳珠落入船中。大风卷地而来，忽然吹散云雨，楼下湖水又澄明如天。',
+    annotation: '望湖楼：在杭州西湖边。翻墨：形容黑云翻滚。跳珠：形容雨点大而急。',
+    appreciation: '诗中连用动态画面写夏日骤雨，从云起、雨落到风散、水明，节奏明快，极有现场感。',
+    recommend_sentence: '卷地风来忽吹散，望湖楼下水如天。',
+    tags: ['宋诗', '西湖', '写景', '雨', '苏轼'],
+    is_favorite: false,
+    is_liked: true,
+    like_count: 301,
+    favorite_count: 137,
+    share_count: 49
+  },
+  {
+    id: 29,
+    title: '和子由渑池怀旧',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '人生到处知何似，应似飞鸿踏雪泥。泥上偶然留指爪，鸿飞那复计东西。老僧已死成新塔，坏壁无由见旧题。往日崎岖还记否，路长人困蹇驴嘶。',
+    translation: '人生行踪像飞鸿踏过雪泥，偶然留下爪印，飞走后又难追方向。诗人回望旧游旧题，感叹岁月流转与人生漂泊。',
+    annotation: '子由：苏轼弟苏辙。渑池：地名。蹇驴：跛脚或羸弱的驴。',
+    appreciation: '“雪泥鸿爪”成为后世常用典故，诗中以平易比喻写出人生踪迹的偶然与无常。',
+    recommend_sentence: '人生到处知何似，应似飞鸿踏雪泥。',
+    tags: ['宋诗', '人生', '怀旧', '苏轼'],
+    is_favorite: true,
+    is_liked: true,
+    like_count: 327,
+    favorite_count: 151,
+    share_count: 56
+  },
+  {
+    id: 30,
+    title: '海棠',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '东风袅袅泛崇光，香雾空蒙月转廊。只恐夜深花睡去，故烧高烛照红妆。',
+    translation: '春风轻柔，月色与花香交织。诗人担心夜深海棠睡去，特地点起高烛照看花容。',
+    annotation: '崇光：高处的光色。红妆：借指海棠花。',
+    appreciation: '诗以拟人写花，把爱花之情写得温柔细腻，末句尤见苏轼风趣与深情。',
+    recommend_sentence: '只恐夜深花睡去，故烧高烛照红妆。',
+    tags: ['宋诗', '咏物', '春天', '海棠', '苏轼'],
+    is_favorite: false,
+    is_liked: false,
+    like_count: 258,
+    favorite_count: 112,
+    share_count: 39
+  },
+  {
+    id: 31,
+    title: '赠刘景文',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '荷尽已无擎雨盖，菊残犹有傲霜枝。一年好景君须记，最是橙黄橘绿时。',
+    translation: '荷花凋尽，菊花虽残却仍有傲霜枝条。诗人提醒友人记住一年中橙黄橘绿的好时节。',
+    annotation: '刘景文：苏轼友人。擎雨盖：指荷叶。傲霜枝：经霜不凋的菊枝。',
+    appreciation: '诗不写萧瑟，而在深秋初冬中见生机，蕴含珍惜当下与勉励友人的意味。',
+    recommend_sentence: '一年好景君须记，最是橙黄橘绿时。',
+    tags: ['宋诗', '秋天', '友情', '苏轼'],
+    is_favorite: false,
+    is_liked: true,
+    like_count: 289,
+    favorite_count: 130,
+    share_count: 47
+  },
+  {
+    id: 32,
+    title: '望江南·超然台作',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '春未老，风细柳斜斜。试上超然台上看，半壕春水一城花。烟雨暗千家。寒食后，酒醒却咨嗟。休对故人思故国，且将新火试新茶。诗酒趁年华。',
+    translation: '春意未老，细风吹斜柳枝。登台远望，城中春水与繁花在烟雨中迷蒙。词人从思乡转为珍惜眼前诗酒年华。',
+    annotation: '超然台：在密州。寒食：清明前一二日的节令。新火：寒食后重新举火。',
+    appreciation: '词由登台写景转入人生自宽，“诗酒趁年华”明快旷达，极能体现苏轼的自我调适。',
+    recommend_sentence: '休对故人思故国，且将新火试新茶。诗酒趁年华。',
+    tags: ['宋词', '春天', '旷达', '思乡', '苏轼'],
+    is_favorite: true,
+    is_liked: true,
+    like_count: 341,
+    favorite_count: 162,
+    share_count: 60
+  },
+  {
+    id: 33,
+    title: '临江仙·夜饮东坡醒复醉',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '夜饮东坡醒复醉，归来仿佛三更。家童鼻息已雷鸣，敲门都不应，倚杖听江声。长恨此身非我有，何时忘却营营。夜阑风静縠纹平，小舟从此逝，江海寄余生。',
+    translation: '词人夜饮归来，门内童仆熟睡不应，只能倚杖听江声。由此生发摆脱世事羁绊、寄身江海的想象。',
+    annotation: '东坡：苏轼黄州居所。营营：纷扰奔忙。縠纹：细密的水波纹。',
+    appreciation: '上片写生活小事，下片忽转旷远胸怀，平淡处见超脱，是黄州时期的重要名篇。',
+    recommend_sentence: '小舟从此逝，江海寄余生。',
+    tags: ['宋词', '旷达', '江水', '苏轼'],
+    is_favorite: false,
+    is_liked: true,
+    like_count: 333,
+    favorite_count: 156,
+    share_count: 58
+  },
+  {
+    id: 34,
+    title: '西江月·世事一场大梦',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '世事一场大梦，人生几度秋凉。夜来风叶已鸣廊，看取眉头鬓上。酒贱常愁客少，月明多被云妨。中秋谁与共孤光，把盏凄然北望。',
+    translation: '词人把世事看作大梦，在秋凉月夜中感叹身世。中秋月明却云遮，独自举杯北望，情绪清冷沉郁。',
+    annotation: '孤光：月光。把盏：举杯。',
+    appreciation: '这首词沉郁中仍见清醒，以秋凉、风叶、云月写人生失意和孤怀。',
+    recommend_sentence: '世事一场大梦，人生几度秋凉。',
+    tags: ['宋词', '中秋', '人生', '明月', '苏轼'],
+    is_favorite: false,
+    is_liked: false,
+    like_count: 297,
+    favorite_count: 134,
+    share_count: 51
+  },
+  {
+    id: 35,
+    title: '水龙吟·次韵章质夫杨花词',
+    dynasty: '宋',
+    author: '苏轼',
+    content: '似花还似非花，也无人惜从教坠。抛家傍路，思量却是，无情有思。萦损柔肠，困酣娇眼，欲开还闭。梦随风万里，寻郎去处，又还被、莺呼起。不恨此花飞尽，恨西园、落红难缀。晓来雨过，遗踪何在？一池萍碎。春色三分，二分尘土，一分流水。细看来，不是杨花，点点是离人泪。',
+    translation: '词人借杨花飘零写离情，把无情之物写成有思有泪。春色散作尘土流水，最终凝为离人眼泪。',
+    annotation: '次韵：依照他人诗词韵脚唱和。杨花：柳絮。缀：连接，收拾。',
+    appreciation: '全词构思细密，咏物而不滞于物，末句点破离情，婉转深长。',
+    recommend_sentence: '细看来，不是杨花，点点是离人泪。',
+    tags: ['宋词', '咏物', '离别', '春天', '苏轼'],
+    is_favorite: true,
+    is_liked: true,
+    like_count: 352,
+    favorite_count: 171,
+    share_count: 64
   }
 ]
 
+mockPoems.push(...mockAuthorExpansionPoems)
+
 const mockCategories = [
-  { id: 1, name: '唐诗', type: '朝代', sort_order: 1 },
-  { id: 2, name: '宋词', type: '体裁', sort_order: 2 },
-  { id: 3, name: '写景', type: '主题', sort_order: 3 },
-  { id: 4, name: '思乡', type: '主题', sort_order: 4 },
-  { id: 5, name: '飞花令常用', type: '玩法', sort_order: 5 }
+  { id: 1, name: '唐诗', type: '朝代', sort_order: 1, poem_count: 9, poemCount: 9 },
+  { id: 2, name: '宋词', type: '体裁', sort_order: 2, poem_count: 17, poemCount: 17 },
+  { id: 3, name: '写景', type: '主题', sort_order: 3, poem_count: 26, poemCount: 26 },
+  { id: 4, name: '思乡', type: '主题', sort_order: 4, poem_count: 15, poemCount: 15 },
+  { id: 5, name: '飞花令常用', type: '玩法', sort_order: 5, poem_count: 30, poemCount: 30 },
+  { id: 6, name: '苏轼', type: '作者', sort_order: 6, poem_count: 19, poemCount: 19 },
+  { id: 7, name: '李白', type: '作者', sort_order: 7, poem_count: 0, poemCount: 0 },
+  { id: 8, name: '杜甫', type: '作者', sort_order: 8, poem_count: 0, poemCount: 0 },
+  { id: 9, name: '白居易', type: '作者', sort_order: 9, poem_count: 0, poemCount: 0 },
+  { id: 10, name: '王维', type: '作者', sort_order: 10, poem_count: 0, poemCount: 0 },
+  { id: 11, name: '李清照', type: '作者', sort_order: 11, poem_count: 0, poemCount: 0 },
+  { id: 12, name: '辛弃疾', type: '作者', sort_order: 12, poem_count: 0, poemCount: 0 },
+  { id: 13, name: '陆游', type: '作者', sort_order: 13, poem_count: 0, poemCount: 0 },
+  { id: 14, name: '李商隐', type: '作者', sort_order: 14, poem_count: 0, poemCount: 0 },
+  { id: 15, name: '杜牧', type: '作者', sort_order: 15, poem_count: 0, poemCount: 0 },
+  { id: 16, name: '王昌龄', type: '作者', sort_order: 16, poem_count: 0, poemCount: 0 }
 ]
+
+function matchMockPoemByCategory(poem, category) {
+  const name = category.name || ''
+  const type = category.type || ''
+  const tags = poem.tags || []
+  const searchable = [poem.title, poem.author, poem.dynasty, poem.content].concat(tags).join(' ')
+
+  if (searchable.indexOf(name) >= 0) {
+    return true
+  }
+
+  if (type === '朝代') {
+    return name.indexOf(poem.dynasty) >= 0
+  }
+
+  const relatedMap = {
+    写景: ['山水', '春天', '秋天', '月'],
+    思乡: ['思乡', '月', '故乡'],
+    飞花令常用: ['月', '山', '水', '春', '秋'],
+    宋词: ['词', '宋词']
+  }
+  const related = relatedMap[name] || []
+
+  return related.some((keyword) => searchable.indexOf(keyword) >= 0)
+}
+
+mockCategories.forEach((category) => {
+  const count = mockPoems.filter((poem) => matchMockPoemByCategory(poem, category)).length
+  category.poem_count = count
+  category.poemCount = count
+})
 
 const squareImages = [
   '/assets/images/square-01.svg',

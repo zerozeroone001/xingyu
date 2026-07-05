@@ -13,34 +13,20 @@
   </view>
 
   <view class="login-card">
-    <view class="form-row">
-      <text class="label">手机号码</text>
-      <view class="input-line">
-        <text class="prefix">+86</text>
-        <input value="{{phone}}" placeholder="请输入手机号" type="number" bindinput="handlePhoneInput" />
-      </view>
-    </view>
-
-    <view class="form-row">
-      <text class="label">验证码</text>
-      <view class="input-line">
-        <input value="{{code}}" placeholder="六位验证码" type="number" bindinput="handleCodeInput" />
-        <view class="code-button" bindtap="getCode">获取验证码</view>
-      </view>
-    </view>
-
-    <view class="login-button" bindtap="handleGuestEnter">立即登录</view>
-
-    <view class="divider">
-      <view></view>
-      <text>或者通过</text>
-      <view></view>
+    <view class="login-copy">
+      <text class="login-heading">微信授权登录</text>
+      <text class="login-desc">授权后同步头像昵称，用于展示个人主页、收藏与创作记录。</text>
     </view>
 
     <view class="wechat-button" bindtap="handleWxLogin">
-      <view class="wechat-dot"></view>
-      <text>微信一键登录</text>
+      <view class="wechat-icon">
+        <view class="wechat-dot wechat-dot--left"></view>
+        <view class="wechat-dot wechat-dot--right"></view>
+      </view>
+      <text>微信授权登录</text>
     </view>
+
+    <view class="guest-button" bindtap="handleGuestEnter">游客浏览</view>
   </view>
 
   <view class="agreement">
